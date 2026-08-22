@@ -1,0 +1,33 @@
+{
+  "name": "delis-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "seed": "tsx src/seed.ts",
+    "test": "tsx src/auth-security.test.ts && tsx src/pricing.test.ts && tsx src/index.test.ts && tsx src/launch-readiness.test.ts && tsx src/payments-config.test.ts && tsx src/stars-waitlist.test.ts && tsx src/extras.test.ts && tsx src/content-addresses.test.ts && tsx src/loyalty-card.test.ts && tsx src/loyalty-migration.test.ts"
+  },
+  "dependencies": {
+    "@fastify/cors": "^10.0.0",
+    "@fastify/rate-limit": "^11.2.0",
+    "@fastify/static": "^10.1.2",
+    "better-sqlite3": "^11.10.0",
+    "dotenv": "^16.0.0",
+    "fastify": "^5.0.0",
+    "grammy": "^1.25.0",
+    "zod": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.0.0",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.6.0"
+  },
+  "allowScripts": {
+    "better-sqlite3@11.10.0": true,
+    "esbuild@0.28.1": true
+  }
+}

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1" />
+    <meta name="theme-color" content="#0A2118" />
+    <meta name="description" content="DELIS — premium home & car care manufactured in Uzbekistan. Telegram Mini App." />
+    <meta property="og:site_name" content="DELIS" />
+    <meta property="og:title" content="DELIS — Home & Auto Care" />
+    <meta property="og:image" content="%BASE_URL%brand/delis-original.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="manifest" href="%BASE_URL%manifest.json" />
+    <link rel="icon" type="image/png" sizes="64x64" href="%BASE_URL%brand/favicon-64.png" />
+    <link rel="apple-touch-icon" href="%BASE_URL%icons/apple-touch-icon.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <!-- Telegram Mini Apps bridge: exposes window.Telegram.WebApp (initData for
+         server auth, native QR popup, haptics). Without this script the app
+         silently runs unauthenticated → admin/API features return 403. -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="DELIS" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <title>DELIS — Premium Home & Car Care · Mini App</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ("serviceWorker" in navigator && !location.hostname.includes("localhost") && !location.hostname.includes("e2b.app")) {
+        window.addEventListener("load", () => {
+          // BASE_URL is replaced by Vite at build time (e.g. /delis-tg/)
+          const base = "%BASE_URL%";
+          navigator.serviceWorker.register(base + "sw.js").catch(() => {});
+        });
+      }
+    </script>
+  </body>
+</html>

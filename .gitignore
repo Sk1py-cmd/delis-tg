@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+server/node_modules/
+
+# Build output
+dist/
+build/
+out/
+
+# Env & secrets
+.env
+.env.local
+server/.env
+*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Data
+server/data/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Test coverage
+coverage/
+
+# GitHub Actions workflows are tracked so Pages deploys the built app.

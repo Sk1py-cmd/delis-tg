@@ -1,0 +1,39 @@
+# DELIS arena backend preview — isolated from the production bot and database.
+# Create this as a SEPARATE Render Blueprint/Web Service.
+services:
+  - type: web
+    name: delis-tg-arena-preview
+    runtime: docker
+    plan: free
+    branch: arena/019ffb0a-delis-tg
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      # Branch frontend used only as an application origin/reference.
+      - key: APP_URL
+        value: https://arena-019ffb0a-delis-tg-delis-tg-admin.mirzaaxmedov2001.workers.dev
+      - key: TZ
+        value: Asia/Tashkent
+      - key: SEED_ON_START
+        value: "true"
+      - key: ENABLE_SEEDED_PROMOS
+        value: "false"
+      - key: TG_INIT_DATA_MAX_AGE_SECONDS
+        value: "86400"
+      # Hard safety boundary: this preview must never send Telegram messages.
+      - key: DELIS_DISABLE_NOTIFY
+        value: "1"
+      # Generate independently for preview: openssl rand -hex 32
+      - key: BROWSER_SESSION_SECRET
+        sync: false
+      # Use provider sandbox/test values only. Never commit their values.
+      - key: PAYME_MERCHANT_ID
+        sync: false
+      - key: PAYME_KEY
+        sync: false
+      - key: CLICK_SERVICE_ID
+        sync: false
+      - key: CLICK_MERCHANT_ID
+        sync: false
+      - key: CLICK_SECRET
+        sync: false

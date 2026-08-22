@@ -1,0 +1,57 @@
+# Render (https://render.com) — one-click deploy, ONE Docker service:
+# Fastify serves the API (/v1/*), the built Mini App (static) and the bot.
+# Secrets marked `sync: false` are filled in the Render dashboard (env tab).
+services:
+  - type: web
+    name: delis-tg-admin
+    runtime: docker
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      # ── обязательные (панель Render → Environment) ──
+      - key: TG_BOT_TOKEN        # от @BotFather
+        sync: false
+      - key: BROWSER_SESSION_SECRET # openssl rand -hex 32; optional, TG_BOT_TOKEN is fallback
+        sync: false
+      - key: ADMIN_CHAT_ID       # твой ID от @userinfobot
+        sync: false
+      - key: SUPABASE_URL        # supabase.com → Project URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY # Settings → API → service_role
+        sync: false
+      # после первого деплоя задай = https://delis-app.onrender.com
+      - key: APP_URL
+        sync: false
+      # ── опциональные ──
+      - key: BOT_USERNAME         # имя бота без @ (для реф-ссылок)
+        sync: false
+      - key: COURIER_CHAT_IDS     # ID курьеров через запятую
+        sync: false
+      - key: SUPPORT_PHONE
+        sync: false
+      - key: SUPPORT_PHONE_2
+        sync: false
+      - key: SUPPORT_MANAGER_TG
+        sync: false
+      - key: PAYME_MERCHANT_ID
+        sync: false
+      - key: PAYME_KEY
+        sync: false
+      - key: CLICK_SERVICE_ID
+        sync: false
+      - key: CLICK_MERCHANT_ID
+        sync: false
+      - key: CLICK_SECRET
+        sync: false
+      # ── значения по умолчанию ──
+      - key: SEED_ON_START
+        value: "true"
+      - key: ENABLE_SEEDED_PROMOS
+        value: "false"
+      - key: TZ
+        value: Asia/Tashkent
+      - key: REPORT_HOUR
+        value: "18"
+      - key: BACKUP_HOUR
+        value: "3"

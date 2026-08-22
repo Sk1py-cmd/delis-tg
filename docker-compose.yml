@@ -1,0 +1,35 @@
+services:
+  delis:
+    build:
+      context: .
+      args:
+        VITE_API_URL: ${VITE_API_URL:-/}
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3001}:3001"
+    environment:
+      PORT: 3001
+      TG_BOT_TOKEN: ${TG_BOT_TOKEN:?Set TG_BOT_TOKEN in .env}
+      BROWSER_SESSION_SECRET: ${BROWSER_SESSION_SECRET:-}
+      TG_INIT_DATA_MAX_AGE_SECONDS: ${TG_INIT_DATA_MAX_AGE_SECONDS:-86400}
+      ADMIN_CHAT_ID: ${ADMIN_CHAT_ID:-0}
+      APP_URL: ${APP_URL:-https://app.delis.uz}
+      BOT_USERNAME: ${BOT_USERNAME:-delisgroup_bot}
+      SEED_ON_START: ${SEED_ON_START:-true}
+      ENABLE_SEEDED_PROMOS: ${ENABLE_SEEDED_PROMOS:-false}
+      TZ: ${TZ:-Asia/Tashkent}
+      REPORT_HOUR: ${REPORT_HOUR:-18}
+      BACKUP_HOUR: ${BACKUP_HOUR:-3}
+      COURIER_CHAT_IDS: ${COURIER_CHAT_IDS:-}
+      SUPPORT_PHONE: ${SUPPORT_PHONE:-+998 88 044-66-55}
+      SUPPORT_PHONE_2: ${SUPPORT_PHONE_2:-+998 94 331-64-64}
+      SUPPORT_MANAGER_TG: ${SUPPORT_MANAGER_TG:-@Sk1py}
+      PAYME_MERCHANT_ID: ${PAYME_MERCHANT_ID:-}
+      PAYME_KEY: ${PAYME_KEY:-}
+      CLICK_SERVICE_ID: ${CLICK_SERVICE_ID:-}
+      CLICK_MERCHANT_ID: ${CLICK_MERCHANT_ID:-}
+      CLICK_SECRET: ${CLICK_SECRET:-}
+      SUPABASE_URL: ${SUPABASE_URL:-}
+      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY:-}
+    volumes:
+      - ./server/data:/app/server/data

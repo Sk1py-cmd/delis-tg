@@ -1,0 +1,11 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "installCommand": "npm ci",
+  "rewrites": [
+    { "source": "/v1/:path*", "destination": "https://delis-tg-admin.onrender.com/v1/:path*" },
+    { "source": "/health", "destination": "https://delis-tg-admin.onrender.com/health" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

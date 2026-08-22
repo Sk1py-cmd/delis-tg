@@ -676,18 +676,43 @@ export async function createStarsInvoice(orderId: string): Promise<{
 
 /* ─────────── Admin Secured Actions ─────────── */
 
-export async function adminAddProduct(product: Product): Promise<{ ok: boolean } | null> {
-  return apiFetch("/v1/admin/products", {
-    method: "POST",
-    body: JSON.stringify(product),
-  });
+/** Result of an admin catalog mutation. `offline` distinguishes a network
+ *  failure from an actual server rejection, so the admin panel can surface
+ *  the real reason and never leave a phantom product in the local catalog
+ *  (a product that appears in the UI but cannot be ordered because the
+ *  server never saved it). */
+export type AdminSaveOutcome =
+  | { ok: true; id?: string; img?: string }
+  | { ok: false; offline: boolean; status?: number; error?: string };
+
+export async function adminAddProduct(product: Product): Promise<AdminSaveOutcome> {
+  try {
+    const res = await fetch(`${BASE}/v1/admin/products`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...authHeader() },
+      body: JSON.stringify(product),
+    });
+    const body = await res.json().catch(() => null) as { id?: string; img?: string; error?: string } | null;
+    if (res.ok) return { ok: true, id: body?.id, img: body?.img };
+    return { ok: false, offline: false, status: res.status, error: body?.error };
+  } catch {
+    return { ok: false, offline: true };
+  }
 }
 
-export async function adminUpdateProduct(productId: string, patch: Partial<Product>): Promise<{ ok: boolean } | null> {
-  return apiFetch(`/v1/admin/products/${productId}/update`, {
-    method: "POST",
-    body: JSON.stringify(patch),
-  });
+export async function adminUpdateProduct(productId: string, patch: Partial<Product>): Promise<AdminSaveOutcome> {
+  try {
+    const res = await fetch(`${BASE}/v1/admin/products/${encodeURIComponent(productId)}/update`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...authHeader() },
+      body: JSON.stringify(patch),
+    });
+    if (res.ok) return { ok: true };
+    const body = await res.json().catch(() => null) as { error?: string } | null;
+    return { ok: false, offline: false, status: res.status, error: body?.error };
+  } catch {
+    return { ok: false, offline: true };
+  }
 }
 
 /** Upload a product photo (already compressed data URL). Returns the final image URL. */

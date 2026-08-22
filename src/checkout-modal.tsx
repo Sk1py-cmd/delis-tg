@@ -519,7 +519,7 @@ export function CheckoutSheet({
       // A product was removed/disabled after it entered the cart. Keep the cart
       // visible and let the customer remove or replace the stale line.
       setIsSubmitting(false);
-      setOrderError(t("orderRejected"));
+      setOrderError(t("orderProductUnavailable"));
       haptic("error");
       return;
     }
@@ -550,6 +550,7 @@ export function CheckoutSheet({
       const telegramRequired = rejected && (res.status === 401 || starsRequired);
       const paymentUnavailable = rejected && res.error === "payment_not_configured";
       const stockChanged = rejected && res.error === "insufficient_stock";
+      const productUnavailable = rejected && (res.error === "unknown_product" || res.error === "inactive_product");
       setRequiresTelegram(telegramRequired);
       setOrderError(
         telegramRequired
@@ -570,12 +571,18 @@ export function CheckoutSheet({
               : lang === "en"
                 ? "This payment method is temporarily unavailable. Go back and choose another one."
                 : "Bu to'lov usuli vaqtincha mavjud emas. Orqaga qaytib, boshqa usulni tanlang."
-          : stockChanged
-            ? lang === "ru"
-              ? "Остаток одного из товаров изменился. Вернитесь в корзину и обновите количество."
-              : lang === "en"
-                ? "Stock changed for one of the items. Return to the cart and update the quantity."
-                : "Mahsulotlardan birining qoldig'i o'zgardi. Savatga qaytib miqdorni yangilang."
+            : stockChanged
+              ? lang === "ru"
+                ? "Остаток одного из товаров изменился. Вернитесь в корзину и обновите количество."
+                : lang === "en"
+                  ? "Stock changed for one of the items. Return to the cart and update the quantity."
+                  : "Mahsulotlardan birining qoldig'i o'zgardi. Savatga qaytib miqdorni yangilang."
+            : productUnavailable
+              ? lang === "ru"
+                ? "Один из товаров недоступен на сервере. Вернитесь в каталог, обновите его и попробуйте снова."
+                : lang === "en"
+                  ? "One of the items is no longer available on the server. Refresh the catalog and try again."
+                  : "Mahsulotlardan biri serverda mavjud emas. Katalogga qaytib, yangilab qayta urinib ko'ring."
             : guarded
               ? lang === "ru"
                 ? "Эта награда не подходит к выбранной корзине. Уберите купон или измените состав заказа."

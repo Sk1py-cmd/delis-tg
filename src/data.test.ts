@@ -130,7 +130,9 @@ describe("mobile design regressions", () => {
     expect(categories).toContain("motion-icon-tile absolute right-5 top-5");
     expect(stories).toContain("line-clamp-2 h-7 w-[76px]");
     expect(stories).not.toContain("story.title[lang].slice");
-    expect(chrome).toContain("max-h-[92dvh]");
+    expect(chrome).toContain("sheet-panel");
+    expect(css).toContain(".sheet-panel");
+    expect(css).toMatch(/\.sheet-panel\s*\{\s*max-height: 92vh/);
     expect(checkout).toContain("checkout-cart-footer");
     expect(checkout).toContain("mt-3 grid grid-cols-2 gap-2.5");
     expect(checkout).toContain("h-11 w-11");

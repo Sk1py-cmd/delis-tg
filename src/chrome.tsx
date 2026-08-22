@@ -1,7 +1,7 @@
 /**
  * DELIS — «Каркас» интерфейса: верхняя панель с брендом, нижняя навигация по вкладкам, заголовки секций, всплывающие тосты и кнопка «наверх». То, что повторяется на всех экранах.
  */
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode, type Ref } from "react";
 import { useI18n, type TKey } from "./i18n";
 import { haptic, lockScroll, Reveal, unlockScroll } from "./kit";
 import { IconArrow, IconBag, IconBell, IconBox, IconClose, IconDots, IconGrid, IconHome, IconMoon, IconSun, IconUser } from "./icons";
@@ -239,6 +239,7 @@ export function Sheet({
   title,
   footer,
   panelClassName,
+  contentRef,
 }: {
   open: boolean;
   onClose: () => void;
@@ -247,6 +248,8 @@ export function Sheet({
   footer?: ReactNode;
   /** Extra classes for the panel container (e.g. scoped theme wrappers). */
   panelClassName?: string;
+  /** Optional ref to the inner scroll container (reset position, etc.). */
+  contentRef?: Ref<HTMLDivElement>;
 }) {
   const [mounted, setMounted] = useState(open);
   const [shown, setShown] = useState(false);
@@ -281,7 +284,7 @@ export function Sheet({
         onClick={onClose}
       />
       <div
-        className={`absolute bottom-0 left-1/2 flex max-h-[92dvh] w-full max-w-[430px] -translate-x-1/2 flex-col rounded-t-[30px] border-t border-ink/15 bg-paper shadow-lift transition-transform duration-[420ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+        className={`sheet-panel absolute bottom-0 left-1/2 flex w-full max-w-[430px] -translate-x-1/2 flex-col rounded-t-[30px] border-t border-ink/15 bg-paper shadow-lift transition-transform duration-[420ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
           shown ? "translate-y-0" : "translate-y-full"
         } ${panelClassName || ""}`}
       >
@@ -300,7 +303,7 @@ export function Sheet({
             </button>
           </div>
         )}
-        <div className="no-scrollbar flex-1 overflow-y-auto px-4 pb-[calc(env(safe-area-inset-bottom,0px)+24px)] min-[390px]:px-6 min-[390px]:pb-[calc(env(safe-area-inset-bottom,0px)+28px)] pt-2 text-ink">
+        <div ref={contentRef} className="no-scrollbar flex-1 overflow-y-auto px-4 pb-[calc(env(safe-area-inset-bottom,0px)+24px)] min-[390px]:px-6 min-[390px]:pb-[calc(env(safe-area-inset-bottom,0px)+28px)] pt-2 text-ink">
           {children}
         </div>
         {footer && (

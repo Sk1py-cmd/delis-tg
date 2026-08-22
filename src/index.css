@@ -1065,6 +1065,126 @@ a:focus:not(:focus-visible) {
   transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
 }
 
+/* ---------------- ADMIN PRO — graphite & champagne ---------------- */
+/* Scoped theme for the admin panel. Every color utility inside the panel
+   resolves through these variables, so the whole console re-themes here
+   without touching feature code, regardless of the app's light/dark mode. */
+.admin-pro {
+  --color-paper: #0c0f16;
+  --color-paper2: #141a26;
+  --color-card: #171e2c;
+
+  --color-ink: #eef1f6;
+  --color-ink2: #8b96aa;
+
+  --color-pine: #f6f8fb;
+  --color-pinedeep: #05070b;
+  --color-moss: #4ade80;
+  --color-sage: #86efac;
+  --color-sagetint: #10301f;
+
+  --color-amber: #e8c874;
+  --color-amberdeep: #f5e5b4;
+
+  --color-graphite: #eef1f6;
+  --color-graphite2: #c7d0dd;
+
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.5);
+  --shadow-lift: 0 24px 60px -18px rgb(0 0 0 / 0.75);
+  --shadow-nav: 0 18px 44px -16px rgb(0 0 0 / 0.85);
+}
+
+.admin-sheet {
+  border-radius: 26px 26px 0 0 !important;
+}
+
+/* Gold CTA buttons keep dark text for contrast. */
+.admin-pro .bg-amber.text-white { color: #17110a; }
+
+/* Hero header — deep graphite with a subtle blueprint grid. */
+.admin-hero {
+  position: relative;
+  background:
+    radial-gradient(130% 150% at 18% -12%, #252e42 0%, #121826 44%, #0a0d14 100%);
+}
+.admin-grid-bg {
+  background-image:
+    linear-gradient(rgb(255 255 255 / 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.04) 1px, transparent 1px);
+  background-size: 26px 26px;
+  -webkit-mask-image: radial-gradient(130% 110% at 50% 0%, black 52%, transparent 100%);
+  mask-image: radial-gradient(130% 110% at 50% 0%, black 52%, transparent 100%);
+}
+
+.admin-logo-tile {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  border: 1px solid rgb(232 200 116 / 0.38);
+  background: linear-gradient(160deg, rgb(232 200 116 / 0.18), rgb(232 200 116 / 0.03));
+  box-shadow:
+    0 12px 26px -12px rgb(232 200 116 / 0.5),
+    inset 0 1px 0 rgb(255 255 255 / 0.14);
+}
+
+.admin-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  border: 1px solid rgb(74 222 128 / 0.32);
+  background: rgb(74 222 128 / 0.1);
+  padding: 4px 10px;
+  color: #4ade80;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+.admin-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #4ade80;
+  animation: admin-pulse 1.8s infinite;
+}
+@keyframes admin-pulse {
+  0% { box-shadow: 0 0 0 0 rgb(74 222 128 / 0.45); }
+  70% { box-shadow: 0 0 0 7px rgb(74 222 128 / 0); }
+  100% { box-shadow: 0 0 0 0 rgb(74 222 128 / 0); }
+}
+
+.admin-hero-chip {
+  border-radius: 16px;
+  border: 1px solid rgb(255 255 255 / 0.09);
+  background: rgb(255 255 255 / 0.05);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 14px 30px -22px rgb(0 0 0 / 0.9);
+}
+
+/* Pin login — glassy, letter-spaced input. */
+.admin-pin-input {
+  border-radius: 18px;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  background: rgb(255 255 255 / 0.05);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06);
+  backdrop-filter: blur(8px);
+}
+.admin-pin-input:focus {
+  border-color: rgb(232 200 116 / 0.55);
+  box-shadow:
+    0 0 0 3px rgb(232 200 116 / 0.12),
+    inset 0 1px 0 rgb(255 255 255 / 0.08);
+}
+
+/* Subtle top sheen on every card for depth. */
+.admin-pro [class*="rounded-[22px]"],
+.admin-pro [class*="rounded-[24px]"] {
+  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.035), transparent 38%);
+}
+
 /* ---------------- Graphite Digital loyalty system ---------------- */
 @keyframes loyalty-grid-drift {
   to { background-position: 36px 36px; }

@@ -3,7 +3,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { I18nProvider, useI18n, type Lang } from "./i18n";
-import { fetchOrders, fetchMe, fetchReferral, fetchProducts, fetchPromos, fetchDeliveryConfig, fetchLoyaltyCard, fetchLoyaltyConfig, fetchFavorites, toggleFavorite as apiToggleFavorite, fetchAddresses, fetchReviews, saveAddress as apiSaveAddress, deleteAddress as apiDeleteAddress, fetchReturns, fetchAdminReturns, createReturnRequest, adminSetReturnStatus, prepareBrowserCheckoutSession, hasTelegramSession, isApiConfigured, redeemStarsReward as apiRedeemStarsReward, joinWaitlist as apiJoinWaitlist, fetchAdminWaitlist, adminNotifyWaitlist, attachReferral as apiAttachReferral, type LoyaltyCardResponse, type LoyaltyConfig } from "./api";
+import { fetchOrders, fetchMe, fetchReferral, fetchProducts, fetchPromos, fetchDeliveryConfig, fetchLoyaltyCard, fetchLoyaltyConfig, fetchFavorites, toggleFavorite as apiToggleFavorite, fetchAddresses, fetchReviews, saveAddress as apiSaveAddress, deleteAddress as apiDeleteAddress, fetchReturns, fetchAdminReturns, createReturnRequest, adminSetReturnStatus, prepareBrowserCheckoutSession, hasTelegramSession, isApiConfigured, redeemStarsReward as apiRedeemStarsReward, joinWaitlist as apiJoinWaitlist, fetchAdminWaitlist, adminNotifyWaitlist, attachReferral as apiAttachReferral, adminAddProduct, adminUpdateProduct, type AdminSaveOutcome, type LoyaltyCardResponse, type LoyaltyConfig } from "./api";
 import { LoyaltyCard, type LoyaltyCardData } from "./loyalty-card";
 import { StarsShopSheet, type StarsReward } from "./stars-shop";
 import { GiftCertificateSheet } from "./gift-certificate";
@@ -729,14 +729,18 @@ function Shell() {
   );
 
   const handleUpdateProduct = useCallback(
-    (productId: string, patch: Partial<Product>) => {
-      setProductsList((prev) =>
-        prev.map((p) => (p.id === productId ? { ...p, ...patch } : p)),
+    async (productId: string, patch: Partial<Product>): Promise<AdminSaveOutcome> => {
+      const prev = productsList.find((p) => p.id === productId);
+      // Optimistic paint first, then confirm with the server.
+      setProductsList((list) =>
+        list.map((p) => (p.id === productId ? { ...p, ...patch } : p)),
       );
-      // Secure backend update
-      import("./api").then(({ adminUpdateProduct }) => {
-        adminUpdateProduct(productId, patch);
-      }).catch(() => {});
+      const outcome = await adminUpdateProduct(productId, patch);
+      if (!outcome.ok) {
+        // Roll back so the UI never shows a change the server rejected.
+        if (prev) setProductsList((list) => list.map((p) => (p.id === productId ? prev : p)));
+        return outcome;
+      }
 
       try {
         const overrides = JSON.parse(localStorage.getItem("delis_product_overrides") || "{}") as Record<string, Partial<Product>>;
@@ -753,23 +757,27 @@ function Shell() {
         detail: `${p?.name ?? productId}${detail ? `: ${detail}` : ""}`,
         operator: "Admin",
       });
+      return { ok: true };
     },
-    [t],
+    [productsList, t],
   );
 
-  const handleAddProduct = useCallback((product: Product) => {
-    setProductsList((prev) => [product, ...prev]);
-    // Secure backend save
-    import("./api").then(({ adminAddProduct }) => {
-      adminAddProduct(product);
-    }).catch(() => {});
+  const handleAddProduct = useCallback(async (product: Product): Promise<AdminSaveOutcome> => {
+    // Server-first: the product must exist in the DB before it is shown in the
+    // catalog, otherwise it would appear in the UI but fail at checkout
+    // (server rejects the order with "unknown_product").
+    const outcome = await adminAddProduct(product);
+    if (!outcome.ok) return outcome;
 
+    const savedProduct = { ...product, img: outcome.img || product.img };
+    setProductsList((prev) => [savedProduct, ...prev]);
     try {
       const custom = JSON.parse(localStorage.getItem("delis_custom_products") || "[]") as Product[];
-      custom.push(product);
+      custom.push(savedProduct);
       localStorage.setItem("delis_custom_products", JSON.stringify(custom));
     } catch {}
     appendOpLog({ action: t("opAdd"), detail: `${product.name} (${product.price} UZS)`, operator: "Admin" });
+    return { ok: true };
   }, [t]);
 
   const handleMoveProduct = useCallback((productId: string, dir: -1 | 1) => {
@@ -785,19 +793,23 @@ function Shell() {
     });
   }, []);
 
-  const handleDeleteProduct = useCallback((productId: string) => {
-    setProductsList((prev) => prev.filter((p) => p.id !== productId));
-    // Secure backend delete (active = 0)
-    import("./api").then(({ adminUpdateProduct }) => {
-      adminUpdateProduct(productId, { active: false } as any);
-    }).catch(() => {});
+  const handleDeleteProduct = useCallback(async (productId: string): Promise<AdminSaveOutcome> => {
+    const prev = productsList.find((p) => p.id === productId);
+    setProductsList((list) => list.filter((p) => p.id !== productId));
+    // Secure backend delete (active = 0) — restore the row if the server says no.
+    const outcome = await adminUpdateProduct(productId, { active: false } as any);
+    if (!outcome.ok) {
+      if (prev) setProductsList((list) => (list.some((p) => p.id === productId) ? list : [prev, ...list]));
+      return outcome;
+    }
 
     try {
       const custom = JSON.parse(localStorage.getItem("delis_custom_products") || "[]") as Product[];
       localStorage.setItem("delis_custom_products", JSON.stringify(custom.filter((p) => p.id !== productId)));
     } catch {}
     appendOpLog({ action: "Delete", detail: `Product #${productId}`, operator: "Admin" });
-  }, []);
+    return { ok: true };
+  }, [productsList]);
 
   const handleUpdateReturnStatus = useCallback((returnId: string, status: ReturnRequest["status"]) => {
     if (status === "pending") return;

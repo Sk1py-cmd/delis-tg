@@ -1,7 +1,7 @@
 /**
  * DELIS — Админ-панель: управление заказами, товарами, промокодами, доставкой. Точка входа для всех админ-функций.
  */
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useI18n } from "./i18n";
 import {
   type Order,
@@ -23,6 +23,7 @@ import {
   serverPromosToMap,
 } from "./data";
 import type { ReturnRequest } from "./features-extra";
+import type { AdminSaveOutcome } from "./api";
 import { formatPrice, haptic, compressImageFile } from "./kit";
 import { IconBox, IconChart, IconCheck, IconClock, IconClose, IconCopy, IconCreditCard, IconDownload, IconFactory, IconFileText, IconLock, IconMedal, IconPhone, IconPlus, IconRefresh, IconSend, IconSettings, IconShield, IconSparkle, IconSymbol, IconTag, IconTrash, IconUser, IconUserCheck, IconTruck } from "./icons";
 import { Sheet } from "./chrome";
@@ -81,9 +82,9 @@ export function AdminPanelSheet({
   orders: Order[];
   onUpdateOrderStatus: (orderId: string, status: Order["status"], extra?: { btsCode?: string; courierName?: string }) => void;
   products: Product[];
-  onUpdateProduct: (productId: string, patch: Partial<Product>) => void;
-  onAddProduct: (product: Product) => void;
-  onDeleteProduct: (productId: string) => void;
+  onUpdateProduct: (productId: string, patch: Partial<Product>) => Promise<AdminSaveOutcome>;
+  onAddProduct: (product: Product) => Promise<AdminSaveOutcome>;
+  onDeleteProduct: (productId: string) => Promise<AdminSaveOutcome>;
   onMoveProduct?: (productId: string, dir: -1 | 1) => void;
   returns: ReturnRequest[];
   onUpdateReturnStatus: (returnId: string, status: ReturnRequest["status"]) => void;
@@ -93,6 +94,11 @@ export function AdminPanelSheet({
   onOpenPush: () => void;
 }) {
   const { t, lang } = useI18n();
+
+  // Scroll container of the underlying Sheet — reset to the top when the
+  // admin opens, logs in, or switches tabs, so the user never lands in the
+  // middle of a long tab ("scrolls to the wrong place").
+  const sheetScrollRef = useRef<HTMLDivElement>(null);
 
   // Authentication state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -122,6 +128,13 @@ export function AdminPanelSheet({
       localStorage.setItem("delis_admin_tab", activeTab);
     } catch { /* ignore */ }
   }, [activeTab]);
+
+  // Reset the sheet scroll whenever the panel opens, the admin logs in, or
+  // the active tab changes — otherwise the user lands in the middle of a
+  // long tab after switching.
+  useEffect(() => {
+    sheetScrollRef.current?.scrollTo({ top: 0 });
+  }, [open, isAuthenticated, activeTab]);
 
   // Order manager: status filter + search
   const [orderFilter, setOrderFilter] = useState<"all" | Order["status"]>("all");
@@ -216,6 +229,7 @@ export function AdminPanelSheet({
 
   // New product creation state
   const [showNewProduct, setShowNewProduct] = useState(false);
+  const [savingNewProduct, setSavingNewProduct] = useState(false);
   const [newProductName, setNewProductName] = useState("");
   const [newProductPrice, setNewProductPrice] = useState("");
   const [newProductCat, setNewProductCat] = useState<"home" | "car">("home");
@@ -246,7 +260,7 @@ export function AdminPanelSheet({
     });
   };
 
-  const applyBulkEdit = () => {
+  const applyBulkEdit = async () => {
     const priceVal = parseInt(bulkPrice, 10);
     const stockVal = parseInt(bulkStock, 10);
     if (selectedForBulk.size === 0) return;
@@ -255,22 +269,27 @@ export function AdminPanelSheet({
       return;
     }
     let n = 0;
-    selectedForBulk.forEach((id) => {
+    let failed = 0;
+    for (const id of selectedForBulk) {
       const target = products.find((p) => p.id === id);
-      if (!target) return;
+      if (!target) continue;
       const patch: Partial<Product> = {};
       if (bulkPrice.trim() !== "" && !isNaN(priceVal) && priceVal >= 1000) patch.price = priceVal;
       if (bulkStock.trim() !== "" && !isNaN(stockVal) && stockVal >= 0) patch.stock = stockVal;
-      if (Object.keys(patch).length === 0) return;
-      onUpdateProduct(id, patch);
-      n += 1;
-    });
+      if (Object.keys(patch).length === 0) continue;
+      const outcome = await onUpdateProduct(id, patch);
+      if (outcome.ok) n += 1;
+      else failed += 1;
+    }
     if (n > 0) {
       haptic("success");
       onToast(lang === "ru" ? `✓ Обновлено товаров: ${n}` : lang === "en" ? `✓ Updated products: ${n}` : `✓ Yangilangan mahsulotlar: ${n}`);
       setSelectedForBulk(new Set());
       setBulkPrice("");
       setBulkStock("");
+    } else {
+      haptic("error");
+      onToast(lang === "ru" ? "Не удалось обновить товары на сервере" : lang === "en" ? "Could not update products on the server" : "Mahsulotlarni serverda yangilab bo'lmadi");
     }
   };
 
@@ -278,10 +297,11 @@ export function AdminPanelSheet({
   const [showImport, setShowImport] = useState(false);
   const [importText, setImportText] = useState("");
 
-  const handleImportProducts = () => {
+  const handleImportProducts = async () => {
     // Expected format per line:  name;price;category(home|car);volume;stock;cost
     const lines = importText.split("\n").map((l) => l.trim()).filter(Boolean);
     let added = 0;
+    let failed = 0;
     for (const line of lines) {
       const parts = line.split(";").map((s) => s.trim());
       if (parts.length < 2) continue;
@@ -308,10 +328,15 @@ export function AdminPanelSheet({
         reviews: [],
         stock: stockStr ? parseInt(stockStr, 10) || 0 : 0,
       };
-      onAddProduct(product);
-      added++;
+      const outcome = await onAddProduct(product);
+      if (outcome.ok) added++;
+      else failed++;
     }
     haptic(added > 0 ? "success" : "error");
+    if (failed > 0 && added === 0) {
+      onToast(lang === "ru" ? "Товары не сохранены — проверьте права администратора и сервер" : lang === "en" ? "Products were not saved — check admin rights and the server" : "Mahsulotlar saqlanmadi — admin huquqi va serverni tekshiring");
+      return;
+    }
     onToast(
       added > 0
         ? (lang === "ru" ? `✓ Импортировано товаров: ${added}` : lang === "en" ? `✓ Imported products: ${added}` : `✓ Import qilindi: ${added}`)
@@ -394,12 +419,12 @@ export function AdminPanelSheet({
     setConfirmPin("");
   };
 
-  const handleAddProduct = () => {
+  const handleAddProduct = async () => {
     const name = newProductName.trim();
     const price = parseInt(newProductPrice);
     if (!name || isNaN(price) || price < 1000) { onToast("Mahsulot nomini va narxini kiriting"); return; }
 
-    haptic("success");
+    haptic("medium");
     const newId = `custom-${Date.now()}`;
     const newProduct: Product = {
       id: newId,
@@ -424,7 +449,25 @@ export function AdminPanelSheet({
       stock: Number(newProductStock) || 0,
     };
 
-    onAddProduct(newProduct);
+    // Server-first: only when the backend confirms the save does the product
+    // enter the catalog. Otherwise it would look added but fail at checkout.
+    setSavingNewProduct(true);
+    const outcome = await onAddProduct(newProduct);
+    setSavingNewProduct(false);
+
+    if (!outcome.ok) {
+      haptic("error");
+      if (outcome.offline) {
+        onToast(lang === "ru" ? "Сервер недоступен — товар не сохранён" : lang === "en" ? "Server unreachable — product was not saved" : "Serverga ulanib bo'lmadi — mahsulot saqlanmadi");
+      } else if (outcome.status === 403) {
+        onToast(lang === "ru" ? "Нет прав администратора — товар не сохранён на сервере" : lang === "en" ? "No admin rights — product was not saved on the server" : "Admin huquqi yo'q — mahsulot serverda saqlanmadi");
+      } else {
+        onToast(lang === "ru" ? "Товар не сохранён на сервере — попробуйте ещё раз" : lang === "en" ? "Product was not saved on the server — try again" : "Mahsulot serverda saqlanmadi — qayta urinib ko'ring");
+      }
+      return;
+    }
+
+    haptic("success");
     onToast(`✓ ${name} qo'shildi!`);
     setShowNewProduct(false);
     setNewProductName("");
@@ -450,8 +493,15 @@ export function AdminPanelSheet({
     }
     haptic("light");
     setConfirmDeleteId(null);
-    onDeleteProduct(productId);
-    onToast("🗑️ " + (lang === "ru" ? "Товар удалён" : lang === "en" ? "Product deleted" : "Mahsulot o'chirildi"));
+    void (async () => {
+      const outcome = await onDeleteProduct(productId);
+      if (!outcome.ok) {
+        haptic("error");
+        onToast(lang === "ru" ? "Не удалось удалить товар на сервере" : lang === "en" ? "Could not delete product on the server" : "Mahsulotni serverda o'chirib bo'lmadi");
+        return;
+      }
+      onToast("🗑️ " + (lang === "ru" ? "Товар удалён" : lang === "en" ? "Product deleted" : "Mahsulot o'chirildi"));
+    })();
   };
 
   const cancelDelete = () => setConfirmDeleteId(null);
@@ -541,24 +591,34 @@ export function AdminPanelSheet({
     };
   }, [rangeOrders]);
 
-  const handleStockUpdate = (productId: string) => {
+  const handleStockUpdate = async (productId: string) => {
     const delta = parseInt(stockDelta, 10);
     if (isNaN(delta)) return;
     const target = products.find((p) => p.id === productId);
     if (!target) return;
     const nextStock = Math.max(0, (target.stock || 0) + delta);
-    onUpdateProduct(productId, { stock: nextStock });
+    const outcome = await onUpdateProduct(productId, { stock: nextStock });
+    if (!outcome.ok) {
+      haptic("error");
+      onToast(lang === "ru" ? "Не удалось обновить остаток на сервере" : lang === "en" ? "Could not update stock on the server" : "Qoldiqni serverda yangilab bo'lmadi");
+      return;
+    }
     haptic("success");
     onToast(`${target.name}: ${t("stockWarehouse")} +${delta} (${nextStock} ${t("stockUnits")})`);
     setEditingProductId(null);
   };
 
-  const handlePriceUpdate = (productId: string) => {
+  const handlePriceUpdate = async (productId: string) => {
     const priceVal = parseInt(newPrice, 10);
     if (isNaN(priceVal) || priceVal < 1000) return;
     const target = products.find((p) => p.id === productId);
     if (!target) return;
-    onUpdateProduct(productId, { price: priceVal });
+    const outcome = await onUpdateProduct(productId, { price: priceVal });
+    if (!outcome.ok) {
+      haptic("error");
+      onToast(lang === "ru" ? "Не удалось обновить цену на сервере" : lang === "en" ? "Could not update price on the server" : "Narxni serverda yangilab bo'lmadi");
+      return;
+    }
     haptic("success");
     onToast(`${target.name}: ${formatPrice(priceVal, lang)}`);
     setEditingProductId(null);
@@ -575,6 +635,7 @@ export function AdminPanelSheet({
       }}
       title={undefined}
       panelClassName="admin-pro admin-sheet"
+      contentRef={sheetScrollRef}
     >
       {!isAuthenticated ? (
         /* PIN Login Screen — premium lock */
@@ -971,10 +1032,11 @@ export function AdminPanelSheet({
                 className="w-full resize-none rounded-[12px] border border-ink/18 bg-paper px-3 py-2.5 text-[13px] font-semibold text-ink outline-none focus:border-moss"
               />
               <button
-                onClick={handleAddProduct}
-                className="press h-10 w-full rounded-[12px] bg-moss text-[12px] font-bold text-white"
+                onClick={() => void handleAddProduct()}
+                disabled={savingNewProduct}
+                className="press h-10 w-full rounded-[12px] bg-moss text-[12px] font-bold text-white disabled:opacity-50"
               >
-                <span className="inline-flex items-center gap-1"><IconCheck size={14} /> Mahsulotni qo'shish</span>
+                <span className="inline-flex items-center gap-1">{savingNewProduct ? <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/50 border-t-white" /> : <IconCheck size={14} />} {savingNewProduct ? (lang === "ru" ? "Сохранение…" : lang === "en" ? "Saving…" : "Saqlanmoqda…") : "Mahsulotni qo'shish"}</span>
               </button>
             </div>
           )}
@@ -1945,18 +2007,26 @@ export function AdminPanelSheet({
                         {/* Save all changes button */}
                         <button
                           onClick={() => {
-                            haptic("success");
-                            onUpdateProduct(p.id, {
-                              name: editName,
-                              cat: editCat,
-                              volume: editVolume,
-                              volumes: editVolumes.length > 0 ? editVolumes.map((l) => ({ label: l, liters: parseFloat(l) * (l.includes("ml") ? 0.001 : 1) })) : undefined,
-                              costPrice: editCostPrice ? parseInt(editCostPrice) : undefined,
-                              badge: editBadge || undefined,
-                              desc: { uz: editDesc, ru: editDesc, en: editDesc } as any,
-                            });
-                            onToast("✓ " + editName + " yangilandi!");
-                            setEditingProductId(null);
+                            void (async () => {
+                              haptic("medium");
+                              const outcome = await onUpdateProduct(p.id, {
+                                name: editName,
+                                cat: editCat,
+                                volume: editVolume,
+                                volumes: editVolumes.length > 0 ? editVolumes.map((l) => ({ label: l, liters: parseFloat(l) * (l.includes("ml") ? 0.001 : 1) })) : undefined,
+                                costPrice: editCostPrice ? parseInt(editCostPrice) : undefined,
+                                badge: editBadge || undefined,
+                                desc: { uz: editDesc, ru: editDesc, en: editDesc } as any,
+                              });
+                              if (!outcome.ok) {
+                                haptic("error");
+                                onToast(lang === "ru" ? "Не удалось сохранить изменения на сервере" : lang === "en" ? "Could not save changes on the server" : "O'zgarishlarni serverda saqlab bo'lmadi");
+                                return;
+                              }
+                              haptic("success");
+                              onToast("✓ " + editName + " yangilandi!");
+                              setEditingProductId(null);
+                            })();
                           }}
                           className="press flex h-10 w-full items-center justify-center gap-2 rounded-[14px] bg-moss text-[12.5px] font-bold text-white"
                         >

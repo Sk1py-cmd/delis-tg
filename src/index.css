@@ -773,6 +773,19 @@ a:focus:not(:focus-visible) {
   -ms-overflow-style: none;
 }
 
+/* Bottom sheets: cap height in `vh` first (every WebView understands it),
+   then upgrade to `dvh` on modern browsers. Without this fallback an older
+   WebView drops the max-height entirely and the sheet grows past the screen,
+   so its internal scroll never engages. */
+.sheet-panel {
+  max-height: 92vh;
+}
+@supports (height: 100dvh) {
+  .sheet-panel {
+    max-height: 92dvh;
+  }
+}
+
 .noise-layer {
   pointer-events: none;
   position: absolute;

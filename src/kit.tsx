@@ -321,10 +321,16 @@ let scrollLockCount = 0;
 export function lockScroll() {
   scrollLockCount++;
   document.body.style.overflow = "hidden";
+  // Some WebViews (iOS Safari / Telegram) scroll the <html> element, not
+  // <body> — lock both so the page behind a sheet never moves.
+  document.documentElement.style.overflow = "hidden";
 }
 export function unlockScroll() {
   scrollLockCount = Math.max(0, scrollLockCount - 1);
-  if (scrollLockCount === 0) document.body.style.overflow = "";
+  if (scrollLockCount === 0) {
+    document.body.style.overflow = "";
+    document.documentElement.style.overflow = "";
+  }
 }
 
 export function haptic(style: "light" | "medium" | "success" | "error" = "light") {

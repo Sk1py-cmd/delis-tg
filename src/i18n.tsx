@@ -826,6 +826,7 @@ const dict = {
     payTimeRemaining: "To'lov uchun qolgan vaqt",
     payCopiedInvoice: "Hisob raqami nusxalandi!",
     orderRejected: "Buyurtmani rasmiylashtirib bo'lmadi. Ma'lumotlarni tekshirib qayta urinib ko'ring.",
+    orderProductUnavailable: "Mahsulotlardan biri serverda mavjud emas. Katalogga qaytib, yangilab qayta urinib ko'ring.",
     orderOffline: "Internet bilan aloqa yo'q. Savat saqlandi — ulanish tiklangach qayta urinib ko'ring.",
     /* convenience: csv, print, logs, quick call */
     csvTitle: "CSV eksport (1C / Excel)",
@@ -1725,6 +1726,7 @@ const dict = {
     payTimeRemaining: "Оставшееся время на оплату",
     payCopiedInvoice: "Номер счёта скопирован!",
     orderRejected: "Не удалось оформить заказ. Проверьте данные и попробуйте ещё раз.",
+    orderProductUnavailable: "Один из товаров недоступен на сервере. Вернитесь в каталог, обновите его и попробуйте снова.",
     orderOffline: "Нет связи с интернетом. Корзина сохранена — повторите попытку после восстановления соединения.",
     /* convenience: csv, print, logs, quick call */
     csvTitle: "CSV экспорт (1С / Excel)",
@@ -2624,6 +2626,7 @@ const dict = {
     payTimeRemaining: "Time remaining to pay",
     payCopiedInvoice: "Invoice number copied!",
     orderRejected: "Couldn't place the order. Please check the details and try again.",
+    orderProductUnavailable: "One of the items is no longer available on the server. Refresh the catalog and try again.",
     orderOffline: "No internet connection. Your cart is saved — try again when the connection is restored.",
     /* convenience: csv, print, logs, quick call */
     csvTitle: "CSV Export (1C / Excel)",

@@ -1326,11 +1326,29 @@ export function startBot(db: Database.Database) {
     clearInterval(adminRetryTimer);
   });
 
-  bot.start({
-    onStart: () => {
-      console.log("🤖 DELIS Telegram bot running.");
-      void retryPendingAdminOrders();
-      void checkSubscriptions();
-    },
-  });
+  /* Poll with self-healing: a 409 conflict means another process is polling
+     getUpdates with the same token (rolling deploy overlap, a second service
+     or a local run). That must never crash the API — retry with backoff. */
+  const startPolling = async (attempt = 0): Promise<void> => {
+    try {
+      await bot.start({
+        onStart: () => {
+          console.log("🤖 DELIS Telegram bot running.");
+          void retryPendingAdminOrders();
+          void checkSubscriptions();
+        },
+      });
+    } catch (err: any) {
+      const conflict =
+        err?.error_code === 409 || String(err?.message || err || "").includes("409");
+      const delay = Math.min((conflict ? 15_000 : 5_000) * (attempt + 1), 120_000);
+      console.warn(
+        `⚠️  Bot polling failed: ${conflict ? "409 — another bot instance holds getUpdates" : err?.message || err}. ` +
+          `Retrying in ${Math.round(delay / 1000)}s (API keeps serving).`,
+      );
+      await new Promise((r) => setTimeout(r, delay));
+      return startPolling(attempt + 1);
+    }
+  };
+  void startPolling();
 }

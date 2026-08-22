@@ -24,13 +24,14 @@ import {
 } from "./data";
 import type { ReturnRequest } from "./features-extra";
 import { formatPrice, haptic, compressImageFile } from "./kit";
-import { IconBox, IconChart, IconCheck, IconClock, IconClose, IconCopy, IconCreditCard, IconCrown, IconFactory, IconFileText, IconLock, IconMedal, IconPhone, IconPlus, IconRefresh, IconSend, IconSettings, IconShield, IconSparkle, IconSymbol, IconTag, IconTrash, IconUser, IconUserCheck, IconTruck } from "./icons";
+import { IconBox, IconChart, IconCheck, IconClock, IconClose, IconCopy, IconCreditCard, IconDownload, IconFactory, IconFileText, IconLock, IconMedal, IconPhone, IconPlus, IconRefresh, IconSend, IconSettings, IconShield, IconSparkle, IconSymbol, IconTag, IconTrash, IconUser, IconUserCheck, IconTruck } from "./icons";
 import { Sheet } from "./chrome";
 import { ContentManagementTab } from "./content-config";
 import { SiteSettingsTab } from "./site-settings-tab";
 import { PaymentsAdminTab } from "./payments-admin";
 import { LoyaltyAdminTab } from "./loyalty-admin";
 import { BrandMark, BrandWordmark } from "./brand";
+import { AdminCard, AdminSectionLabel, AdminKpi, AdminBar, AdminStatusPill, AdminChip, AdminSearch, AdminBtn, AdminEmpty } from "./admin-ui";
 import { adminDeleteStory, adminSetStoryStatus, fetchAdminStories, fetchAdminOrders, adminSetOrderStatus, adminSetPaymentStatus, fetchAdminPromos, adminUpsertPromo, adminDeletePromo, adminUploadProductImage, fetchAdminStats, fetchOrdersCsv, downloadAdminBackup, isApiConfigured, type ApiStory, type AdminStats } from "./api";
 import { QrBatchesAdminTab, B2bAdminTab, CertsAdminTab } from "./features-admin-extra";
 import { PRODUCTS as PRODUCT_CATALOG } from "./data";
@@ -46,6 +47,18 @@ const ADMIN_ORDER_TRANSITIONS: Record<AdminOrderStatus, AdminOrderStatus[]> = {
   delivered: [],
   canceled: [],
 };
+
+function orderStatusLabel(status: AdminOrderStatus, lang: string): string {
+  return status === "new"
+    ? lang === "uz" ? "Yangi" : lang === "ru" ? "Новый" : "New"
+    : status === "preparing"
+      ? lang === "uz" ? "Zavodda" : lang === "ru" ? "Готовится" : "Preparing"
+      : status === "shipped"
+        ? lang === "uz" ? "Kuryerda" : lang === "ru" ? "У курьера" : "Shipped"
+        : status === "delivered"
+          ? lang === "uz" ? "Yetkazildi" : lang === "ru" ? "Доставлен" : "Delivered"
+          : lang === "uz" ? "Bekor" : lang === "ru" ? "Отменён" : "Canceled";
+}
 
 export function AdminPanelSheet({
   open,
@@ -560,15 +573,32 @@ export function AdminPanelSheet({
         setIsAuthenticated(false);
         setPinInput("");
       }}
-      title={isAuthenticated ? t("adminTitle") : t("adminPinTitle")}
+      title={undefined}
+      panelClassName="admin-pro admin-sheet"
     >
       {!isAuthenticated ? (
-        /* PIN Login Screen */
-        <div className="space-y-4 pt-2 text-center">
-          <BrandMark size={64} className="motion-icon-tile mx-auto dark:invert" />
-          <p className="text-[13px] font-medium text-ink2">{t("adminSub")}</p>
+        /* PIN Login Screen — premium lock */
+        <div className="-mx-4 min-[390px]:-mx-6 -mt-2 overflow-hidden rounded-t-[26px]">
+          <div className="admin-hero">
+            <div className="admin-grid-bg relative px-5 pb-7 pt-8 text-center min-[390px]:px-6">
+              <div className="admin-logo-tile mx-auto">
+                <BrandMark size={40} className="invert" />
+              </div>
+              <p className="mt-4 font-display text-[23px] font-extrabold tracking-tight text-white">
+                DELIS <span className="text-amber">Console</span>
+              </p>
+              <p className="mx-auto mt-1.5 max-w-[260px] text-[11.5px] font-semibold leading-relaxed text-white/45">
+                {t("adminSub")}
+              </p>
+              <div className="mx-auto mt-4 h-px w-16 bg-gradient-to-r from-transparent via-amber/60 to-transparent" />
+              <div className="mx-auto mt-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
+                <IconLock size={12} className="text-amber" />
+                <span className="text-[9.5px] font-extrabold uppercase tracking-[0.22em] text-white/55">Secure access</span>
+              </div>
+            </div>
+          </div>
 
-          <form onSubmit={handlePinSubmit} className="mt-4 space-y-3">
+          <form onSubmit={handlePinSubmit} className="mt-4 space-y-3 px-1">
             <input
               type="password"
               inputMode="numeric"
@@ -579,15 +609,15 @@ export function AdminPanelSheet({
                 setPinError(false);
               }}
               placeholder={t("adminPinPlaceholder")}
-              className={`w-full rounded-[18px] border bg-paper px-4 py-4 text-center font-display text-[22px] font-bold tracking-[0.3em] text-ink outline-none ${
-                pinError ? "border-[#B3402E] ring-2 ring-[#B3402E]/20" : "border-ink/15 focus:border-moss"
+              className={`admin-pin-input w-full px-4 py-4 text-center font-display text-[24px] font-bold tracking-[0.35em] text-ink outline-none placeholder:text-ink/25 ${
+                pinError ? "!border-rose-400/50 !ring-2 !ring-rose-400/15" : ""
               }`}
             />
-            {pinError && <p className="text-[12px] font-bold text-[#B3402E]">{t("adminPinError")}</p>}
+            {pinError && <p className="text-[12px] font-bold text-rose-300">{t("adminPinError")}</p>}
 
             <button
               type="submit"
-              className="press flex h-13 w-full items-center justify-center gap-2 rounded-[20px] bg-amber text-[14px] font-bold text-white shadow-lift"
+              className="press flex h-13 w-full items-center justify-center gap-2 rounded-[18px] bg-gradient-to-r from-amber to-amberdeep text-[14px] font-bold text-[#17110a] shadow-[0_16px_34px_-14px_rgba(232,200,116,0.65)]"
             >
               <IconLock size={16} />
               <span>{t("adminPinSubmit")}</span>
@@ -596,45 +626,77 @@ export function AdminPanelSheet({
         </div>
       ) : (
         /* Authenticated Admin Dashboard */
-        <div className="space-y-4 pt-1">
-          {/* Panel header */}
-          <div className="flex items-center justify-between rounded-[20px] border border-ink/18 bg-gradient-to-r from-pinedeep to-pine p-3.5 text-white shadow-sm">
-            <div className="flex items-center gap-2.5">
-              <span className="motion-icon-tile flex h-9 w-9 items-center justify-center"><BrandMark size={31} className="invert" /></span>
-              <div>
-                <BrandWordmark className="h-[16px] w-[76px] invert" />
-                <p className="mt-1 text-[10.5px] font-semibold text-white/70">Boshqaruv · Namangan zavodi</p>
+        <div className="space-y-3.5 pt-0">
+          {/* Hero header */}
+          <div className="-mx-4 min-[390px]:-mx-6 -mt-2 overflow-hidden rounded-t-[26px]">
+            <div className="admin-hero">
+              <div className="admin-grid-bg relative px-4 pb-5 pt-4 min-[390px]:px-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="admin-logo-tile" style={{ width: 46, height: 46 }}>
+                      <BrandMark size={32} className="invert" />
+                    </span>
+                    <div>
+                      <BrandWordmark className="h-[14px] w-[66px] invert" />
+                      <p className="mt-1 text-[9px] font-extrabold uppercase tracking-[0.22em] text-white/45">
+                        {lang === "uz" ? "Boshqaruv konsoli" : lang === "ru" ? "Консоль владельца" : "Owner console"}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="admin-live"><span className="admin-live-dot" /> LIVE</span>
+                    <button
+                      onClick={onClose}
+                      aria-label="Close"
+                      className="press flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/60 hover:text-white"
+                    >
+                      <IconClose size={15} />
+                    </button>
+                  </div>
+                </div>
+
+                <p className="mt-4 font-display text-[22px] font-extrabold leading-none text-white">{t("adminTitle")}</p>
+                <p className="mt-1.5 text-[11px] font-semibold text-white/40">
+                  {lang === "uz"
+                    ? `Namangan zavodi · ${allOrders.length} ta buyurtma`
+                    : lang === "ru"
+                      ? `Завод в Намангане · ${allOrders.length} заказов`
+                      : `Namangan factory · ${allOrders.length} orders`}
+                </p>
+
+                {/* Quick stats on the hero */}
+                <div className="mt-4 grid grid-cols-3 gap-2">
+                  <div className="admin-hero-chip p-2.5 text-center">
+                    <p className="font-display text-[19px] font-extrabold text-amber">
+                      {allOrders.filter((o) => o.status === "new").length}
+                    </p>
+                    <p className="mt-0.5 text-[8.5px] font-extrabold uppercase tracking-[0.12em] text-white/45">
+                      {lang === "uz" ? "Yangi" : lang === "ru" ? "Новые" : "New"}
+                    </p>
+                  </div>
+                  <div className="admin-hero-chip p-2.5 text-center">
+                    <p className="font-display text-[19px] font-extrabold text-moss">{products.length}</p>
+                    <p className="mt-0.5 text-[8.5px] font-extrabold uppercase tracking-[0.12em] text-white/45">
+                      {lang === "uz" ? "Tovarlar" : lang === "ru" ? "Товары" : "Products"}
+                    </p>
+                  </div>
+                  <div className="admin-hero-chip p-2.5 text-center">
+                    <p className="font-display text-[19px] font-extrabold text-sky-300">
+                      {Object.values(loadPromoCodes()).filter((p) => p.active !== false).length}
+                    </p>
+                    <p className="mt-0.5 text-[8.5px] font-extrabold uppercase tracking-[0.12em] text-white/45">
+                      {lang === "uz" ? "Promokod" : lang === "ru" ? "Промо" : "Promos"}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
-            <span className="rounded-full bg-amber/20 px-2.5 py-1 text-[9.5px] font-extrabold uppercase tracking-wider text-amber">
-              <span className="inline-flex items-center gap-1"><IconCrown size={12} /> Owner</span>
-            </span>
           </div>
 
-          {/* Quick summary cards */}
-          <div className="grid grid-cols-3 gap-2">
-            <div className="rounded-[16px] border border-amber/20 bg-amber/[0.08] p-2.5 text-center">
-              <p className="font-display text-[18px] font-bold text-amberdeep">
-                {allOrders.filter((o) => o.status === "new").length}
-              </p>
-              <p className="mt-0.5 text-[9.5px] font-bold uppercase tracking-wide text-ink2">Yangi zakas</p>
-            </div>
-            <div className="rounded-[16px] border border-moss/20 bg-sagetint/50 p-2.5 text-center">
-              <p className="font-display text-[18px] font-bold text-pine">{products.length}</p>
-              <p className="mt-0.5 text-[9.5px] font-bold uppercase tracking-wide text-ink2">Tovarlar</p>
-            </div>
-            <div className="rounded-[16px] border border-amber/20 bg-amber/[0.08] p-2.5 text-center">
-              <p className="font-display text-[18px] font-bold text-amberdeep">
-                {Object.values(loadPromoCodes()).filter((p) => p.active !== false).length}
-              </p>
-              <p className="mt-0.5 text-[9.5px] font-bold uppercase tracking-wide text-ink2">Promokodlar</p>
-            </div>
-          </div>
-
-          {/* Navigation Sub-tabs with red badges */}
-          <div className="no-scrollbar flex gap-1.5 overflow-x-auto rounded-[18px] bg-paper2 p-1.5">
-            {(
-              [
+          {/* Navigation: grouped sub-tabs, sticky above content */}
+          <div className="sticky top-0 z-20 -mx-4 min-[390px]:-mx-6 border-b border-white/5 bg-paper/95 px-4 py-2 backdrop-blur-xl min-[390px]:px-6">
+            {(() => {
+              const TABS = [
                 { id: "analytics", label: t("adminTabAnalytics"), icon: IconChart, badge: 0 },
                 { id: "orders", label: t("adminTabOrders"), icon: IconBox, badge: allOrders.filter((o) => o.status === "new").length },
                 { id: "inventory", label: t("adminTabProducts"), icon: IconFactory, badge: 0 },
@@ -653,31 +715,50 @@ export function AdminPanelSheet({
                 { id: "certs", label: lang === "ru" ? "Сертификаты" : lang === "en" ? "Certificates" : "Sertifikatlar", icon: IconMedal, badge: 0 },
                 { id: "delivery", label: lang === "ru" ? "Доставка" : lang === "en" ? "Delivery" : "Yetkazish", icon: IconTruck, badge: 0 },
                 { id: "logs", label: t("opLogsTitle"), icon: IconClock, badge: 0 },
-              ] as const
-            ).map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => {
-                  haptic("light");
-                  setActiveTab(tab.id);
-                }}
-                className={`press relative flex shrink-0 items-center gap-1.5 rounded-[14px] px-3.5 py-2 text-[11.5px] font-bold transition-all ${
-                  activeTab === tab.id
-                    ? "bg-card text-ink shadow-sm ring-1 ring-ink/10"
-                    : "text-ink2 hover:text-ink"
-                }`}
-              >
-                <span className={activeTab === tab.id ? "text-amber" : "text-ink2/85"}>
-                  <tab.icon size={15} />
-                </span>
-                <span>{tab.label}</span>
-                {tab.badge > 0 && (
-                  <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-[#E11D48] px-1 text-[8.5px] font-bold text-white">
-                    {tab.badge}
-                  </span>
-                )}
-              </button>
-            ))}
+              ] as const;
+              const OPS = lang === "uz" ? "Operatsiya" : lang === "ru" ? "Операции" : "Operations";
+              const MKT = lang === "uz" ? "Marketing" : lang === "ru" ? "Маркетинг" : "Marketing";
+              const SYS = lang === "uz" ? "Tizim" : lang === "ru" ? "Система" : "System";
+              const GROUPS: Array<{ label: string; ids: readonly string[] }> = [
+                { label: OPS, ids: ["analytics", "orders", "inventory", "requests", "clients", "jobs"] },
+                { label: MKT, ids: ["promos", "deal", "loyalty", "stories", "certs", "qr", "b2b"] },
+                { label: SYS, ids: ["content", "site", "payments", "delivery", "backup", "logs"] },
+              ];
+              return GROUPS.map((g) => (
+                <div key={g.label} className="mb-2 last:mb-0">
+                  <p className="px-1.5 pb-1 text-[8.5px] font-extrabold uppercase tracking-[0.24em] text-ink/30">{g.label}</p>
+                  <div className="no-scrollbar flex gap-1.5 overflow-x-auto">
+                    {TABS.filter((tab) => (g.ids as readonly string[]).includes(tab.id)).map((tab) => {
+                      const active = activeTab === tab.id;
+                      return (
+                        <button
+                          key={tab.id}
+                          onClick={() => {
+                            haptic("light");
+                            setActiveTab(tab.id);
+                          }}
+                          className={`press relative flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-[11px] font-bold transition-all ${
+                            active
+                              ? "border-amber/55 bg-gradient-to-r from-amber to-amberdeep text-[#17110a] shadow-[0_10px_22px_-10px_rgba(232,200,116,0.6)]"
+                              : "border-white/8 bg-card/70 text-ink2 hover:border-white/15 hover:text-ink"
+                          }`}
+                        >
+                          <span className={active ? "text-[#17110a]/70" : "text-ink2/80"}>
+                            <tab.icon size={14} />
+                          </span>
+                          <span>{tab.label}</span>
+                          {tab.badge > 0 && (
+                            <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[8.5px] font-bold text-white">
+                              {tab.badge}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ));
+            })()}
           </div>
 
           {/* Admin quick actions: change PIN / create product */}
@@ -687,9 +768,9 @@ export function AdminPanelSheet({
                 haptic("light");
                 setShowPinSettings((s) => !s);
               }}
-              className="press flex h-10 flex-1 items-center justify-center gap-1.5 rounded-[14px] border border-ink/15 bg-card text-[11.5px] font-bold text-ink2 hover:text-ink"
+              className="press flex h-10 flex-1 items-center justify-center gap-1.5 rounded-[14px] border border-white/10 bg-card/80 text-[11.5px] font-bold text-ink2 hover:border-white/20 hover:text-ink"
             >
-              <IconLock size={14} /> {showPinSettings ? "Yopish" : "PIN o'zgartirish"}
+              <IconLock size={14} className="text-amber" /> {showPinSettings ? "Yopish" : "PIN o'zgartirish"}
             </button>
             <button
               onClick={() => {
@@ -697,7 +778,7 @@ export function AdminPanelSheet({
                 setShowNewProduct((s) => !s);
                 setActiveTab("inventory");
               }}
-              className="press flex h-10 flex-1 items-center justify-center gap-1.5 rounded-[14px] border border-moss/25 bg-sagetint/40 text-[11.5px] font-bold text-pine hover:bg-sagetint"
+              className="press flex h-10 flex-1 items-center justify-center gap-1.5 rounded-[14px] border border-moss/25 bg-sagetint/50 text-[11.5px] font-bold text-moss hover:bg-sagetint"
             >
               <IconPlus size={14} />
               <span>Yangi mahsulot</span>
@@ -901,238 +982,236 @@ export function AdminPanelSheet({
           {/* ─────────────── TAB 1: LIVE ANALYTICS ─────────────── */}
           {activeTab === "analytics" && (
             <div className="space-y-3 animate-pop">
-              {/* Live server stats — aggregated in SQL on the backend */}
+              {/* Revenue hero — live server numbers when the API is connected */}
               {adminStats && (
-                <div className="space-y-2.5 rounded-[22px] border border-moss/25 bg-gradient-to-b from-sagetint/60 to-card p-3.5">
-                  <p className="text-[10.5px] font-extrabold uppercase tracking-[0.16em] text-pine">
-                    <span className="inline-flex items-center gap-1.5"><IconSymbol symbol="📡" size={14} /> {lang === "uz" ? "Server statistikasi (jonli)" : lang === "ru" ? "Статистика сервера (live)" : "Server stats (live)"}</span>
-                  </p>
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="rounded-[14px] bg-card/80 p-2.5 text-center">
-                      <p className="font-display text-[15px] font-extrabold text-ink">{adminStats.totals.usersCount}</p>
-                      <p className="text-[9.5px] font-bold text-ink2">{lang === "uz" ? "Mijozlar" : lang === "ru" ? "Клиенты" : "Customers"}</p>
+                <AdminCard tone="gold" className="relative overflow-hidden">
+                  <div className="pointer-events-none absolute -right-10 -top-12 h-40 w-40 rounded-full bg-amber/12 blur-3xl" />
+                  <AdminSectionLabel
+                    icon={<IconSymbol symbol="📡" size={13} />}
+                    action={<span className="admin-live"><span className="admin-live-dot" /> LIVE</span>}
+                  >
+                    {lang === "uz" ? "Server statistikasi" : lang === "ru" ? "Статистика сервера" : "Server stats"}
+                  </AdminSectionLabel>
+
+                  <div className="mt-3 flex items-end justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-[9.5px] font-extrabold uppercase tracking-[0.18em] text-ink/40">
+                        {lang === "uz" ? "Jami tushum" : lang === "ru" ? "Выручка всего" : "Total revenue"}
+                      </p>
+                      <p className="mt-1 truncate font-display text-[26px] font-extrabold leading-none text-amber">
+                        {formatPrice(adminStats.totals.revenueAll, lang)}
+                      </p>
+                      <p className="mt-2 text-[10.5px] font-semibold text-ink/45">
+                        {adminStats.totals.ordersCount} {lang === "uz" ? "buyurtma" : lang === "ru" ? "заказов" : "orders"}
+                        {" · "}{formatPrice(adminStats.totals.avgOrderValue, lang)}
+                        {" / "}{lang === "uz" ? "o'rtacha" : lang === "ru" ? "средний" : "avg"}
+                      </p>
                     </div>
-                    <div className="rounded-[14px] bg-card/80 p-2.5 text-center">
-                      <p className="font-display text-[15px] font-extrabold text-ink">{adminStats.totals.repeatCustomers}</p>
-                      <p className="text-[9.5px] font-bold text-ink2">{lang === "uz" ? "Qaytgan (2+)" : lang === "ru" ? "Повторных (2+)" : "Repeat (2+)"}</p>
-                    </div>
-                    <div className="rounded-[14px] bg-card/80 p-2.5 text-center">
-                      <p className="font-display text-[15px] font-extrabold text-ink">{formatPrice(adminStats.totals.avgOrderValue, lang)}</p>
-                      <p className="text-[9.5px] font-bold text-ink2">{lang === "uz" ? "O'rtacha chek" : lang === "ru" ? "Средний чек" : "Avg order"}</p>
-                    </div>
-                    <div className="rounded-[14px] bg-card/80 p-2.5 text-center">
-                      <p className="font-display text-[15px] font-extrabold text-ink">{adminStats.totals.pendingWaitlist}</p>
-                      <p className="text-[9.5px] font-bold text-ink2">{lang === "uz" ? "Waitlist" : lang === "ru" ? "Ждут склад" : "Waitlist"}</p>
-                    </div>
-                    <div className="rounded-[14px] bg-card/80 p-2.5 text-center">
-                      <p className="font-display text-[15px] font-extrabold text-ink">{adminStats.totals.activeSubscriptions}</p>
-                      <p className="text-[9.5px] font-bold text-ink2">{lang === "uz" ? "Obunalar" : lang === "ru" ? "Подписки" : "Subscriptions"}</p>
-                    </div>
-                    <div className="rounded-[14px] bg-card/80 p-2.5 text-center">
-                      <p className="font-display text-[15px] font-extrabold text-moss">{formatPrice(adminStats.totals.revenueAll, lang)}</p>
-                      <p className="text-[9.5px] font-bold text-ink2">{lang === "uz" ? "Jami tushum" : lang === "ru" ? "Выручка всего" : "Revenue"}</p>
+                    <div className="shrink-0 text-right">
+                      <p className="font-display text-[20px] font-extrabold text-moss">{adminStats.totals.usersCount}</p>
+                      <p className="text-[8.5px] font-extrabold uppercase tracking-[0.16em] text-ink/40">
+                        {lang === "uz" ? "Mijozlar" : lang === "ru" ? "Клиенты" : "Customers"}
+                      </p>
                     </div>
                   </div>
 
-                  {/* 30-day comparison vs the previous 30 days */}
+                  {/* 14-day revenue sparkline */}
+                  {adminStats.revenueByDay.length > 0 && (
+                    <div className="mt-4 flex h-16 items-end gap-1">
+                      {adminStats.revenueByDay.map((d) => {
+                        const max = Math.max(...adminStats.revenueByDay.map((x) => x.revenue), 1);
+                        return (
+                          <div key={d.date} className="flex-1" title={`${d.date}: ${formatPrice(d.revenue, lang)} · ${d.orders}`}>
+                            <div
+                              className="w-full rounded-t-[5px] bg-gradient-to-t from-amber/20 to-amber/90 transition-all duration-500"
+                              style={{ height: `${Math.max(6, (d.revenue / max) * 62)}px` }}
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Compact server KPIs */}
+                  <div className="mt-4 grid grid-cols-3 gap-2">
+                    <div className="rounded-[14px] border border-white/8 bg-card/70 p-2.5 text-center">
+                      <p className="font-display text-[15px] font-extrabold text-ink">{adminStats.totals.repeatCustomers}</p>
+                      <p className="mt-0.5 text-[8.5px] font-bold uppercase tracking-wide text-ink2">{lang === "uz" ? "Qaytgan" : lang === "ru" ? "Повтор" : "Repeat"}</p>
+                    </div>
+                    <div className="rounded-[14px] border border-white/8 bg-card/70 p-2.5 text-center">
+                      <p className="font-display text-[15px] font-extrabold text-ink">{adminStats.totals.pendingWaitlist}</p>
+                      <p className="mt-0.5 text-[8.5px] font-bold uppercase tracking-wide text-ink2">Waitlist</p>
+                    </div>
+                    <div className="rounded-[14px] border border-white/8 bg-card/70 p-2.5 text-center">
+                      <p className="font-display text-[15px] font-extrabold text-ink">{adminStats.totals.activeSubscriptions}</p>
+                      <p className="mt-0.5 text-[8.5px] font-bold uppercase tracking-wide text-ink2">{lang === "uz" ? "Obuna" : lang === "ru" ? "Подписки" : "Subs"}</p>
+                    </div>
+                  </div>
+
+                  {/* 30d comparison */}
                   {adminStats.compare && (
-                    <div className="rounded-[14px] bg-card/80 p-2.5">
-                      <p className="text-[10px] font-bold text-ink2">
-                        {lang === "uz" ? "So'nggi 30 kun vs oldingi 30" : lang === "ru" ? "Последние 30 дней vs предыдущие 30" : "Last 30 days vs previous 30"}
-                      </p>
-                      <div className="mt-1.5 grid grid-cols-2 gap-2">
-                        <div className="rounded-[10px] bg-sagetint/50 px-2.5 py-1.5">
-                          <p className="text-[9px] font-bold uppercase tracking-wide text-ink2">{lang === "uz" ? "So'nggi 30" : lang === "ru" ? "Посл. 30" : "Last 30"}</p>
-                          <p className="font-display text-[13px] font-extrabold text-ink">{formatPrice(adminStats.compare.last30, lang)}</p>
-                        </div>
-                        <div className="rounded-[10px] bg-sagetint/50 px-2.5 py-1.5">
-                          <p className="text-[9px] font-bold uppercase tracking-wide text-ink2">{lang === "uz" ? "Oldingi 30" : lang === "ru" ? "Пред. 30" : "Prev 30"}</p>
-                          <p className="font-display text-[13px] font-extrabold text-ink">{formatPrice(adminStats.compare.prev30, lang)}</p>
-                        </div>
-                      </div>
-                      <div className="mt-1.5 flex items-center justify-between">
-                        <span className="text-[10px] font-bold text-ink2">{lang === "uz" ? "O'zgarish" : lang === "ru" ? "Изменение" : "Change"}</span>
+                    <div className="mt-3 rounded-[14px] border border-white/8 bg-card/70 p-3">
+                      <div className="flex items-center justify-between">
+                        <p className="text-[9.5px] font-bold uppercase tracking-[0.14em] text-ink2">
+                          {lang === "uz" ? "30 kun vs oldingi 30" : lang === "ru" ? "30 дней vs предыдущие 30" : "30d vs previous 30"}
+                        </p>
                         {adminStats.compare.revenueDeltaPct === null ? (
                           <span className="text-[11px] font-bold text-ink2">—</span>
                         ) : (
-                          <span className={`text-[12px] font-extrabold ${adminStats.compare.revenueDeltaPct >= 0 ? "text-moss" : "text-[#C43B2E]"}`}>
+                          <span className={`text-[12px] font-extrabold ${adminStats.compare.revenueDeltaPct >= 0 ? "text-moss" : "text-rose-300"}`}>
                             {adminStats.compare.revenueDeltaPct >= 0 ? "▲" : "▼"} {Math.abs(adminStats.compare.revenueDeltaPct)}%
                           </span>
                         )}
                       </div>
-                    </div>
-                  )}
-
-                  {/* 14-day revenue chart */}
-                  {adminStats.revenueByDay.length > 0 && (
-                    <div>
-                      <p className="text-[10px] font-bold text-ink2">
-                        {lang === "uz" ? "14 kunlik tushum" : lang === "ru" ? "Выручка за 14 дней" : "14-day revenue"}
-                      </p>
-                      <div className="mt-1.5 flex h-20 items-end gap-1">
-                        {adminStats.revenueByDay.map((d) => {
-                          const max = Math.max(...adminStats.revenueByDay.map((x) => x.revenue), 1);
-                          return (
-                            <div key={d.date} className="flex-1 flex flex-col items-center gap-0.5" title={`${d.date}: ${formatPrice(d.revenue, lang)} · ${d.orders}`}>
-                              <div className="w-full rounded-t-[4px] bg-moss/80" style={{ height: `${Math.max(4, (d.revenue / max) * 100)}%` }} />
-                              <span className="text-[7.5px] font-semibold text-ink2">{d.date.slice(5)}</span>
-                            </div>
-                          );
-                        })}
+                      <div className="mt-2 grid grid-cols-2 gap-2">
+                        <div>
+                          <p className="text-[9px] font-bold uppercase tracking-wide text-ink/40">{lang === "uz" ? "So'nggi 30" : lang === "ru" ? "Последние 30" : "Last 30"}</p>
+                          <p className="font-display text-[13px] font-extrabold text-ink">{formatPrice(adminStats.compare.last30, lang)}</p>
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-bold uppercase tracking-wide text-ink/40">{lang === "uz" ? "Oldingi 30" : lang === "ru" ? "Предыдущие 30" : "Previous 30"}</p>
+                          <p className="font-display text-[13px] font-extrabold text-ink2">{formatPrice(adminStats.compare.prev30, lang)}</p>
+                        </div>
                       </div>
                     </div>
                   )}
 
-                  {/* Top products by server revenue */}
+                  {/* Top products (server) */}
                   {adminStats.topProducts.length > 0 && (
-                    <div className="space-y-1">
-                      <p className="text-[10px] font-bold text-ink2">
+                    <div className="mt-3 space-y-1.5">
+                      <p className="text-[9.5px] font-extrabold uppercase tracking-[0.14em] text-ink/40">
                         {lang === "uz" ? "Top-5 (server)" : lang === "ru" ? "Топ-5 (сервер)" : "Top 5 (server)"}
                       </p>
                       {adminStats.topProducts.map((p, i) => (
-                        <div key={p.id} className="flex items-center justify-between rounded-[10px] bg-card/80 px-2.5 py-1.5">
-                          <span className="text-[11px] font-semibold text-ink">{i + 1}. {p.name}</span>
-                          <span className="text-[10.5px] font-bold text-moss">{p.qty} {t("stockUnits")} · {formatPrice(p.revenue, lang)}</span>
+                        <div key={p.id} className="flex items-center justify-between rounded-[12px] border border-white/6 bg-card/60 px-3 py-2">
+                          <span className="flex min-w-0 items-center gap-2 text-[11.5px] font-semibold text-ink">
+                            <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full border border-white/10 bg-white/5 font-display text-[9px] font-bold text-amber">{i + 1}</span>
+                            <span className="truncate">{p.name}</span>
+                          </span>
+                          <span className="ml-2 shrink-0 text-[10.5px] font-bold text-moss">{p.qty} {t("stockUnits")} · {formatPrice(p.revenue, lang)}</span>
                         </div>
                       ))}
                     </div>
                   )}
-                </div>
+                </AdminCard>
               )}
 
               {/* Period filter */}
-              <div className="no-scrollbar flex gap-1.5 overflow-x-auto rounded-[18px] bg-paper2 p-1.5">
+              <div className="no-scrollbar flex gap-1.5 overflow-x-auto pt-0.5">
                 {([
                   { id: "today", label: lang === "uz" ? "Bugun" : lang === "ru" ? "Сегодня" : "Today" },
                   { id: "7d", label: lang === "uz" ? "7 kun" : lang === "ru" ? "7 дней" : "7 days" },
                   { id: "30d", label: lang === "uz" ? "30 kun" : lang === "ru" ? "30 дней" : "30 days" },
                   { id: "all", label: lang === "uz" ? "Hammasi" : lang === "ru" ? "Всё время" : "All" },
-                ] as const).map((f) => {
-                  const active = analyticsRange === f.id;
-                  return (
-                    <button
-                      key={f.id}
-                      onClick={() => { haptic("light"); setAnalyticsRange(f.id); }}
-                      className={`press flex-1 rounded-[12px] px-3 py-2 text-[11px] font-bold transition-all ${
-                        active ? "bg-amber text-white shadow-sm" : "bg-card text-ink2"
-                      }`}
-                    >
-                      {f.label}
-                    </button>
-                  );
-                })}
+                ] as const).map((f) => (
+                  <AdminChip
+                    key={f.id}
+                    active={analyticsRange === f.id}
+                    onClick={() => { haptic("light"); setAnalyticsRange(f.id); }}
+                  >
+                    {f.label}
+                  </AdminChip>
+                ))}
               </div>
 
-              {/* KPI Cards Grid */}
+              {/* KPI grid */}
               <div className="grid grid-cols-2 gap-2.5">
-                <div className="rounded-[22px] border border-ink/18 bg-card p-4 shadow-sm">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-ink2">{t("adminAnalyticsRev")}</p>
-                  <p className="mt-1.5 font-display text-[18px] font-bold text-moss">
-                    {formatPrice(analytics.totalRevenue, lang)}
-                  </p>
-                  <p className="mt-1 text-[10.5px] font-semibold text-pine">
-                    {analytics.totalOrders} {t("ordersTitle").toLowerCase()}
-                  </p>
-                  {/* Today's earnings quick glance */}
-                  <p className="mt-1.5 rounded-[10px] bg-amber/[0.10] px-2 py-1 text-[10px] font-bold text-amberdeep">
-                    {lang === "uz" ? "Bugun" : lang === "ru" ? "Сегодня" : "Today"}:{" "}
-                    {formatPrice(
-                      allOrders.filter((o) => o.createdAt >= new Date(new Date().setHours(0, 0, 0, 0)).getTime()).reduce((s, o) => s + o.total, 0),
-                      lang,
-                    )}
-                  </p>
-                </div>
-
-                <div className="rounded-[22px] border border-ink/18 bg-card p-4 shadow-sm">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-ink2">{t("adminAnalyticsWholesale")}</p>
-                  <p className="mt-1.5 font-display text-[22px] font-bold text-amber">
-                    {analytics.wholesaleShare}%
-                  </p>
-                  <p className="mt-1 text-[10.5px] font-semibold text-amberdeep">B2B + Do'konlar</p>
-                </div>
-
-                <div className="rounded-[22px] border border-ink/18 bg-card p-4 shadow-sm">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-ink2">{t("adminAnalyticsAvg")}</p>
-                  <p className="mt-1.5 font-display text-[16px] font-bold text-ink">
-                    {formatPrice(analytics.avgOrderValue, lang)}
-                  </p>
-                </div>
-
-                <div className="rounded-[22px] border border-ink/18 bg-card p-4 shadow-sm">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-ink2">{t("adminConversionRate")}</p>
-                  <p className="mt-1.5 font-display text-[22px] font-bold text-pine">
-                    {analytics.conversionRate}%
-                  </p>
-                  <p className="mt-1 text-[10.5px] font-semibold text-moss">Telegram Mini App</p>
-                </div>
+                <AdminKpi
+                  label={t("adminAnalyticsRev")}
+                  value={formatPrice(analytics.totalRevenue, lang)}
+                  hint={`${analytics.totalOrders} ${lang === "uz" ? "buyurtma" : lang === "ru" ? "заказов" : "orders"}`}
+                  icon={<IconSymbol symbol="💰" size={13} />}
+                  tone="gold"
+                />
+                <AdminKpi
+                  label={t("adminAnalyticsWholesale")}
+                  value={`${analytics.wholesaleShare}%`}
+                  hint="B2B + Do'konlar"
+                  icon={<IconFactory size={13} />}
+                  tone="green"
+                />
+                <AdminKpi
+                  label={t("adminAnalyticsAvg")}
+                  value={formatPrice(analytics.avgOrderValue, lang)}
+                  icon={<IconSymbol symbol="🧾" size={13} />}
+                />
+                <AdminKpi
+                  label={t("adminConversionRate")}
+                  value={`${analytics.conversionRate}%`}
+                  hint="Telegram Mini App"
+                  icon={<IconChart size={13} />}
+                  tone="blue"
+                />
               </div>
 
-              {/* Regional Sales Breakdown */}
-              <div className="rounded-[24px] border border-ink/18 bg-card p-4 shadow-sm">
-                <p className="text-[11px] font-extrabold uppercase tracking-wider text-ink2">
+              {/* Regional sales */}
+              <AdminCard>
+                <AdminSectionLabel icon={<IconSymbol symbol="📍" size={13} />}>
                   {t("adminTopRegions")} (O'zbekiston)
-                </p>
-                <div className="mt-3 space-y-2">
-                  {analytics.topRegions.map((reg, idx) => (
-                    <div key={idx} className="flex items-center justify-between text-[12.5px]">
-                      <div className="flex items-center gap-2">
-                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-paper2 font-display text-[10px] font-bold text-ink2">
-                          {idx + 1}
-                        </span>
-                        <span className="font-semibold text-ink">{reg.name}</span>
+                </AdminSectionLabel>
+                <div className="mt-3 space-y-2.5">
+                  {analytics.topRegions.map((reg, idx) => {
+                    const maxCount = Math.max(...analytics.topRegions.map((r) => r.count), 1);
+                    return (
+                      <div key={idx}>
+                        <div className="flex items-center justify-between text-[12px]">
+                          <span className="flex min-w-0 items-center gap-2">
+                            <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full border border-white/10 bg-white/5 font-display text-[9.5px] font-bold text-ink2">{idx + 1}</span>
+                            <span className="truncate font-semibold text-ink">{reg.name}</span>
+                          </span>
+                          <span className="shrink-0 font-display text-[11px] font-bold text-amber">{reg.count} {lang === "uz" ? "buyurtma" : lang === "ru" ? "заказов" : "orders"}</span>
+                        </div>
+                        <AdminBar className="mt-1.5" pct={(reg.count / maxCount) * 100} />
                       </div>
-                      <span className="rounded-full bg-sagetint px-2.5 py-0.5 font-display text-[11px] font-bold text-pine">
-                        {reg.count} ta buyurtma
-                      </span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
-              </div>
+              </AdminCard>
 
-              {/* Top products */}
+              {/* Top products with share bars */}
               {analytics.topProducts.length > 0 && (
-                <div className="rounded-[24px] border border-ink/18 bg-card p-4 shadow-sm">
-                  <p className="text-[11px] font-extrabold uppercase tracking-wider text-ink2">
-                    <span className="inline-flex items-center gap-1.5"><IconSymbol symbol="🏆" size={14} /> {lang === "uz" ? "Top mahsulotlar" : lang === "ru" ? "Топ товары" : "Top products"}</span>
-                  </p>
-                  <div className="mt-3 space-y-2.5">
+                <AdminCard>
+                  <AdminSectionLabel icon={<IconSymbol symbol="🏆" size={13} />}>
+                    {lang === "uz" ? "Top mahsulotlar" : lang === "ru" ? "Топ товары" : "Top products"}
+                  </AdminSectionLabel>
+                  <div className="mt-3 space-y-3">
                     {analytics.topProducts.map((p, i) => {
                       const pct = analytics.totalRevenue > 0 ? Math.round((p.revenue / analytics.totalRevenue) * 100) : 0;
                       return (
                         <div key={i}>
                           <div className="flex items-center justify-between gap-2 text-[12px]">
                             <span className="flex min-w-0 items-center gap-2">
-                              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-paper2 font-display text-[9.5px] font-bold text-ink2">{i + 1}</span>
+                              <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full border border-white/10 bg-white/5 font-display text-[9.5px] font-bold text-amber">{i + 1}</span>
                               <span className="truncate font-bold text-ink">{p.name}</span>
-                              <span className="shrink-0 text-[10px] font-semibold text-ink/65">× {p.qty}</span>
+                              <span className="shrink-0 text-[10px] font-semibold text-ink/45">× {p.qty}</span>
                             </span>
                             <span className="shrink-0 font-display text-[11.5px] font-bold text-ink/70">{formatPrice(p.revenue, lang)} · {pct}%</span>
                           </div>
-                          <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-amber/6">
-                            <div className="h-full rounded-full bg-gradient-to-r from-pine to-moss transition-all duration-500" style={{ width: `${Math.max(pct, 2)}%` }} />
-                          </div>
+                          <AdminBar className="mt-1.5" pct={pct} tone="green" />
                         </div>
                       );
                     })}
                   </div>
-                </div>
+                </AdminCard>
               )}
 
-              {/* Orders by hour of day */}
+              {/* Orders by hour */}
               {allOrders.length > 0 && (
-                <div className="rounded-[24px] border border-ink/18 bg-card p-4 shadow-sm">
-                  <div className="flex items-end justify-between">
-                    <p className="text-[11px] font-extrabold uppercase tracking-wider text-ink2">
-                      <span className="inline-flex items-center gap-1.5"><IconClock size={14} /> {lang === "uz" ? "Soat bo'yicha buyurtmalar" : lang === "ru" ? "Заказы по часам" : "Orders by hour"}</span>
-                    </p>
-                    {(() => {
+                <AdminCard>
+                  <AdminSectionLabel
+                    icon={<IconClock size={13} />}
+                    action={(() => {
                       const max = Math.max(...analytics.hourCounts, 1);
                       const peak = analytics.hourCounts.indexOf(max);
                       return max > 0 ? (
-                        <span className="inline-flex items-center gap-1 text-[10.5px] font-bold text-amberdeep"><IconSparkle size={12} /> {lang === "uz" ? "Eng gavjum" : lang === "ru" ? "Пик" : "Peak"}: {peak}:00</span>
+                        <span className="inline-flex items-center gap-1 rounded-full border border-amber/25 bg-amber/8 px-2 py-0.5 text-[9.5px] font-bold text-amber">
+                          <IconSparkle size={11} /> {lang === "uz" ? "Eng gavjum" : lang === "ru" ? "Пик" : "Peak"}: {peak}:00
+                        </span>
                       ) : null;
                     })()}
-                  </div>
+                  >
+                    {lang === "uz" ? "Soat bo'yicha buyurtmalar" : lang === "ru" ? "Заказы по часам" : "Orders by hour"}
+                  </AdminSectionLabel>
                   <div className="mt-4 flex h-[70px] items-end gap-[3px]">
                     {analytics.hourCounts.map((count, h) => {
                       const max = Math.max(...analytics.hourCounts, 1);
@@ -1142,7 +1221,11 @@ export function AdminPanelSheet({
                         <div
                           key={h}
                           className={`flex-1 rounded-t-[5px] transition-all duration-500 ${
-                            isPeak ? "bg-gradient-to-t from-amber to-amberdeep" : count > 0 ? "bg-gradient-to-t from-pine to-moss" : "bg-amber/5"
+                            isPeak
+                              ? "bg-gradient-to-t from-amber/80 to-amber"
+                              : count > 0
+                                ? "bg-gradient-to-t from-sky-400/30 to-sky-300/80"
+                                : "bg-white/4"
                           }`}
                           style={{ height: `${hPx}px` }}
                           title={`${h}:00 — ${count}`}
@@ -1150,36 +1233,33 @@ export function AdminPanelSheet({
                       );
                     })}
                   </div>
-                  <div className="mt-1.5 flex justify-between text-[8.5px] font-bold text-ink/60">
+                  <div className="mt-1.5 flex justify-between text-[8.5px] font-bold text-ink/40">
                     <span>0:00</span><span>6:00</span><span>12:00</span><span>18:00</span><span>23:00</span>
                   </div>
-                </div>
+                </AdminCard>
               )}
 
               {/* Month-end forecast */}
               {allOrders.length > 0 && (
-                <div className="rounded-[24px] border border-amber/25 bg-gradient-to-r from-amber/[0.08] to-transparent p-4">
-                  <div className="flex items-center justify-between">
-                    <p className="text-[11px] font-extrabold uppercase tracking-wider text-amberdeep">
-                      <span className="inline-flex items-center gap-1.5"><IconSparkle size={14} /> {lang === "uz" ? "Oy yakuni prognozi" : lang === "ru" ? "Прогноз на конец месяца" : "Month-end forecast"}</span>
-                    </p>
-                    <span className="rounded-full bg-amber/15 px-2.5 py-1 font-display text-[12px] font-bold text-amberdeep">
-                      {formatPrice(analytics.forecast, lang)}
-                    </span>
-                  </div>
-                  <div className="mt-2.5">
-                    <div className="flex items-center justify-between text-[10.5px] font-semibold text-ink/70">
+                <AdminCard tone="gold">
+                  <AdminSectionLabel
+                    icon={<IconSparkle size={13} />}
+                    action={
+                      <span className="rounded-full border border-amber/30 bg-amber/10 px-2.5 py-1 font-display text-[12px] font-bold text-amber">
+                        {formatPrice(analytics.forecast, lang)}
+                      </span>
+                    }
+                  >
+                    {lang === "uz" ? "Oy yakuni prognozi" : lang === "ru" ? "Прогноз на конец месяца" : "Month-end forecast"}
+                  </AdminSectionLabel>
+                  <div className="mt-3">
+                    <div className="flex items-center justify-between text-[10.5px] font-semibold text-ink/60">
                       <span>{lang === "uz" ? "Hozircha" : lang === "ru" ? "Сейчас" : "Now"}: {formatPrice(analytics.monthRevenue, lang)}</span>
                       <span>{analytics.daysElapsed}/{analytics.daysInMonth}</span>
                     </div>
-                    <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-amber/6">
-                      <div
-                        className="h-full rounded-full bg-gradient-to-r from-amber to-amberdeep transition-all duration-700"
-                        style={{ width: `${Math.min(100, Math.round((analytics.monthRevenue / Math.max(1, analytics.forecast)) * 100))}%` }}
-                      />
-                    </div>
+                    <AdminBar className="mt-2" pct={(analytics.monthRevenue / Math.max(1, analytics.forecast)) * 100} />
                   </div>
-                </div>
+                </AdminCard>
               )}
             </div>
           )}
@@ -1188,122 +1268,115 @@ export function AdminPanelSheet({
           {activeTab === "orders" && (
             <div className="space-y-3 animate-pop">
               {/* Search */}
-              <input
+              <AdminSearch
                 value={orderSearch}
-                onChange={(e) => setOrderSearch(e.target.value)}
+                onChange={setOrderSearch}
                 placeholder={lang === "uz" ? "Qidirish: #id, ism, telefon yoki @username" : lang === "ru" ? "Поиск: #id, имя, телефон или @username" : "Search: #id, name, phone or @username"}
-                className="w-full rounded-[16px] border border-ink/15 bg-card px-3.5 py-3 text-[13px] font-semibold text-ink placeholder:text-ink/75 outline-none focus:border-moss"
               />
 
               {/* Export filtered orders to CSV */}
               {filteredOrders.length > 0 && (
-                <button
-                  onClick={() => {
-                    haptic("medium");
-                    const date = new Date().toISOString().slice(0, 10);
-                    const esc = (v: string | number) => `"${String(v).replace(/"/g, '""')}"`;
-                    const rows = [
-                      ["ID", "Sana", "Mijoz", "Telefon", "Hudud", "Summa", "To'lov", "Holat"].map(esc).join(";"),
-                      ...filteredOrders.map((o) =>
-                        [o.id, new Date(o.createdAt).toLocaleString(), o.recipientName, o.recipientPhone, o.deliveryZone || "", o.total, o.paymentMethod, o.status].map(esc).join(";"),
-                      ),
-                    ].join("\r\n");
-                    const blob = new Blob(["\uFEFF" + rows], { type: "text/csv;charset=utf-8" });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement("a");
-                    a.href = url;
-                    a.download = `DELIS_orders_${date}.csv`;
-                    a.click();
-                    setTimeout(() => URL.revokeObjectURL(url), 2000);
-                    onToast(`⬇️ DELIS_orders_${date}.csv (${filteredOrders.length})`);
-                  }}
-                  className="press flex h-10 w-full items-center justify-center gap-2 rounded-[14px] border border-moss/20 bg-sagetint/50 text-[12px] font-bold text-pine"
-                >
-                  <IconChart size={15} /> {lang === "uz" ? "CSV eksport (filtr bo'yicha)" : lang === "ru" ? "Экспорт CSV (по фильтру)" : "Export CSV (filtered)"}
-                </button>
-              )}
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => {
+                      haptic("medium");
+                      const date = new Date().toISOString().slice(0, 10);
+                      const esc = (v: string | number) => `"${String(v).replace(/"/g, '""')}"`;
+                      const rows = [
+                        ["ID", "Sana", "Mijoz", "Telefon", "Hudud", "Summa", "To'lov", "Holat"].map(esc).join(";"),
+                        ...filteredOrders.map((o) =>
+                          [o.id, new Date(o.createdAt).toLocaleString(), o.recipientName, o.recipientPhone, o.deliveryZone || "", o.total, o.paymentMethod, o.status].map(esc).join(";"),
+                        ),
+                      ].join("\r\n");
+                      const blob = new Blob(["\uFEFF" + rows], { type: "text/csv;charset=utf-8" });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement("a");
+                      a.href = url;
+                      a.download = `DELIS_orders_${date}.csv`;
+                      a.click();
+                      setTimeout(() => URL.revokeObjectURL(url), 2000);
+                      onToast(`⬇️ DELIS_orders_${date}.csv (${filteredOrders.length})`);
+                    }}
+                    className="press flex h-10 items-center justify-center gap-2 rounded-[14px] border border-moss/25 bg-sagetint/50 text-[11.5px] font-bold text-moss"
+                  >
+                    <IconDownload size={15} /> {lang === "uz" ? "CSV eksport" : lang === "ru" ? "Экспорт CSV" : "Export CSV"}
+                  </button>
 
-              {/* PDF report */}
-              {filteredOrders.length > 0 && (
-                <button
-                  onClick={() => {
-                    haptic("medium");
-                    const esc = (v: string) => v.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                    const date = new Date().toISOString().slice(0, 10);
-                    const rows = filteredOrders
-                      .map(
-                        (o) =>
-                          `<tr><td>${esc(o.id)}</td><td>${esc(new Date(o.createdAt).toLocaleString())}</td><td>${esc(o.recipientName)}</td><td>${esc(o.recipientPhone)}</td><td class="r">${formatPrice(o.total, lang)}</td><td>${esc(o.status)}</td></tr>`,
-                      )
-                      .join("");
-                    const html = `<!doctype html><html><head><meta charset="utf-8"><title>DELIS orders ${date}</title>
-                      <style>
-                        body{font-family:Arial,sans-serif;padding:24px;color:#0c1411}
-                        h1{font-size:20px;color:#1f2937;margin:0}
-                        .sub{color:#54685f;font-size:12px;margin:4px 0 16px}
-                        table{width:100%;border-collapse:collapse;font-size:11px}
-                        td{border:1px solid #e2e8e5;padding:6px 8px}
-                        tr:first-child td{background:#eaf4ff;font-weight:bold}
-                        .r{text-align:right}
-                        .sum{font-weight:bold;background:#fdf3e0}
-                      </style></head><body>
-                      <h1>📦 DELIS — ${esc(lang === "uz" ? "Buyurtmalar" : lang === "ru" ? "Заказы" : "Orders")}</h1>
-                      <p class="sub">${date} · ${filteredOrders.length} ${esc(lang === "uz" ? "ta" : lang === "ru" ? "шт" : "items")}</p>
-                      <table><tr><td>ID</td><td>${esc(lang === "uz" ? "Sana" : lang === "ru" ? "Дата" : "Date")}</td><td>${esc(lang === "uz" ? "Mijoz" : lang === "ru" ? "Клиент" : "Client")}</td><td>Telefon</td><td class="r">${esc(lang === "uz" ? "Summa" : lang === "ru" ? "Сумма" : "Total")}</td><td>${esc(lang === "uz" ? "Holat" : lang === "ru" ? "Статус" : "Status")}</td></tr>${rows}
-                      <tr class="sum"><td colspan="4">${esc(lang === "uz" ? "JAMI" : lang === "ru" ? "ИТОГО" : "TOTAL")}</td><td class="r">${formatPrice(filteredOrders.reduce((s, o) => s + o.total, 0), lang)}</td><td></td></tr></table>
-                      <p style="margin-top:20px;color:#54685f;font-size:10px">DELIS · ${date}</p>
-                      </body></html>`;
-                    const win = window.open("", "_blank", "width=900,height=700");
-                    if (win) {
-                      win.document.write(html);
-                      win.document.close();
-                      setTimeout(() => win.print(), 400);
-                    } else {
-                      onToast(lang === "uz" ? "Brauzer qalqib chiquvchi oynani blokladi" : lang === "ru" ? "Браузер заблокировал всплывающее окно" : "Popup blocked");
-                    }
-                  }}
-                  className="press flex h-10 w-full items-center justify-center gap-2 rounded-[14px] border border-ink/15 bg-card text-[12px] font-bold text-ink/70"
-                >
-                  <IconSymbol symbol="🖨️" size={15} /> {lang === "uz" ? "PDF hisobot" : lang === "ru" ? "PDF-отчёт" : "PDF report"}
-                </button>
+                  {/* PDF report */}
+                  <button
+                    onClick={() => {
+                      haptic("medium");
+                      const esc = (v: string) => v.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                      const date = new Date().toISOString().slice(0, 10);
+                      const rows = filteredOrders
+                        .map(
+                          (o) =>
+                            `<tr><td>${esc(o.id)}</td><td>${esc(new Date(o.createdAt).toLocaleString())}</td><td>${esc(o.recipientName)}</td><td>${esc(o.recipientPhone)}</td><td class="r">${formatPrice(o.total, lang)}</td><td>${esc(o.status)}</td></tr>`,
+                        )
+                        .join("");
+                      const html = `<!doctype html><html><head><meta charset="utf-8"><title>DELIS orders ${date}</title>
+                        <style>
+                          body{font-family:Arial,sans-serif;padding:24px;color:#0c1411}
+                          h1{font-size:20px;color:#1f2937;margin:0}
+                          .sub{color:#54685f;font-size:12px;margin:4px 0 16px}
+                          table{width:100%;border-collapse:collapse;font-size:11px}
+                          td{border:1px solid #e2e8e5;padding:6px 8px}
+                          tr:first-child td{background:#eaf4ff;font-weight:bold}
+                          .r{text-align:right}
+                          .sum{font-weight:bold;background:#fdf3e0}
+                        </style></head><body>
+                        <h1>📦 DELIS — ${esc(lang === "uz" ? "Buyurtmalar" : lang === "ru" ? "Заказы" : "Orders")}</h1>
+                        <p class="sub">${date} · ${filteredOrders.length} ${esc(lang === "uz" ? "ta" : lang === "ru" ? "шт" : "items")}</p>
+                        <table><tr><td>ID</td><td>${esc(lang === "uz" ? "Sana" : lang === "ru" ? "Дата" : "Date")}</td><td>${esc(lang === "uz" ? "Mijoz" : lang === "ru" ? "Клиент" : "Client")}</td><td>Telefon</td><td class="r">${esc(lang === "uz" ? "Summa" : lang === "ru" ? "Сумма" : "Total")}</td><td>${esc(lang === "uz" ? "Holat" : lang === "ru" ? "Статус" : "Status")}</td></tr>${rows}
+                        <tr class="sum"><td colspan="4">${esc(lang === "uz" ? "JAMI" : lang === "ru" ? "ИТОГО" : "TOTAL")}</td><td class="r">${formatPrice(filteredOrders.reduce((s, o) => s + o.total, 0), lang)}</td><td></td></tr></table>
+                        <p style="margin-top:20px;color:#54685f;font-size:10px">DELIS · ${date}</p>
+                        </body></html>`;
+                      const win = window.open("", "_blank", "width=900,height=700");
+                      if (win) {
+                        win.document.write(html);
+                        win.document.close();
+                        setTimeout(() => win.print(), 400);
+                      } else {
+                        onToast(lang === "uz" ? "Brauzer qalqib chiquvchi oynani blokladi" : lang === "ru" ? "Браузер заблокировал всплывающее окно" : "Popup blocked");
+                      }
+                    }}
+                    className="press flex h-10 items-center justify-center gap-2 rounded-[14px] border border-white/10 bg-card/80 text-[11.5px] font-bold text-ink2 hover:text-ink"
+                  >
+                    <IconSymbol symbol="🖨️" size={15} /> {lang === "uz" ? "PDF hisobot" : lang === "ru" ? "PDF-отчёт" : "PDF report"}
+                  </button>
+                </div>
               )}
 
               {/* Status filter chips with counts */}
-              <div className="no-scrollbar flex gap-1.5 overflow-x-auto rounded-[18px] bg-paper2 p-1.5">
+              <div className="no-scrollbar flex gap-1.5 overflow-x-auto">
                 {(["all", "new", "preparing", "shipped", "delivered", "canceled"] as const).map((f) => {
                   const count = f === "all" ? allOrders.length : allOrders.filter((o) => o.status === f).length;
                   const active = orderFilter === f;
                   return (
-                    <button
-                      key={f}
-                      onClick={() => { haptic("light"); setOrderFilter(f); }}
-                      className={`press flex shrink-0 items-center gap-1.5 rounded-[13px] px-3 py-2 text-[11px] font-bold transition-all ${
-                        active ? "bg-amber text-white shadow-sm" : "bg-card text-ink2 hover:text-ink"
-                      }`}
-                    >
-                      <IconSymbol symbol={f === "all" ? "📋" : f === "new" ? "🆕" : f === "preparing" ? "📦" : f === "shipped" ? "🚚" : f === "delivered" ? "✅" : "❌"} size={14} filled={active} />
+                    <AdminChip key={f} active={active} onClick={() => { haptic("light"); setOrderFilter(f); }} count={count}>
+                      <IconSymbol symbol={f === "all" ? "📋" : f === "new" ? "🆕" : f === "preparing" ? "📦" : f === "shipped" ? "🚚" : f === "delivered" ? "✅" : "❌"} size={13} />
                       <span>{f === "all" ? (lang === "uz" ? "Hammasi" : lang === "ru" ? "Все" : "All") : f === "new" ? (lang === "uz" ? "Yangi" : lang === "ru" ? "Новые" : "New") : f === "preparing" ? (lang === "uz" ? "Zavodda" : lang === "ru" ? "На заводе" : "Preparing") : f === "shipped" ? (lang === "uz" ? "Kuryerda" : lang === "ru" ? "У курьера" : "Shipped") : f === "delivered" ? (lang === "uz" ? "Yetkazildi" : lang === "ru" ? "Доставлено" : "Delivered") : (lang === "uz" ? "Bekor" : lang === "ru" ? "Отменено" : "Canceled")}</span>
-                      <span className={`rounded-full px-1.5 py-0.5 font-display text-[9px] font-bold ${active ? "bg-white/20 text-white" : "bg-paper2 text-ink2"}`}>{count}</span>
-                    </button>
+                    </AdminChip>
                   );
                 })}
               </div>
 
               {filteredOrders.length === 0 && (
-                <div className="rounded-[20px] border border-ink/18 bg-card p-8 text-center">
-                  <p className="mx-auto grid h-14 w-14 place-items-center rounded-[18px] bg-paper2 text-ink2"><IconSymbol symbol="📭" size={27} /></p>
-                  <p className="mt-2 text-[13px] font-semibold text-ink2">
-                    {lang === "uz" ? "Hech narsa topilmadi." : lang === "ru" ? "Ничего не найдено." : "Nothing found."}
-                  </p>
-                </div>
+                <AdminEmpty
+                  icon={<IconSymbol symbol="📭" size={27} />}
+                  text={lang === "uz" ? "Hech narsa topilmadi." : lang === "ru" ? "Ничего не найдено." : "Nothing found."}
+                />
               )}
 
               {filteredOrders.map((o) => (
-                <div key={o.id} className="rounded-[24px] border border-ink/18 bg-card p-4 shadow-sm space-y-3">
-                  <div className="flex items-center justify-between border-b border-ink/6 pb-2.5">
-                    <div>
-                      <p className="font-display text-[14px] font-bold text-ink">#{o.id}</p>
-                      <p className="text-[11.5px] font-medium text-ink2">
+                <div key={o.id} className="rounded-[22px] border border-white/8 bg-card/85 p-4 shadow-[0_20px_44px_-28px_rgba(0,0,0,0.9)] space-y-3">
+                  <div className="flex items-center justify-between border-b border-white/6 pb-2.5">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="font-display text-[14px] font-bold text-ink">#{o.id}</p>
+                        <AdminStatusPill status={o.status} label={orderStatusLabel(o.status, lang)} />
+                      </div>
+                      <p className="mt-1 text-[11.5px] font-medium text-ink2">
                         {o.recipientName} · {o.recipientPhone}
                         {o.customerName && o.customerName !== o.recipientName && (
                           <span className="ml-1.5 font-bold text-pine">TG: {o.customerName}</span>
@@ -1361,7 +1434,7 @@ export function AdminPanelSheet({
 
                   <button
                     onClick={() => { haptic("light"); setExpandedOrder(expandedOrder === o.id ? null : o.id); }}
-                    className="press flex h-9 w-full items-center justify-center gap-1 rounded-[14px] bg-paper2 text-[11.5px] font-bold text-ink2"
+                    className="press flex h-9 w-full items-center justify-center gap-1 rounded-[14px] border border-white/8 bg-white/4 text-[11.5px] font-bold text-ink2 hover:border-white/15 hover:text-ink"
                   >
                     {expandedOrder === o.id ? "▲" : "▼"} {lang === "uz" ? "Batafsil" : lang === "ru" ? "Детали" : "Details"}
                   </button>
@@ -1370,10 +1443,10 @@ export function AdminPanelSheet({
                   <div className="grid grid-cols-4 gap-1.5">
                     {(
                       [
-                        { id: "new", label: lang === "uz" ? "Yangi" : lang === "ru" ? "Новый" : "New", tint: "bg-moss text-white" },
-                        { id: "preparing", label: lang === "uz" ? "Zavodda" : lang === "ru" ? "Готовится" : "Preparing", tint: "bg-amber text-white" },
-                        { id: "shipped", label: lang === "uz" ? "Kuryerda" : lang === "ru" ? "У курьера" : "Shipped", tint: "bg-pine text-white" },
-                        { id: "delivered", label: lang === "uz" ? "Yetkazildi" : lang === "ru" ? "Доставлен" : "Delivered", tint: "bg-moss text-white" },
+                        { id: "new", label: lang === "uz" ? "Yangi" : lang === "ru" ? "Новый" : "New", tint: "bg-gradient-to-r from-amber to-amberdeep text-[#17110a]" },
+                        { id: "preparing", label: lang === "uz" ? "Zavodda" : lang === "ru" ? "Готовится" : "Preparing", tint: "bg-sky-400 text-[#04121f]" },
+                        { id: "shipped", label: lang === "uz" ? "Kuryerda" : lang === "ru" ? "У курьера" : "Shipped", tint: "bg-violet-400 text-[#170b2b]" },
+                        { id: "delivered", label: lang === "uz" ? "Yetkazildi" : lang === "ru" ? "Доставлен" : "Delivered", tint: "bg-moss text-[#052012]" },
                       ] as const
                     ).map((st) => {
                       const active = o.status === st.id;
@@ -1405,12 +1478,12 @@ export function AdminPanelSheet({
                           }}
                           className={`rounded-[14px] py-2 text-center text-[9.5px] font-bold uppercase transition-all ${
                             active
-                              ? `${st.tint} shadow-sm ring-2 ring-ink/20`
+                              ? `${st.tint} shadow-[0_8px_18px_-8px_rgba(0,0,0,0.7)] ring-2 ring-white/10`
                               : completed
-                                ? "border border-moss/20 bg-moss/10 text-moss"
+                                ? "border border-moss/25 bg-moss/8 text-moss"
                                 : allowed
-                                  ? "press border border-moss/30 bg-card text-ink hover:bg-moss/5"
-                                  : "cursor-not-allowed border border-ink/8 bg-paper2/55 text-ink/30"
+                                  ? "press border border-white/10 bg-card/70 text-ink/65 hover:border-moss/30 hover:bg-moss/5 hover:text-moss"
+                                  : "cursor-not-allowed border border-white/5 bg-paper2/40 text-ink/25"
                           }`}
                         >
                           {completed ? <span className="inline-flex items-center gap-1"><IconCheck size={10} />{st.label}</span> : st.label}
@@ -1503,7 +1576,10 @@ export function AdminPanelSheet({
                         {o.courier?.name && <span className="inline-flex items-center gap-1 rounded-full bg-pine/10 px-2.5 py-1 text-[10px] font-bold text-pine"><IconSymbol symbol="👨‍🔧" size={12} /> {o.courier.name}</span>}
                       </div>
                       {ADMIN_ORDER_TRANSITIONS[o.status]?.includes("canceled") && (
-                        <button
+                        <AdminBtn
+                          variant="danger"
+                          className="w-full"
+                          icon={<IconClose size={14} />}
                           onClick={async () => {
                             const confirmed = window.confirm(lang === "uz" ? `#${o.id} buyurtmani bekor qilasizmi?` : lang === "ru" ? `Отменить заказ #${o.id}?` : `Cancel order #${o.id}?`);
                             if (!confirmed) return;
@@ -1520,10 +1596,9 @@ export function AdminPanelSheet({
                             }
                             onUpdateOrderStatus(o.id, "canceled");
                           }}
-                          className="press flex h-10 w-full items-center justify-center gap-2 rounded-[14px] border border-[#B3402E]/25 bg-[#B3402E]/[0.06] text-[11px] font-bold text-[#B3402E]"
                         >
-                          <IconClose size={14} /> {lang === "uz" ? "Buyurtmani bekor qilish" : lang === "ru" ? "Отменить заказ" : "Cancel order"}
-                        </button>
+                          {lang === "uz" ? "Buyurtmani bekor qilish" : lang === "ru" ? "Отменить заказ" : "Cancel order"}
+                        </AdminBtn>
                       )}
                     </div>
                   )}
@@ -1535,16 +1610,21 @@ export function AdminPanelSheet({
           {/* ─────────────── TAB 3: INVENTORY & PRICES EDITOR ─────────────── */}
           {activeTab === "inventory" && (
             <div className="space-y-3 animate-pop">
-              <div className="rounded-[20px] bg-sagetint/70 p-3.5 text-[12px] font-medium text-pine">
-                <span className="inline-flex items-start gap-1.5"><IconFactory size={15} className="mt-0.5 shrink-0" /><span><b>Namangan zavodi ombori:</b> Barcha 8 ta formula uchun qoldiq va narxlar real vaqtda yangilanadi.</span></span>
-              </div>
+              <AdminCard tone="green" className="p-3.5">
+                <p className="flex items-start gap-2 text-[12px] font-semibold text-moss">
+                  <IconFactory size={16} className="mt-0.5 shrink-0" />
+                  <span>
+                    <b className="text-ink">{lang === "uz" ? "Namangan zavodi ombori" : lang === "ru" ? "Склад завода в Намангане" : "Namangan factory warehouse"}:</b>{" "}
+                    {lang === "uz" ? "Barcha formulalar bo'yicha qoldiq va narxlar real vaqtda yangilanadi." : lang === "ru" ? "Остатки и цены по всем формулам обновляются в реальном времени." : "Stock and prices update in real time for every formula."}
+                  </span>
+                </p>
+              </AdminCard>
 
               {/* Search */}
-              <input
+              <AdminSearch
                 value={productSearch}
-                onChange={(e) => setProductSearch(e.target.value)}
-                placeholder={lang === "ru" ? "🔍 Поиск товара по названию..." : lang === "en" ? "🔍 Search product by name..." : "🔍 Mahsulotni qidirish..."}
-                className="w-full rounded-[16px] border border-ink/15 bg-card px-3.5 py-3 text-[13px] font-semibold text-ink placeholder:text-ink/75 outline-none focus:border-moss"
+                onChange={setProductSearch}
+                placeholder={lang === "uz" ? "Mahsulotni qidirish..." : lang === "ru" ? "Поиск товара по названию..." : "Search product by name..."}
               />
 
               {/* Bulk edit: select several products, change price & stock at once */}

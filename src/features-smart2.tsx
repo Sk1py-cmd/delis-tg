@@ -23,10 +23,10 @@ function CourierLiveMap({ track, lang }: { track: CourierTrack; lang: "uz" | "ru
   return (
     <div className="animate-pop space-y-2">
       <div className="flex items-center justify-between">
-        <p className="text-[10.5px] font-extrabold uppercase tracking-[0.16em] text-ink/65">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-ink/65">
           <span className="inline-flex items-center gap-1.5"><IconMotorcycle size={14} /> {lang === "uz" ? "Kuryer xaritada" : lang === "ru" ? "Курьер на карте" : "Courier on the map"}</span>
         </p>
-        <span className="flex items-center gap-1.5 rounded-full bg-moss/12 px-2.5 py-1 text-[9.5px] font-bold uppercase tracking-wider text-moss">
+        <span className="flex items-center gap-1.5 rounded-full bg-moss/12 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-moss">
           <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-moss" />
           {lang === "uz" ? "Jonli" : lang === "ru" ? "Live" : "Live"} · {fresh}
         </span>
@@ -44,7 +44,7 @@ function CourierLiveMap({ track, lang }: { track: CourierTrack; lang: "uz" | "ru
         href={`https://yandex.uz/maps/?pt=${lon},${lat}&z=15&l=map`}
         target="_blank"
         rel="noreferrer"
-        className="press flex items-center justify-center gap-1.5 rounded-[14px] bg-paper2 py-2 text-[11.5px] font-bold text-ink"
+        className="press flex items-center justify-center gap-1.5 rounded-[14px] bg-paper2 py-2 text-[12px] font-bold text-ink"
       >
         <IconMap size={16} /> {lang === "uz" ? "Yandex xaritada ochish" : lang === "ru" ? "Открыть в Яндекс.Картах" : "Open in Yandex Maps"}
       </a>
@@ -149,7 +149,7 @@ export function OrderTrackingSheet({
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleTrack()}
               placeholder={t("trackPh")}
-              className="flex-1 bg-transparent text-[13.5px] font-semibold text-ink outline-none placeholder:text-ink2/75"
+              className="flex-1 bg-transparent text-[14px] font-semibold text-ink outline-none placeholder:text-ink2/75"
             />
           </label>
           <button
@@ -173,7 +173,7 @@ export function OrderTrackingSheet({
           <div className="animate-pop rounded-[24px] border border-ink/18 bg-card p-6 text-center">
             <div className="motion-icon-tile mx-auto flex h-14 w-14 items-center justify-center rounded-[18px] bg-amber/15 text-amberdeep"><IconSearch size={25} /></div>
             <p className="mt-3 font-display text-[16px] font-bold text-ink">{t("trackNotFound")}</p>
-            <p className="mt-1 text-[12.5px] text-ink2">{t("trackNotFoundSub")}</p>
+            <p className="mt-1 text-[13px] text-ink2">{t("trackNotFoundSub")}</p>
           </div>
         )}
 
@@ -198,7 +198,7 @@ export function OrderTrackingSheet({
 
             {/* Timeline */}
             <div className="rounded-[22px] border border-ink/18 bg-card p-4">
-              <p className="text-[10.5px] font-extrabold uppercase tracking-wider text-ink2">
+              <p className="text-[11px] font-extrabold uppercase tracking-wider text-ink2">
                 {t("trackSteps")}
               </p>
               <div className="mt-4 space-y-0">
@@ -222,8 +222,8 @@ export function OrderTrackingSheet({
                         )}
                       </div>
                       <div className={`pt-0.5 ${isCurrent ? "" : isPast ? "opacity-80" : "opacity-45"}`}>
-                        <p className="text-[12.5px] font-bold text-ink">{s.label}</p>
-                        {isCurrent && <p className="text-[10.5px] font-semibold text-moss">• {result.date}</p>}
+                        <p className="text-[13px] font-bold text-ink">{s.label}</p>
+                        {isCurrent && <p className="text-[11px] font-semibold text-moss">• {result.date}</p>}
                       </div>
                     </div>
                   );
@@ -234,7 +234,7 @@ export function OrderTrackingSheet({
             {/* Real courier live-map (Telegram live-location → server → OSM) */}
             <CourierLiveMap track={track} lang={lang} />
             {result.status === "shipped" && track && !track.active && (
-              <div className="rounded-[16px] border border-amber/25 bg-amber/[0.07] px-3.5 py-2.5 text-[11.5px] font-semibold text-amberdeep">
+              <div className="rounded-[16px] border border-amber/25 bg-amber/[0.07] px-3.5 py-2.5 text-[12px] font-semibold text-amberdeep">
                 <span className="inline-flex items-start gap-1.5"><IconMotorcycle size={16} className="mt-0.5 shrink-0" /> {lang === "uz"
                   ? "Kuryer hali jonli lokatsiyani yoqmadi — yoqqach bu yerda haqiqiy xarita ochiladi"
                   : lang === "ru"
@@ -247,10 +247,10 @@ export function OrderTrackingSheet({
             {result.courier && result.status !== "delivered" && !track?.active && (
               <div className="animate-pop space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <p className="text-[10.5px] font-extrabold uppercase tracking-[0.16em] text-ink/65">
+                  <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-ink/65">
                     <span className="inline-flex items-center gap-1.5"><IconMap size={14} /> {lang === "uz" ? "Jonli xarita" : lang === "ru" ? "Живая карта" : "Live map"}</span>
                   </p>
-                  <span className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[9.5px] font-bold uppercase tracking-wider ${result.status === "shipped" ? "bg-moss/12 text-moss" : "bg-amber/15 text-amberdeep"}`}>
+                  <span className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${result.status === "shipped" ? "bg-moss/12 text-moss" : "bg-amber/15 text-amberdeep"}`}>
                     <span className={`h-1.5 w-1.5 rounded-full ${result.status === "shipped" ? "animate-pulse bg-moss" : "bg-amber"}`} />
                     {result.status === "shipped" ? (lang === "uz" ? "Jonli" : lang === "ru" ? "В пути" : "Live") : (lang === "uz" ? "Tayinlandi" : lang === "ru" ? "Назначен" : "Assigned")}
                   </span>
@@ -315,7 +315,7 @@ export function OrderTrackingSheet({
             {/* Courier service phone */}
             <a
               href={CONFIG.SUPPORT_PHONE_LINK}
-              className="press flex h-12 items-center justify-center gap-2 rounded-[18px] border border-ink/15 bg-card text-[12.5px] font-bold text-ink"
+              className="press flex h-12 items-center justify-center gap-2 rounded-[18px] border border-ink/15 bg-card text-[13px] font-bold text-ink"
             >
               <IconPhone size={16} /> {t("trackCourierPhone")}: {CONFIG.SUPPORT_PHONE}
             </a>
@@ -374,13 +374,13 @@ export function SmartRecommendations({
       {/* Header */}
       <div className="flex items-end justify-between">
         <div>
-          <p className="flex items-center gap-1.5 text-[10.5px] font-extrabold uppercase tracking-[0.22em] text-moss">
+          <p className="flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-[0.2em] text-moss">
             <IconSparkle size={14} /> {t("smartTitle")}
           </p>
           <p className="mt-1 text-[12px] font-medium text-ink2">{t("smartSub")}</p>
         </div>
         {totalSaved > 0 && (
-          <span className="rounded-full bg-amber/15 px-3 py-1 text-[10.5px] font-bold text-amberdeep">
+          <span className="rounded-full bg-amber/15 px-3 py-1 text-[11px] font-bold text-amberdeep">
             {t("smartMoneySaved")}: {formatPrice(totalSaved, lang)}
           </span>
         )}
@@ -399,10 +399,10 @@ export function SmartRecommendations({
             <IconRepeat size={21} />
           </span>
           <span className="flex-1 min-w-0">
-            <span className="block font-display text-[13.5px] font-bold text-ink">
+            <span className="block font-display text-[14px] font-bold text-ink">
               {t("smartLastOrder")}: #{lastOrder.id}
             </span>
-            <span className="mt-0.5 block truncate text-[11.5px] font-medium text-ink2">
+            <span className="mt-0.5 block truncate text-[12px] font-medium text-ink2">
               {lastOrder.items.map((i) => i.name).join(" · ")}
             </span>
           </span>
@@ -434,9 +434,9 @@ export function SmartRecommendations({
                 )}
               </div>
               <div className="p-3">
-                <p className="truncate font-display text-[12.5px] font-bold text-ink">{p.name}</p>
+                <p className="truncate font-display text-[13px] font-bold text-ink">{p.name}</p>
                 <div className="mt-1.5 flex items-center justify-between">
-                  <span className="font-display text-[12.5px] font-bold text-amber">
+                  <span className="font-display text-[13px] font-bold text-amber">
                     {formatPrice(p.price, lang)}
                   </span>
                   <span
@@ -501,7 +501,7 @@ export function ProductQuickActions({
             haptic("light");
             a.action();
           }}
-          className={`press flex shrink-0 items-center gap-1.5 rounded-[16px] px-3.5 py-2.5 text-[11.5px] font-bold transition-all ${
+          className={`press flex shrink-0 items-center gap-1.5 rounded-[16px] px-3.5 py-2.5 text-[12px] font-bold transition-all ${
             a.primary
               ? "bg-amber text-white shadow-sm hover:brightness-105"
               : "border border-ink/15 bg-card text-ink hover:bg-amber/5"

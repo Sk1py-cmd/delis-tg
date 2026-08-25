@@ -82,7 +82,7 @@ export function CsvExportSheet({
   return (
     <Sheet open={open} onClose={onClose} title={t("csvTitle")}>
       <div className="space-y-4 pt-1">
-        <p className="text-[12.5px] font-medium text-ink2">{t("csvDesc")}</p>
+        <p className="text-[13px] font-medium text-ink2">{t("csvDesc")}</p>
 
         <div className="rounded-[22px] border border-moss/20 bg-sagetint/60 p-4">
           <div className="flex items-center justify-between">
@@ -100,7 +100,7 @@ export function CsvExportSheet({
         <div className="flex gap-2.5">
           <button
             onClick={handleDownload}
-            className="press flex h-13 flex-1 items-center justify-center gap-2 rounded-[20px] bg-amber text-[13.5px] font-bold text-white shadow-lift hover:bg-pine"
+            className="press flex h-13 flex-1 items-center justify-center gap-2 rounded-[20px] bg-amber text-[14px] font-bold text-white shadow-lift hover:bg-pine"
           >
             <IconFileText size={16} />
             <span>{t("csvDownload")}</span>
@@ -377,10 +377,10 @@ export function OpLogsSheet({ open, onClose, onToast }: { open: boolean; onClose
               {logs.map((log) => (
                 <div key={log.id} className="rounded-[16px] border border-ink/18 bg-card p-3 shadow-sm">
                   <div className="flex items-center justify-between">
-                    <span className="font-display text-[12.5px] font-bold text-ink">{log.action}</span>
+                    <span className="font-display text-[13px] font-bold text-ink">{log.action}</span>
                     <span className="font-mono text-[10px] text-ink2">{timeAgo(log.time)}</span>
                   </div>
-                  <p className="mt-0.5 text-[11.5px] font-medium text-ink2">{log.detail}</p>
+                  <p className="mt-0.5 text-[12px] font-medium text-ink2">{log.detail}</p>
                   <p className="mt-1 flex items-center gap-1 text-[10px] font-semibold text-moss"><IconUser size={12} /> {log.operator}</p>
                 </div>
               ))}
@@ -430,8 +430,8 @@ export function FloatingQuickCallButton({ hidden = false }: { hidden?: boolean }
       </span>
       {expanded && (
         <span className="animate-fadein max-w-[150px]">
-          <span className="block text-[11.5px] font-bold leading-tight">{t("quickCall")}</span>
-          <span className="block text-[9.5px] font-medium leading-tight opacity-80">{supportPhone}</span>
+          <span className="block text-[12px] font-bold leading-tight">{t("quickCall")}</span>
+          <span className="block text-[10px] font-medium leading-tight opacity-80">{supportPhone}</span>
         </span>
       )}
     </a>

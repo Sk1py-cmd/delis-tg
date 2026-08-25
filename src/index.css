@@ -874,7 +874,7 @@ a:focus:not(:focus-visible) {
 }
 @keyframes loader-brand {
   from { opacity: 0; letter-spacing: 0.5em; }
-  to { opacity: 1; letter-spacing: 0.34em; }
+  to { opacity: 1; letter-spacing: 0.3em; }
 }
 @keyframes loader-rule {
   from { transform: scaleX(0); opacity: 0; }
@@ -1154,7 +1154,7 @@ a:focus:not(:focus-visible) {
   color: #4ade80;
   font-size: 9px;
   font-weight: 800;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
 }
 .admin-live-dot {
   width: 6px;
@@ -1345,7 +1345,7 @@ a:focus:not(:focus-visible) {
 .loyalty-kicker {
   font-size: 9px;
   font-weight: 900;
-  letter-spacing: 0.21em;
+  letter-spacing: 0.2em;
   color: color-mix(in srgb, var(--color-ink2) 78%, transparent);
 }
 .loyalty-progress { animation: loyalty-progress-glow 2.2s ease-in-out infinite; }

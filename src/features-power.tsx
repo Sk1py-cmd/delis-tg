@@ -86,7 +86,7 @@ export function GiftBuilderSheet({
   return (
     <Sheet open={open} onClose={onClose} title={t("giftTitle")}>
       <div className="space-y-5 pt-1">
-        <p className="text-[12.5px] font-medium leading-relaxed text-ink/75">{t("giftSub")}</p>
+        <p className="text-[13px] font-medium leading-relaxed text-ink/75">{t("giftSub")}</p>
 
         {/* 3D-styled Visual Gift Box Preview */}
         <div
@@ -180,14 +180,14 @@ export function GiftBuilderSheet({
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between">
-                    <p className="font-display text-[13.5px] font-bold text-ink truncate">
+                    <p className="font-display text-[14px] font-bold text-ink truncate">
                       {box.name[lang]}
                     </p>
                     <span className="font-display text-[12px] font-bold text-moss">
                       +{formatPrice(box.price, lang)}
                     </span>
                   </div>
-                  <p className="mt-0.5 text-[11.5px] font-medium text-ink/70 leading-tight">
+                  <p className="mt-0.5 text-[12px] font-medium text-ink/70 leading-tight">
                     {box.desc[lang]}
                   </p>
                 </div>
@@ -265,11 +265,11 @@ export function GiftBuilderSheet({
 
         {/* Set Summary & Add to Cart */}
         <div className="rounded-[22px] border border-ink/18 bg-card p-4 space-y-2">
-          <div className="flex justify-between text-[12.5px] font-medium text-ink/60">
+          <div className="flex justify-between text-[13px] font-medium text-ink/60">
             <span>{selectedProducts.length} ta mahsulot</span>
             <span>{formatPrice(productsTotal, lang)}</span>
           </div>
-          <div className="flex justify-between text-[12.5px] font-medium text-ink/60">
+          <div className="flex justify-between text-[13px] font-medium text-ink/60">
             <span>{t("giftBoxFee")} ({selectedBox.name[lang].split("—")[0]})</span>
             <span>+{formatPrice(selectedBox.price, lang)}</span>
           </div>
@@ -286,7 +286,7 @@ export function GiftBuilderSheet({
         <button
           onClick={handleAddSet}
           disabled={added}
-          className={`press flex h-14 w-full items-center justify-center gap-2.5 rounded-[22px] text-[14.5px] font-bold shadow-lift transition-colors ${
+          className={`press flex h-14 w-full items-center justify-center gap-2.5 rounded-[22px] text-[15px] font-bold shadow-lift transition-colors ${
             added ? "bg-moss text-white" : "bg-amber text-white hover:brightness-105"
           }`}
         >
@@ -343,7 +343,7 @@ export function ProductComparisonSheet({
   return (
     <Sheet open={open} onClose={onClose} title={t("compareTitle")}>
       <div className="space-y-4 pt-1">
-        <p className="text-[12.5px] font-medium text-ink/70">{t("compareSub")}</p>
+        <p className="text-[13px] font-medium text-ink/70">{t("compareSub")}</p>
 
         {/* Product selector strip */}
         <div>
@@ -357,7 +357,7 @@ export function ProductComparisonSheet({
                 <button
                   key={p.id}
                   onClick={() => toggleCompareId(p.id)}
-                  className={`press flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-[11.5px] font-bold transition-all ${
+                  className={`press flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-[12px] font-bold transition-all ${
                     active
                       ? "border-ink bg-amber text-white shadow-sm"
                       : "border-ink/15 bg-card text-ink/60"
@@ -399,7 +399,7 @@ export function ProductComparisonSheet({
             ))}
 
             {/* Row 1: pH Level */}
-            <div className="border-b border-ink/6 bg-paper2/40 p-3 text-[11.5px] font-bold text-ink/60">
+            <div className="border-b border-ink/6 bg-paper2/40 p-3 text-[12px] font-bold text-ink/60">
               {t("comparePh")}
             </div>
             {comparedProducts.map((p) => (
@@ -409,27 +409,27 @@ export function ProductComparisonSheet({
             ))}
 
             {/* Row 2: Surfaces */}
-            <div className="border-b border-ink/6 p-3 text-[11.5px] font-bold text-ink/60">
+            <div className="border-b border-ink/6 p-3 text-[12px] font-bold text-ink/60">
               {t("compareSurfaces")}
             </div>
             {comparedProducts.map((p) => (
-              <div key={p.id} className="border-b border-l border-ink/6 p-3 text-center text-[11.5px] font-medium text-ink2 leading-tight">
+              <div key={p.id} className="border-b border-l border-ink/6 p-3 text-center text-[12px] font-medium text-ink2 leading-tight">
                 {p.compare?.surfaces[lang] || p.desc[lang]}
               </div>
             ))}
 
             {/* Row 3: Scent profile */}
-            <div className="border-b border-ink/6 bg-paper2/40 p-3 text-[11.5px] font-bold text-ink/60">
+            <div className="border-b border-ink/6 bg-paper2/40 p-3 text-[12px] font-bold text-ink/60">
               {t("compareScent")}
             </div>
             {comparedProducts.map((p) => (
-              <div key={p.id} className="border-b border-l border-ink/6 bg-paper2/20 p-3 text-center text-[11.5px] font-medium text-ink2 leading-tight">
+              <div key={p.id} className="border-b border-l border-ink/6 bg-paper2/20 p-3 text-center text-[12px] font-medium text-ink2 leading-tight">
                 {p.compare?.scent[lang] || "Tabiiy efir moyi"}
               </div>
             ))}
 
             {/* Row 4: Volume & Concentration */}
-            <div className="border-b border-ink/6 p-3 text-[11.5px] font-bold text-ink/60">
+            <div className="border-b border-ink/6 p-3 text-[12px] font-bold text-ink/60">
               {t("compareConcentration")}
             </div>
             {comparedProducts.map((p) => (
@@ -439,11 +439,11 @@ export function ProductComparisonSheet({
             ))}
 
             {/* Row 5: Safety & Certification */}
-            <div className="p-3 text-[11.5px] font-bold text-ink/60">
+            <div className="p-3 text-[12px] font-bold text-ink/60">
               {t("compareSafety")}
             </div>
             {comparedProducts.map((p) => (
-              <div key={p.id} className="border-l border-ink/6 p-3 text-center text-[11.5px] font-semibold text-moss leading-tight">
+              <div key={p.id} className="border-l border-ink/6 p-3 text-center text-[12px] font-semibold text-moss leading-tight">
                 ✓ {p.compare?.safety[lang] || "100% xavfsiz"}
               </div>
             ))}
@@ -590,7 +590,7 @@ export function CameraQrScanner({ onCode, onClose }: { onCode: (text: string) =>
         {error && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-graphite/95 px-6 text-center">
             <IconQrScan size={36} className="text-amber" />
-            <p className="text-[11.5px] font-semibold leading-snug text-white/85">
+            <p className="text-[12px] font-semibold leading-snug text-white/85">
               {error.kind === "denied"
                 ? lang === "ru"
                   ? "Нет доступа к камере — разрешите в настройках браузера или введите код вручную"
@@ -615,7 +615,7 @@ export function CameraQrScanner({ onCode, onClose }: { onCode: (text: string) =>
         )}
       </div>
       <div className="flex items-center justify-between gap-2">
-        <p className="text-[10.5px] font-semibold text-ink/55">
+        <p className="text-[11px] font-semibold text-ink/55">
           {lang === "ru"
             ? "Наведите камеру на QR-код на флаконе…"
             : lang === "en"
@@ -624,7 +624,7 @@ export function CameraQrScanner({ onCode, onClose }: { onCode: (text: string) =>
         </p>
         <button
           onClick={() => { haptic("light"); onClose(); }}
-          className="press shrink-0 rounded-full border border-ink/15 px-3 py-1.5 text-[10.5px] font-bold text-ink/70"
+          className="press shrink-0 rounded-full border border-ink/15 px-3 py-1.5 text-[11px] font-bold text-ink/70"
         >
           {lang === "ru" ? "Отмена" : lang === "en" ? "Cancel" : "Bekor qilish"}
         </button>
@@ -728,7 +728,7 @@ export function QrScannerSheet({
   return (
     <Sheet open={open} onClose={onClose} title={t("scannerTitle")}>
       <div className="space-y-4 pt-1">
-        <p className="text-[12.5px] font-medium text-ink/70">{t("scannerSub")}</p>
+        <p className="text-[13px] font-medium text-ink/70">{t("scannerSub")}</p>
 
         {/* Camera scan: Telegram's native QR popup, or the getUserMedia
             in-app scanner when the native popup doesn't exist */}
@@ -755,7 +755,7 @@ export function QrScannerSheet({
           </button>
         )}
         {cameraHint && (
-          <p className="rounded-[14px] border border-amber/30 bg-amber/10 px-3.5 py-2.5 text-[11.5px] font-semibold text-amberdeep">
+          <p className="rounded-[14px] border border-amber/30 bg-amber/10 px-3.5 py-2.5 text-[12px] font-semibold text-amberdeep">
             {cameraHint}
           </p>
         )}
@@ -767,7 +767,7 @@ export function QrScannerSheet({
             onChange={(e) => { setCodeInput(e.target.value); setNotFound(false); setResult(null); }}
             onKeyDown={(e) => e.key === "Enter" && checkCode()}
             placeholder={lang === "uz" ? "Kodni kiriting (masalan DL-K7M2QP)" : lang === "ru" ? "Введите код с флакона (например DL-K7M2QP)" : "Enter the bottle code (e.g. DL-K7M2QP)"}
-            className="min-w-0 flex-1 rounded-[16px] border border-ink/15 bg-card px-3.5 py-3 text-[12.5px] font-semibold uppercase text-ink outline-none placeholder:normal-case placeholder:text-ink/55 focus:border-moss"
+            className="min-w-0 flex-1 rounded-[16px] border border-ink/15 bg-card px-3.5 py-3 text-[13px] font-semibold uppercase text-ink outline-none placeholder:normal-case placeholder:text-ink/55 focus:border-moss"
           />
           <button
             onClick={checkCode}
@@ -796,12 +796,12 @@ export function QrScannerSheet({
                   {t("scannerStatusVerified")}
                 </p>
               </div>
-              <span className="rounded-full bg-paper px-2.5 py-1 font-mono text-[10.5px] font-bold text-ink">
+              <span className="rounded-full bg-paper px-2.5 py-1 font-mono text-[11px] font-bold text-ink">
                 {result.code}
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 text-[11.5px]">
+            <div className="grid grid-cols-2 gap-2 text-[12px]">
               <div className="rounded-[14px] bg-card/80 p-2.5">
                 <p className="text-[10px] font-bold uppercase text-ink/65">{t("scannerBatch")}</p>
                 <p className="font-display font-bold text-ink">{result.productName}</p>
@@ -816,7 +816,7 @@ export function QrScannerSheet({
               </div>
             </div>
 
-            <p className="flex items-center gap-1.5 text-[11.5px] font-semibold text-pine">
+            <p className="flex items-center gap-1.5 text-[12px] font-semibold text-pine">
               <IconCheck size={13} className="text-moss" strokeWidth={2.4} />
               {t("scannerCertIso")}
             </p>
@@ -890,7 +890,7 @@ export function RestockReminderSheet({
   return (
     <Sheet open={open} onClose={onClose} title={t("reminderTitle")}>
       <div className="space-y-4 pt-1">
-        <p className="text-[12.5px] font-medium text-ink/70">{t("reminderSub")}</p>
+        <p className="text-[13px] font-medium text-ink/70">{t("reminderSub")}</p>
 
         {/* Target Product Summary */}
         <div className="flex items-center gap-3 rounded-[20px] border border-ink/18 bg-card p-3.5 shadow-sm">
@@ -899,7 +899,7 @@ export function RestockReminderSheet({
           </div>
           <div className="min-w-0 flex-1">
             <p className="font-display text-[14px] font-bold text-ink">{product.name}</p>
-            <p className="text-[11.5px] font-medium text-ink/70">{product.volume} · {formatPrice(product.price, lang)}</p>
+            <p className="text-[12px] font-medium text-ink/70">{product.volume} · {formatPrice(product.price, lang)}</p>
           </div>
         </div>
 
@@ -914,7 +914,7 @@ export function RestockReminderSheet({
                   haptic("light");
                   setFreqIdx(i);
                 }}
-                className={`press flex w-full items-center justify-between rounded-[16px] border p-3.5 text-left text-[12.5px] font-semibold ${
+                className={`press flex w-full items-center justify-between rounded-[16px] border p-3.5 text-left text-[13px] font-semibold ${
                   freqIdx === i
                     ? "border-ink bg-card shadow-sm ring-1 ring-ink"
                     : "border-ink/18 bg-card/60 text-ink/70"

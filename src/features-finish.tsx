@@ -66,13 +66,13 @@ export function OnboardingTooltips({
           </div>
 
           {/* Step badge */}
-          <span className="absolute left-4 top-3 rounded-full bg-black/25 px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.16em] text-white backdrop-blur-sm">
+          <span className="absolute left-4 top-3 rounded-full bg-black/25 px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.14em] text-white backdrop-blur-sm">
             {idx + 1} / {steps.length}
           </span>
 
           <div className="p-5 pt-4 text-center">
             <p className="font-display text-[16px] font-bold text-ink">{step.title}</p>
-            <p className="mx-auto mt-1.5 max-w-[300px] text-[12.5px] font-medium leading-relaxed text-ink/65">{step.text}</p>
+            <p className="mx-auto mt-1.5 max-w-[300px] text-[13px] font-medium leading-relaxed text-ink/65">{step.text}</p>
 
             <div className="mt-4 flex items-center justify-center gap-1.5">
               {steps.map((_, i) => (
@@ -87,7 +87,7 @@ export function OnboardingTooltips({
 
             <button
               onClick={next}
-              className="btn-shine press mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-[18px] bg-amber text-[13.5px] font-bold text-white shadow-soft"
+              className="btn-shine press mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-[18px] bg-amber text-[14px] font-bold text-white shadow-soft"
             >
               {idx === steps.length - 1 ? t("tipDone") : t("tipNext")}
               <IconArrow size={14} />
@@ -186,13 +186,13 @@ export function OrderExportSheet({
         <div className="space-y-4 pt-1">
           <p className="text-[12px] font-medium text-ink/70">{t("exportOrdersDesc")}</p>
           <div className="overflow-hidden rounded-[20px] border border-ink/18 bg-card p-4">
-            <pre className="whitespace-pre-wrap font-mono text-[10.5px] leading-relaxed text-ink/80 max-h-[260px] overflow-y-auto">
+            <pre className="whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-ink/80 max-h-[260px] overflow-y-auto">
               {report}
             </pre>
           </div>
           <button
             onClick={copy}
-            className={`press flex h-13 w-full items-center justify-center gap-2 rounded-[20px] text-[13.5px] font-bold transition-colors ${copied ? "bg-moss text-white" : "bg-amber text-white"}`}
+            className={`press flex h-13 w-full items-center justify-center gap-2 rounded-[20px] text-[14px] font-bold transition-colors ${copied ? "bg-moss text-white" : "bg-amber text-white"}`}
           >
             {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
             {copied ? t("exportOrdersReady") : t("bankCopyAll")}
@@ -256,7 +256,7 @@ export function BankDetailsSheet({ open, onClose }: { open: boolean; onClose: ()
 
         <button
           onClick={copyAll}
-          className={`press mt-3 flex h-13 w-full items-center justify-center gap-2 rounded-[20px] text-[13.5px] font-bold transition-colors ${copied ? "bg-moss text-white" : "bg-amber text-white"}`}
+          className={`press mt-3 flex h-13 w-full items-center justify-center gap-2 rounded-[20px] text-[14px] font-bold transition-colors ${copied ? "bg-moss text-white" : "bg-amber text-white"}`}
         >
           {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
           {copied ? t("bankCopied") : t("bankCopyAll")}

@@ -70,7 +70,7 @@ export function CalculatorSheet({ open, onClose, onAdd }: { open: boolean; onClo
   return (
     <Sheet open={open} onClose={onClose} title={t("calcTitle")}>
       <div className="space-y-4 pt-1">
-        <p className="text-[12.5px] font-medium text-ink/70">{t("calcSub")}</p>
+        <p className="text-[13px] font-medium text-ink/70">{t("calcSub")}</p>
 
         {/* Area */}
         <div>
@@ -92,7 +92,7 @@ export function CalculatorSheet({ open, onClose, onAdd }: { open: boolean; onClo
               <button
                 key={s.id}
                 onClick={() => { haptic("light"); setSurface(s.id); }}
-                className={`press flex items-center gap-2.5 rounded-[16px] border px-3.5 py-3 text-left text-[12.5px] font-semibold ${
+                className={`press flex items-center gap-2.5 rounded-[16px] border px-3.5 py-3 text-left text-[13px] font-semibold ${
                   surface === s.id ? "border-ink bg-card ring-1 ring-ink" : "border-ink/18 bg-card/60 text-ink/70"
                 }`}
               >
@@ -111,7 +111,7 @@ export function CalculatorSheet({ open, onClose, onAdd }: { open: boolean; onClo
               <button
                 key={i}
                 onClick={() => { haptic("light"); setFreq(i); }}
-                className={`press flex-1 rounded-[16px] border px-2 py-3 text-center text-[11.5px] font-bold ${
+                className={`press flex-1 rounded-[16px] border px-2 py-3 text-center text-[12px] font-bold ${
                   freq === i ? "border-ink bg-amber text-white" : "border-ink/15 text-ink/60"
                 }`}
               >
@@ -130,7 +130,7 @@ export function CalculatorSheet({ open, onClose, onAdd }: { open: boolean; onClo
                 <img src={product.img} alt="" className="h-full w-full object-cover" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="font-display text-[14.5px] font-bold text-ink">{product.name}</p>
+                <p className="font-display text-[15px] font-bold text-ink">{product.name}</p>
                 <p className="text-[12px] font-semibold text-ink/75">
                   {t("calcNeed")}: {packsNeeded} {t("calcPacks")} · {t("calcCoverage")} ~{coveredM2} m²
                 </p>
@@ -139,7 +139,7 @@ export function CalculatorSheet({ open, onClose, onAdd }: { open: boolean; onClo
             </div>
             <button
               onClick={addAll}
-              className={`press mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-[16px] text-[13.5px] font-bold transition-colors ${addedAll ? "bg-moss text-white" : "bg-amber text-white"}`}
+              className={`press mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-[16px] text-[14px] font-bold transition-colors ${addedAll ? "bg-moss text-white" : "bg-amber text-white"}`}
             >
               {addedAll ? <IconCheck size={16} /> : <IconBag size={16} />}
               {addedAll ? t("added") : `${t("calcAddAll")} · ${packsNeeded} ${t("calcPacks")}`}
@@ -268,8 +268,8 @@ export function QuizSheet({ open, onClose, onAdd }: { open: boolean; onClose: ()
                 <img src={p.img} alt="" className="h-full w-full object-cover" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="font-display text-[13.5px] font-bold text-ink">{p.name}</p>
-                <p className="text-[11.5px] font-medium text-ink/70">{p.desc[lang]}... </p>
+                <p className="font-display text-[14px] font-bold text-ink">{p.name}</p>
+                <p className="text-[12px] font-medium text-ink/70">{p.desc[lang]}... </p>
               </div>
               <button
                 onClick={() => { haptic("success"); onAdd(p, 1); setAdded(true); }}
@@ -287,7 +287,7 @@ export function QuizSheet({ open, onClose, onAdd }: { open: boolean; onClose: ()
             {added ? <IconCheck size={17} /> : <IconBag size={17} />}
             {added ? t("added") : t("quizViewSet")}
           </button>
-          <button onClick={reset} className="press w-full py-2 text-center text-[12.5px] font-bold text-ink/70">
+          <button onClick={reset} className="press w-full py-2 text-center text-[13px] font-bold text-ink/70">
             {t("quizAgain")}
           </button>
         </div>
@@ -332,13 +332,13 @@ export function SubscriptionSheet({
           <p className="mt-4 inline-block rounded-full bg-sagetint px-4 py-2 text-[12px] font-bold text-pine">
             {t("subNextDate")}: {nextDate}
           </p>
-          <button onClick={onClose} className="press mt-7 w-full rounded-[18px] bg-amber py-3.5 text-[13.5px] font-bold text-white">
+          <button onClick={onClose} className="press mt-7 w-full rounded-[18px] bg-amber py-3.5 text-[14px] font-bold text-white">
             {t("done")}
           </button>
         </div>
       ) : (
         <div className="space-y-4 pt-1">
-          <p className="text-[12.5px] font-medium text-ink/70">{t("subSub")}</p>
+          <p className="text-[13px] font-medium text-ink/70">{t("subSub")}</p>
 
           <div>
             <label className="text-[11px] font-bold text-ink/70">{t("subChoose")}</label>
@@ -353,8 +353,8 @@ export function SubscriptionSheet({
                     <img src={p.img} alt="" className="h-full w-full object-cover" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="font-display text-[13.5px] font-bold text-ink">{p.name}</p>
-                    <p className="text-[11.5px] font-medium text-ink/70">{formatPrice(p.price, lang)} · {p.volume}</p>
+                    <p className="font-display text-[14px] font-bold text-ink">{p.name}</p>
+                    <p className="text-[12px] font-medium text-ink/70">{formatPrice(p.price, lang)} · {p.volume}</p>
                   </div>
                   <span className="rounded-full bg-amber/15 px-2.5 py-1 text-[10px] font-extrabold text-amberdeep">−{discountPct}%</span>
                 </button>
@@ -479,7 +479,7 @@ export function B2bSheet({ open, onClose, onApply }: { open: boolean; onClose: (
     <Sheet open={open} onClose={onClose} title={t("b2bTitle")}>
       {!loggedIn ? (
         <div className="space-y-4 pt-1">
-          <p className="text-[12.5px] font-medium text-ink/70">{t("b2bSub")}</p>
+          <p className="text-[13px] font-medium text-ink/70">{t("b2bSub")}</p>
 
           <div className="relative">
             <input
@@ -500,7 +500,7 @@ export function B2bSheet({ open, onClose, onApply }: { open: boolean; onClose: (
             <p className="text-[12px] font-semibold text-ink/70">{t("b2bApply")}</p>
             <button
               onClick={() => { haptic("light"); onApply(); }}
-              className="press mt-2.5 rounded-full bg-amber px-5 py-2.5 text-[12.5px] font-bold text-white"
+              className="press mt-2.5 rounded-full bg-amber px-5 py-2.5 text-[13px] font-bold text-white"
             >
               {t("wsCta")}
             </button>
@@ -512,7 +512,7 @@ export function B2bSheet({ open, onClose, onApply }: { open: boolean; onClose: (
             <span className="motion-icon-tile grid h-11 w-11 place-items-center rounded-[14px] bg-moss/10 text-moss"><IconBuilding size={24} /></span>
             <div>
               <p className="font-display text-[14px] font-bold text-ink">{t("b2bWelcome")}</p>
-              <p className="text-[11.5px] font-medium text-pine/70">DELIS · {lang === "en" ? "Namangan" : lang === "ru" ? "Наманган" : "Namangan"}{partnerLabel ? ` · ${partnerLabel}` : ""}</p>
+              <p className="text-[12px] font-medium text-pine/70">DELIS · {lang === "en" ? "Namangan" : lang === "ru" ? "Наманган" : "Namangan"}{partnerLabel ? ` · ${partnerLabel}` : ""}</p>
             </div>
           </div>
 
@@ -523,7 +523,7 @@ export function B2bSheet({ open, onClose, onApply }: { open: boolean; onClose: (
                 <div className="min-w-0 flex-1">
                   <p className="text-[11px] font-bold uppercase tracking-wide text-ink/65">{r.label}</p>
                   <p className="font-display text-[14px] font-bold text-ink">{r.value}</p>
-                  <p className="text-[11.5px] font-medium text-ink/70">{r.sub}</p>
+                  <p className="text-[12px] font-medium text-ink/70">{r.sub}</p>
                 </div>
               </div>
             ))}
@@ -531,7 +531,7 @@ export function B2bSheet({ open, onClose, onApply }: { open: boolean; onClose: (
 
           <button
             onClick={() => { haptic("light"); onApply(); }}
-            className="press h-12 w-full rounded-[18px] bg-amber text-[13.5px] font-bold text-white"
+            className="press h-12 w-full rounded-[18px] bg-amber text-[14px] font-bold text-white"
           >
             {t("b2bApply")}
           </button>
@@ -564,7 +564,7 @@ export function B2bSheet({ open, onClose, onApply }: { open: boolean; onClose: (
               );
               window.open(`https://t.me/${manager}?text=${msg}`, "_blank");
             }}
-            className="press flex h-12 w-full items-center justify-center gap-2 rounded-[18px] border border-moss/30 bg-moss/10 text-[13.5px] font-bold text-moss"
+            className="press flex h-12 w-full items-center justify-center gap-2 rounded-[18px] border border-moss/30 bg-moss/10 text-[14px] font-bold text-moss"
           >
             <IconSymbol symbol="⚡" size={16} />
             {lang === "ru" ? "Заказ в 1 клик менеджеру" : lang === "en" ? "1-click order to manager" : "1 bosishda menejerga buyurtma"}
@@ -686,7 +686,7 @@ export function MySubscriptionsSheet({ open, onClose }: { open: boolean; onClose
           <div className="py-10 text-center">
             <div className="motion-icon-tile mx-auto flex h-16 w-16 items-center justify-center rounded-[22px] bg-sagetint text-pine"><IconBox size={29} /></div>
             <p className="mt-4 font-display text-[16px] font-bold text-ink">{L("Obunalar yo'q", "Нет подписок", "No subscriptions")}</p>
-            <p className="mx-auto mt-1.5 max-w-[260px] text-[12.5px] font-medium text-ink/70">
+            <p className="mx-auto mt-1.5 max-w-[260px] text-[13px] font-medium text-ink/70">
               {L("«Abuna» bo'limidan mahsulotga eslatma o'rnating.", "Оформите подписку в разделе «Абонемент».", "Set up a subscription in the «Subscription» section.")}
             </p>
           </div>
@@ -698,11 +698,11 @@ export function MySubscriptionsSheet({ open, onClose }: { open: boolean; onClose
                 <div className="flex items-center gap-3">
                   {p && <img src={p.img} alt="" className="h-12 w-12 rounded-[14px] object-cover" />}
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-display text-[13.5px] font-bold text-ink">{p?.name || s.product_id}</p>
-                    <p className="mt-0.5 text-[11.5px] font-medium text-ink/70">
+                    <p className="truncate font-display text-[14px] font-bold text-ink">{p?.name || s.product_id}</p>
+                    <p className="mt-0.5 text-[12px] font-medium text-ink/70">
                       × {s.qty} · {L("har", "каждые", "every")} {s.frequency} {L("kun", "дней", "days")}
                     </p>
-                    <p className="mt-0.5 text-[10.5px] font-semibold text-pine">
+                    <p className="mt-0.5 text-[11px] font-semibold text-pine">
                       <span className="inline-flex items-center gap-1"><IconCalendar size={13} /> {L("Keyingi:", "Следующая:", "Next:")}</span> {s.next_date ? new Date(s.next_date).toLocaleDateString(lang === "en" ? "en-GB" : "ru-RU") : "—"}
                     </p>
                   </div>

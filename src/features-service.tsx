@@ -72,13 +72,13 @@ export function OneClickOrderSheet({
             <IconCheck size={28} />
           </div>
           <h3 className="mt-4 font-display text-[17px] font-bold text-ink">{t("oneClickSent")}</h3>
-          <button onClick={onClose} className="press mt-7 w-full rounded-[18px] bg-amber py-3.5 text-[13.5px] font-bold text-white">
+          <button onClick={onClose} className="press mt-7 w-full rounded-[18px] bg-amber py-3.5 text-[14px] font-bold text-white">
             {t("done")}
           </button>
         </div>
       ) : (
         <div className="space-y-4 pt-1">
-          <p className="text-[12.5px] font-medium text-ink/70">{t("oneClickSub")}</p>
+          <p className="text-[13px] font-medium text-ink/70">{t("oneClickSub")}</p>
 
           <div className="flex items-center gap-3.5 rounded-[20px] border border-ink/18 bg-card p-3.5">
             <div className="h-16 w-16 shrink-0 overflow-hidden rounded-[14px] bg-paper2">
@@ -86,7 +86,7 @@ export function OneClickOrderSheet({
             </div>
             <div className="min-w-0 flex-1">
               <p className="font-display text-[14px] font-bold text-ink">{product.name}</p>
-              <p className="text-[11.5px] font-medium text-ink/70">
+              <p className="text-[12px] font-medium text-ink/70">
                 {formatPrice(ws.unit, lang)} · {t("perUnit")}
                 {ws.discount > 0 && <span className="ml-1 font-bold text-moss">−{ws.discount}%</span>}
               </p>
@@ -106,12 +106,12 @@ export function OneClickOrderSheet({
 
           <div className="flex items-baseline justify-between rounded-[18px] bg-paper2/70 px-4 py-3">
             <span className="text-[13px] font-bold text-ink/60">{t("totalForQty")}</span>
-            <span className="font-display text-[21px] font-bold text-ink">{formatPrice(total, lang)}</span>
+            <span className="font-display text-[20px] font-bold text-ink">{formatPrice(total, lang)}</span>
           </div>
 
           <button
             onClick={send}
-            className="press flex h-14 w-full items-center justify-center gap-2.5 rounded-[20px] bg-amber text-[14.5px] font-bold text-white shadow-lift"
+            className="press flex h-14 w-full items-center justify-center gap-2.5 rounded-[20px] bg-amber text-[15px] font-bold text-white shadow-lift"
           >
             <IconSend size={17} />
             {t("oneClickSend")}
@@ -196,13 +196,13 @@ export function InvoiceSheet({
         <div className="flex gap-2.5">
           <button
             onClick={copy}
-            className="press flex h-12 flex-1 items-center justify-center gap-2 rounded-[18px] bg-paper2 text-[12.5px] font-bold text-ink"
+            className="press flex h-12 flex-1 items-center justify-center gap-2 rounded-[18px] bg-paper2 text-[13px] font-bold text-ink"
           >
             <IconCopy size={15} /> {t("invoiceCopy")}
           </button>
           <button
             onClick={sendToBot}
-            className="press flex h-12 flex-1 items-center justify-center gap-2 rounded-[18px] bg-amber text-[12.5px] font-bold text-white"
+            className="press flex h-12 flex-1 items-center justify-center gap-2 rounded-[18px] bg-amber text-[13px] font-bold text-white"
           >
             <IconSend size={15} /> {t("sendReceiptToBot").split(" ")[0]}
           </button>
@@ -251,8 +251,8 @@ export function ManagerChatButton({ hidden = false }: { hidden?: boolean }) {
       </span>
       {expanded && (
         <span className="animate-fadein max-w-[140px]">
-          <span className="block text-[11.5px] font-bold leading-tight">{t("managerChat")}</span>
-          <span className="block text-[9.5px] font-medium leading-tight opacity-80">{t("managerChatSub")}</span>
+          <span className="block text-[12px] font-bold leading-tight">{t("managerChat")}</span>
+          <span className="block text-[10px] font-medium leading-tight opacity-80">{t("managerChatSub")}</span>
         </span>
       )}
     </a>
@@ -285,7 +285,7 @@ export function StockBadge({ stock, compact = false }: { stock?: number; compact
     <span className={`inline-flex items-center gap-1.5 rounded-full bg-card px-3 py-1.5 text-[11px] font-bold shadow-sm ${text}`}>
       <span className={`h-2 w-2 rounded-full ${dot} ${state !== "out" ? "animate-pulse" : ""}`} />
       {label}
-      <span className="text-[9.5px] font-semibold text-ink/60">· {t("stockWarehouse")}</span>
+      <span className="text-[10px] font-semibold text-ink/60">· {t("stockWarehouse")}</span>
     </span>
   );
 }

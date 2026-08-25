@@ -119,13 +119,13 @@ export function ReviewSheet({
             <img src={product.img} alt={product.name} className="h-14 w-14 rounded-[14px] object-cover" />
             <div className="min-w-0">
               <p className="font-display text-[14px] font-bold text-ink">{product.name}</p>
-              <p className="truncate text-[11.5px] font-medium text-ink/70">{product.desc[lang]}</p>
+              <p className="truncate text-[12px] font-medium text-ink/70">{product.desc[lang]}</p>
             </div>
           </div>
 
           {/* Star rating */}
           <div className="rounded-[20px] border border-ink/18 bg-card p-4 text-center">
-            <p className="text-[10.5px] font-extrabold uppercase tracking-[0.2em] text-ink/65">
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-ink/65">
               {t("yourRating")}
             </p>
             <div className="mt-3 flex justify-center gap-1.5">
@@ -160,10 +160,10 @@ export function ReviewSheet({
             maxLength={400}
             className="w-full resize-none rounded-[18px] border border-ink/15 bg-card px-4 py-3.5 text-[14px] font-medium text-ink outline-none transition-colors placeholder:text-ink/75 focus:border-moss"
           />
-          <p className="-mt-2 text-right text-[10.5px] font-semibold text-ink/60">{text.length}/400</p>
+          <p className="-mt-2 text-right text-[11px] font-semibold text-ink/60">{text.length}/400</p>
 
           {submitError && (
-            <p className="text-center text-[11.5px] font-bold text-[#B3402E]">
+            <p className="text-center text-[12px] font-bold text-[#B3402E]">
               {lang === "ru" ? "Отзыв не сохранён. Оставить отзыв можно один раз после доставленного заказа." : lang === "en" ? "Review not saved. Reviews require a delivered purchase and can be submitted once." : "Izoh saqlanmadi. Izoh faqat yetkazilgan xariddan keyin bir marta qoldiriladi."}
             </p>
           )}
@@ -171,7 +171,7 @@ export function ReviewSheet({
           <button
             onClick={() => void submit()}
             disabled={text.trim().length < 4 || sending}
-            className="press flex h-14 w-full items-center justify-center gap-2 rounded-[20px] bg-amber text-[14.5px] font-bold text-white shadow-lift disabled:opacity-40"
+            className="press flex h-14 w-full items-center justify-center gap-2 rounded-[20px] bg-amber text-[15px] font-bold text-white shadow-lift disabled:opacity-40"
           >
             <IconSparkle size={17} />
             {sending ? "…" : t("submitReview")}
@@ -204,8 +204,8 @@ export function ReviewPrompt({
         <IconStar size={19} />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-[13.5px] font-bold text-ink">{t("rateProductCta")}</span>
-        <span className="mt-0.5 block truncate text-[11.5px] font-medium text-ink/75">
+        <span className="block text-[14px] font-bold text-ink">{t("rateProductCta")}</span>
+        <span className="mt-0.5 block truncate text-[12px] font-medium text-ink/75">
           {product.name} · {t("reviewBonus")}
         </span>
       </span>

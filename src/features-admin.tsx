@@ -639,22 +639,22 @@ export function AdminPanelSheet({
     >
       {!isAuthenticated ? (
         /* PIN Login Screen — premium lock */
-        <div className="-mx-4 min-[390px]:-mx-6 -mt-2 overflow-hidden rounded-t-[26px]">
+        <div className="-mx-4 min-[390px]:-mx-5 -mt-2 overflow-hidden rounded-t-[26px]">
           <div className="admin-hero">
-            <div className="admin-grid-bg relative px-5 pb-7 pt-8 text-center min-[390px]:px-6">
+            <div className="admin-grid-bg relative px-5 pb-7 pt-8 text-center">
               <div className="admin-logo-tile mx-auto">
                 <BrandMark size={40} className="invert" />
               </div>
-              <p className="mt-4 font-display text-[23px] font-extrabold tracking-tight text-white">
+              <p className="mt-4 font-display text-[22px] font-extrabold tracking-tight text-white">
                 DELIS <span className="text-amber">Console</span>
               </p>
-              <p className="mx-auto mt-1.5 max-w-[260px] text-[11.5px] font-semibold leading-relaxed text-white/45">
+              <p className="mx-auto mt-1.5 max-w-[260px] text-[12px] font-semibold leading-relaxed text-white/45">
                 {t("adminSub")}
               </p>
               <div className="mx-auto mt-4 h-px w-16 bg-gradient-to-r from-transparent via-amber/60 to-transparent" />
               <div className="mx-auto mt-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
                 <IconLock size={12} className="text-amber" />
-                <span className="text-[9.5px] font-extrabold uppercase tracking-[0.22em] text-white/55">Secure access</span>
+                <span className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-white/55">Secure access</span>
               </div>
             </div>
           </div>
@@ -670,7 +670,7 @@ export function AdminPanelSheet({
                 setPinError(false);
               }}
               placeholder={t("adminPinPlaceholder")}
-              className={`admin-pin-input w-full px-4 py-4 text-center font-display text-[24px] font-bold tracking-[0.35em] text-ink outline-none placeholder:text-ink/25 ${
+              className={`admin-pin-input w-full px-4 py-4 text-center font-display text-[24px] font-bold tracking-[0.3em] text-ink outline-none placeholder:text-ink/25 ${
                 pinError ? "!border-rose-400/50 !ring-2 !ring-rose-400/15" : ""
               }`}
             />
@@ -689,9 +689,9 @@ export function AdminPanelSheet({
         /* Authenticated Admin Dashboard */
         <div className="space-y-3.5 pt-0">
           {/* Hero header */}
-          <div className="-mx-4 min-[390px]:-mx-6 -mt-2 overflow-hidden rounded-t-[26px]">
+          <div className="-mx-4 min-[390px]:-mx-5 -mt-2 overflow-hidden rounded-t-[26px]">
             <div className="admin-hero">
-              <div className="admin-grid-bg relative px-4 pb-5 pt-4 min-[390px]:px-6">
+              <div className="admin-grid-bg relative px-4 pb-5 pt-4 min-[390px]:px-5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <span className="admin-logo-tile" style={{ width: 46, height: 46 }}>
@@ -699,7 +699,7 @@ export function AdminPanelSheet({
                     </span>
                     <div>
                       <BrandWordmark className="h-[14px] w-[66px] invert" />
-                      <p className="mt-1 text-[9px] font-extrabold uppercase tracking-[0.22em] text-white/45">
+                      <p className="mt-1 text-[9px] font-extrabold uppercase tracking-[0.2em] text-white/45">
                         {lang === "uz" ? "Boshqaruv konsoli" : lang === "ru" ? "Консоль владельца" : "Owner console"}
                       </p>
                     </div>
@@ -728,24 +728,24 @@ export function AdminPanelSheet({
                 {/* Quick stats on the hero */}
                 <div className="mt-4 grid grid-cols-3 gap-2">
                   <div className="admin-hero-chip p-2.5 text-center">
-                    <p className="font-display text-[19px] font-extrabold text-amber">
+                    <p className="font-display text-[18px] font-extrabold text-amber">
                       {allOrders.filter((o) => o.status === "new").length}
                     </p>
-                    <p className="mt-0.5 text-[8.5px] font-extrabold uppercase tracking-[0.12em] text-white/45">
+                    <p className="mt-0.5 text-[9px] font-extrabold uppercase tracking-[0.14em] text-white/45">
                       {lang === "uz" ? "Yangi" : lang === "ru" ? "Новые" : "New"}
                     </p>
                   </div>
                   <div className="admin-hero-chip p-2.5 text-center">
-                    <p className="font-display text-[19px] font-extrabold text-moss">{products.length}</p>
-                    <p className="mt-0.5 text-[8.5px] font-extrabold uppercase tracking-[0.12em] text-white/45">
+                    <p className="font-display text-[18px] font-extrabold text-moss">{products.length}</p>
+                    <p className="mt-0.5 text-[9px] font-extrabold uppercase tracking-[0.14em] text-white/45">
                       {lang === "uz" ? "Tovarlar" : lang === "ru" ? "Товары" : "Products"}
                     </p>
                   </div>
                   <div className="admin-hero-chip p-2.5 text-center">
-                    <p className="font-display text-[19px] font-extrabold text-sky-300">
+                    <p className="font-display text-[18px] font-extrabold text-sky-300">
                       {Object.values(loadPromoCodes()).filter((p) => p.active !== false).length}
                     </p>
-                    <p className="mt-0.5 text-[8.5px] font-extrabold uppercase tracking-[0.12em] text-white/45">
+                    <p className="mt-0.5 text-[9px] font-extrabold uppercase tracking-[0.14em] text-white/45">
                       {lang === "uz" ? "Promokod" : lang === "ru" ? "Промо" : "Promos"}
                     </p>
                   </div>
@@ -755,7 +755,7 @@ export function AdminPanelSheet({
           </div>
 
           {/* Navigation: grouped sub-tabs, sticky above content */}
-          <div className="sticky top-0 z-20 -mx-4 min-[390px]:-mx-6 border-b border-white/5 bg-paper/95 px-4 py-2 backdrop-blur-xl min-[390px]:px-6">
+          <div className="sticky top-0 z-20 -mx-4 min-[390px]:-mx-5 border-b border-white/5 bg-paper/95 px-4 py-2 backdrop-blur-xl min-[390px]:px-5">
             {(() => {
               const TABS = [
                 { id: "analytics", label: t("adminTabAnalytics"), icon: IconChart, badge: 0 },
@@ -787,7 +787,7 @@ export function AdminPanelSheet({
               ];
               return GROUPS.map((g) => (
                 <div key={g.label} className="mb-2 last:mb-0">
-                  <p className="px-1.5 pb-1 text-[8.5px] font-extrabold uppercase tracking-[0.24em] text-ink/30">{g.label}</p>
+                  <p className="px-1.5 pb-1 text-[9px] font-extrabold uppercase tracking-[0.24em] text-ink/30">{g.label}</p>
                   <div className="no-scrollbar flex gap-1.5 overflow-x-auto">
                     {TABS.filter((tab) => (g.ids as readonly string[]).includes(tab.id)).map((tab) => {
                       const active = activeTab === tab.id;
@@ -809,7 +809,7 @@ export function AdminPanelSheet({
                           </span>
                           <span>{tab.label}</span>
                           {tab.badge > 0 && (
-                            <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[8.5px] font-bold text-white">
+                            <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[9px] font-bold text-white">
                               {tab.badge}
                             </span>
                           )}
@@ -829,7 +829,7 @@ export function AdminPanelSheet({
                 haptic("light");
                 setShowPinSettings((s) => !s);
               }}
-              className="press flex h-10 flex-1 items-center justify-center gap-1.5 rounded-[14px] border border-white/10 bg-card/80 text-[11.5px] font-bold text-ink2 hover:border-white/20 hover:text-ink"
+              className="press flex h-10 flex-1 items-center justify-center gap-1.5 rounded-[14px] border border-white/10 bg-card/80 text-[12px] font-bold text-ink2 hover:border-white/20 hover:text-ink"
             >
               <IconLock size={14} className="text-amber" /> {showPinSettings ? "Yopish" : "PIN o'zgartirish"}
             </button>
@@ -839,7 +839,7 @@ export function AdminPanelSheet({
                 setShowNewProduct((s) => !s);
                 setActiveTab("inventory");
               }}
-              className="press flex h-10 flex-1 items-center justify-center gap-1.5 rounded-[14px] border border-moss/25 bg-sagetint/50 text-[11.5px] font-bold text-moss hover:bg-sagetint"
+              className="press flex h-10 flex-1 items-center justify-center gap-1.5 rounded-[14px] border border-moss/25 bg-sagetint/50 text-[12px] font-bold text-moss hover:bg-sagetint"
             >
               <IconPlus size={14} />
               <span>Yangi mahsulot</span>
@@ -860,7 +860,7 @@ export function AdminPanelSheet({
                   <p className="font-display text-[13px] font-bold text-ink">
                     {lang === "ru" ? "Смена PIN-кода" : lang === "en" ? "Change PIN code" : "PIN kodni almashtirish"}
                   </p>
-                  <p className="text-[10.5px] font-medium text-ink/55">
+                  <p className="text-[11px] font-medium text-ink/55">
                     {lang === "ru" ? "Минимум 4 цифры · действует на этом устройстве" : lang === "en" ? "At least 4 digits · applies on this device" : "Kamida 4 ta raqam · shu qurilmada ishlaydi"}
                   </p>
                 </div>
@@ -914,7 +914,7 @@ export function AdminPanelSheet({
               <button
                 type="submit"
                 disabled={newPin.length < 4 || newPin !== confirmPin}
-                className="press h-11 w-full rounded-[14px] bg-amber text-[12.5px] font-bold text-white disabled:opacity-30"
+                className="press h-11 w-full rounded-[14px] bg-amber text-[13px] font-bold text-white disabled:opacity-30"
               >
                 {lang === "ru" ? "Сохранить PIN" : lang === "en" ? "Save PIN" : "PIN ni saqlash"}
               </button>
@@ -954,7 +954,7 @@ export function AdminPanelSheet({
                     placeholder="500 ml"
                     className="w-full rounded-[12px] border border-ink/18 bg-paper px-3 py-2.5 text-[13px] font-semibold text-ink outline-none focus:border-moss"
                   />
-                  <p className="mt-1.5 text-[9.5px] font-bold uppercase tracking-wider text-ink/50">{lang === "ru" ? "Выберите доступные объёмы" : lang === "en" ? "Select available sizes" : "Qaysi hajmlar mavjud?"}</p>
+                  <p className="mt-1.5 text-[10px] font-bold uppercase tracking-wider text-ink/50">{lang === "ru" ? "Выберите доступные объёмы" : lang === "en" ? "Select available sizes" : "Qaysi hajmlar mavjud?"}</p>
                   <div className="mt-1 flex flex-wrap gap-1.5">
                     {["300 ml","500 ml","1 L","2 L","5 L","10 L","20 L"].map((v) => {
                       const on = newProductVolumes.includes(v);
@@ -963,7 +963,7 @@ export function AdminPanelSheet({
                           key={v}
                           type="button"
                           onClick={() => { haptic("light"); setNewProductVolumes(on ? newProductVolumes.filter((x) => x !== v) : [...newProductVolumes, v]); }}
-                          className={`press rounded-full border px-2 py-0.5 text-[9.5px] font-bold transition-all ${
+                          className={`press rounded-full border px-2 py-0.5 text-[10px] font-bold transition-all ${
                             on ? "border-moss bg-moss/10 text-moss" : "border-ink/15 text-ink2"
                           }`}
                         >
@@ -1057,13 +1057,13 @@ export function AdminPanelSheet({
 
                   <div className="mt-3 flex items-end justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="text-[9.5px] font-extrabold uppercase tracking-[0.18em] text-ink/40">
+                      <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-ink/40">
                         {lang === "uz" ? "Jami tushum" : lang === "ru" ? "Выручка всего" : "Total revenue"}
                       </p>
                       <p className="mt-1 truncate font-display text-[26px] font-extrabold leading-none text-amber">
                         {formatPrice(adminStats.totals.revenueAll, lang)}
                       </p>
-                      <p className="mt-2 text-[10.5px] font-semibold text-ink/45">
+                      <p className="mt-2 text-[11px] font-semibold text-ink/45">
                         {adminStats.totals.ordersCount} {lang === "uz" ? "buyurtma" : lang === "ru" ? "заказов" : "orders"}
                         {" · "}{formatPrice(adminStats.totals.avgOrderValue, lang)}
                         {" / "}{lang === "uz" ? "o'rtacha" : lang === "ru" ? "средний" : "avg"}
@@ -1071,7 +1071,7 @@ export function AdminPanelSheet({
                     </div>
                     <div className="shrink-0 text-right">
                       <p className="font-display text-[20px] font-extrabold text-moss">{adminStats.totals.usersCount}</p>
-                      <p className="text-[8.5px] font-extrabold uppercase tracking-[0.16em] text-ink/40">
+                      <p className="text-[9px] font-extrabold uppercase tracking-[0.14em] text-ink/40">
                         {lang === "uz" ? "Mijozlar" : lang === "ru" ? "Клиенты" : "Customers"}
                       </p>
                     </div>
@@ -1098,15 +1098,15 @@ export function AdminPanelSheet({
                   <div className="mt-4 grid grid-cols-3 gap-2">
                     <div className="rounded-[14px] border border-white/8 bg-card/70 p-2.5 text-center">
                       <p className="font-display text-[15px] font-extrabold text-ink">{adminStats.totals.repeatCustomers}</p>
-                      <p className="mt-0.5 text-[8.5px] font-bold uppercase tracking-wide text-ink2">{lang === "uz" ? "Qaytgan" : lang === "ru" ? "Повтор" : "Repeat"}</p>
+                      <p className="mt-0.5 text-[9px] font-bold uppercase tracking-wide text-ink2">{lang === "uz" ? "Qaytgan" : lang === "ru" ? "Повтор" : "Repeat"}</p>
                     </div>
                     <div className="rounded-[14px] border border-white/8 bg-card/70 p-2.5 text-center">
                       <p className="font-display text-[15px] font-extrabold text-ink">{adminStats.totals.pendingWaitlist}</p>
-                      <p className="mt-0.5 text-[8.5px] font-bold uppercase tracking-wide text-ink2">Waitlist</p>
+                      <p className="mt-0.5 text-[9px] font-bold uppercase tracking-wide text-ink2">Waitlist</p>
                     </div>
                     <div className="rounded-[14px] border border-white/8 bg-card/70 p-2.5 text-center">
                       <p className="font-display text-[15px] font-extrabold text-ink">{adminStats.totals.activeSubscriptions}</p>
-                      <p className="mt-0.5 text-[8.5px] font-bold uppercase tracking-wide text-ink2">{lang === "uz" ? "Obuna" : lang === "ru" ? "Подписки" : "Subs"}</p>
+                      <p className="mt-0.5 text-[9px] font-bold uppercase tracking-wide text-ink2">{lang === "uz" ? "Obuna" : lang === "ru" ? "Подписки" : "Subs"}</p>
                     </div>
                   </div>
 
@@ -1114,7 +1114,7 @@ export function AdminPanelSheet({
                   {adminStats.compare && (
                     <div className="mt-3 rounded-[14px] border border-white/8 bg-card/70 p-3">
                       <div className="flex items-center justify-between">
-                        <p className="text-[9.5px] font-bold uppercase tracking-[0.14em] text-ink2">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink2">
                           {lang === "uz" ? "30 kun vs oldingi 30" : lang === "ru" ? "30 дней vs предыдущие 30" : "30d vs previous 30"}
                         </p>
                         {adminStats.compare.revenueDeltaPct === null ? (
@@ -1141,16 +1141,16 @@ export function AdminPanelSheet({
                   {/* Top products (server) */}
                   {adminStats.topProducts.length > 0 && (
                     <div className="mt-3 space-y-1.5">
-                      <p className="text-[9.5px] font-extrabold uppercase tracking-[0.14em] text-ink/40">
+                      <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-ink/40">
                         {lang === "uz" ? "Top-5 (server)" : lang === "ru" ? "Топ-5 (сервер)" : "Top 5 (server)"}
                       </p>
                       {adminStats.topProducts.map((p, i) => (
                         <div key={p.id} className="flex items-center justify-between rounded-[12px] border border-white/6 bg-card/60 px-3 py-2">
-                          <span className="flex min-w-0 items-center gap-2 text-[11.5px] font-semibold text-ink">
+                          <span className="flex min-w-0 items-center gap-2 text-[12px] font-semibold text-ink">
                             <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full border border-white/10 bg-white/5 font-display text-[9px] font-bold text-amber">{i + 1}</span>
                             <span className="truncate">{p.name}</span>
                           </span>
-                          <span className="ml-2 shrink-0 text-[10.5px] font-bold text-moss">{p.qty} {t("stockUnits")} · {formatPrice(p.revenue, lang)}</span>
+                          <span className="ml-2 shrink-0 text-[11px] font-bold text-moss">{p.qty} {t("stockUnits")} · {formatPrice(p.revenue, lang)}</span>
                         </div>
                       ))}
                     </div>
@@ -1218,7 +1218,7 @@ export function AdminPanelSheet({
                       <div key={idx}>
                         <div className="flex items-center justify-between text-[12px]">
                           <span className="flex min-w-0 items-center gap-2">
-                            <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full border border-white/10 bg-white/5 font-display text-[9.5px] font-bold text-ink2">{idx + 1}</span>
+                            <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full border border-white/10 bg-white/5 font-display text-[10px] font-bold text-ink2">{idx + 1}</span>
                             <span className="truncate font-semibold text-ink">{reg.name}</span>
                           </span>
                           <span className="shrink-0 font-display text-[11px] font-bold text-amber">{reg.count} {lang === "uz" ? "buyurtma" : lang === "ru" ? "заказов" : "orders"}</span>
@@ -1243,11 +1243,11 @@ export function AdminPanelSheet({
                         <div key={i}>
                           <div className="flex items-center justify-between gap-2 text-[12px]">
                             <span className="flex min-w-0 items-center gap-2">
-                              <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full border border-white/10 bg-white/5 font-display text-[9.5px] font-bold text-amber">{i + 1}</span>
+                              <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full border border-white/10 bg-white/5 font-display text-[10px] font-bold text-amber">{i + 1}</span>
                               <span className="truncate font-bold text-ink">{p.name}</span>
                               <span className="shrink-0 text-[10px] font-semibold text-ink/45">× {p.qty}</span>
                             </span>
-                            <span className="shrink-0 font-display text-[11.5px] font-bold text-ink/70">{formatPrice(p.revenue, lang)} · {pct}%</span>
+                            <span className="shrink-0 font-display text-[12px] font-bold text-ink/70">{formatPrice(p.revenue, lang)} · {pct}%</span>
                           </div>
                           <AdminBar className="mt-1.5" pct={pct} tone="green" />
                         </div>
@@ -1266,7 +1266,7 @@ export function AdminPanelSheet({
                       const max = Math.max(...analytics.hourCounts, 1);
                       const peak = analytics.hourCounts.indexOf(max);
                       return max > 0 ? (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-amber/25 bg-amber/8 px-2 py-0.5 text-[9.5px] font-bold text-amber">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-amber/25 bg-amber/8 px-2 py-0.5 text-[10px] font-bold text-amber">
                           <IconSparkle size={11} /> {lang === "uz" ? "Eng gavjum" : lang === "ru" ? "Пик" : "Peak"}: {peak}:00
                         </span>
                       ) : null;
@@ -1295,7 +1295,7 @@ export function AdminPanelSheet({
                       );
                     })}
                   </div>
-                  <div className="mt-1.5 flex justify-between text-[8.5px] font-bold text-ink/40">
+                  <div className="mt-1.5 flex justify-between text-[9px] font-bold text-ink/40">
                     <span>0:00</span><span>6:00</span><span>12:00</span><span>18:00</span><span>23:00</span>
                   </div>
                 </AdminCard>
@@ -1315,7 +1315,7 @@ export function AdminPanelSheet({
                     {lang === "uz" ? "Oy yakuni prognozi" : lang === "ru" ? "Прогноз на конец месяца" : "Month-end forecast"}
                   </AdminSectionLabel>
                   <div className="mt-3">
-                    <div className="flex items-center justify-between text-[10.5px] font-semibold text-ink/60">
+                    <div className="flex items-center justify-between text-[11px] font-semibold text-ink/60">
                       <span>{lang === "uz" ? "Hozircha" : lang === "ru" ? "Сейчас" : "Now"}: {formatPrice(analytics.monthRevenue, lang)}</span>
                       <span>{analytics.daysElapsed}/{analytics.daysInMonth}</span>
                     </div>
@@ -1359,7 +1359,7 @@ export function AdminPanelSheet({
                       setTimeout(() => URL.revokeObjectURL(url), 2000);
                       onToast(`⬇️ DELIS_orders_${date}.csv (${filteredOrders.length})`);
                     }}
-                    className="press flex h-10 items-center justify-center gap-2 rounded-[14px] border border-moss/25 bg-sagetint/50 text-[11.5px] font-bold text-moss"
+                    className="press flex h-10 items-center justify-center gap-2 rounded-[14px] border border-moss/25 bg-sagetint/50 text-[12px] font-bold text-moss"
                   >
                     <IconDownload size={15} /> {lang === "uz" ? "CSV eksport" : lang === "ru" ? "Экспорт CSV" : "Export CSV"}
                   </button>
@@ -1402,7 +1402,7 @@ export function AdminPanelSheet({
                         onToast(lang === "uz" ? "Brauzer qalqib chiquvchi oynani blokladi" : lang === "ru" ? "Браузер заблокировал всплывающее окно" : "Popup blocked");
                       }
                     }}
-                    className="press flex h-10 items-center justify-center gap-2 rounded-[14px] border border-white/10 bg-card/80 text-[11.5px] font-bold text-ink2 hover:text-ink"
+                    className="press flex h-10 items-center justify-center gap-2 rounded-[14px] border border-white/10 bg-card/80 text-[12px] font-bold text-ink2 hover:text-ink"
                   >
                     <IconSymbol symbol="🖨️" size={15} /> {lang === "uz" ? "PDF hisobot" : lang === "ru" ? "PDF-отчёт" : "PDF report"}
                   </button>
@@ -1438,7 +1438,7 @@ export function AdminPanelSheet({
                         <p className="font-display text-[14px] font-bold text-ink">#{o.id}</p>
                         <AdminStatusPill status={o.status} label={orderStatusLabel(o.status, lang)} />
                       </div>
-                      <p className="mt-1 text-[11.5px] font-medium text-ink2">
+                      <p className="mt-1 text-[12px] font-medium text-ink2">
                         {o.recipientName} · {o.recipientPhone}
                         {o.customerName && o.customerName !== o.recipientName && (
                           <span className="ml-1.5 font-bold text-pine">TG: {o.customerName}</span>
@@ -1484,7 +1484,7 @@ export function AdminPanelSheet({
                           <IconSymbol symbol="🗺" size={13} /> {lang === "uz" ? "Xarita" : lang === "ru" ? "Карты" : "Maps"}
                         </a>
                       )}
-                      <span className="font-display text-[14.5px] font-bold text-moss">
+                      <span className="font-display text-[15px] font-bold text-moss">
                         {formatPrice(o.total, lang)}
                       </span>
                     </div>
@@ -1496,7 +1496,7 @@ export function AdminPanelSheet({
 
                   <button
                     onClick={() => { haptic("light"); setExpandedOrder(expandedOrder === o.id ? null : o.id); }}
-                    className="press flex h-9 w-full items-center justify-center gap-1 rounded-[14px] border border-white/8 bg-white/4 text-[11.5px] font-bold text-ink2 hover:border-white/15 hover:text-ink"
+                    className="press flex h-9 w-full items-center justify-center gap-1 rounded-[14px] border border-white/8 bg-white/4 text-[12px] font-bold text-ink2 hover:border-white/15 hover:text-ink"
                   >
                     {expandedOrder === o.id ? "▲" : "▼"} {lang === "uz" ? "Batafsil" : lang === "ru" ? "Детали" : "Details"}
                   </button>
@@ -1538,7 +1538,7 @@ export function AdminPanelSheet({
                             onUpdateOrderStatus(o.id, st.id);
                             onToast(`Order #${o.id}: ${st.label}`);
                           }}
-                          className={`rounded-[14px] py-2 text-center text-[9.5px] font-bold uppercase transition-all ${
+                          className={`rounded-[14px] py-2 text-center text-[10px] font-bold uppercase transition-all ${
                             active
                               ? `${st.tint} shadow-[0_8px_18px_-8px_rgba(0,0,0,0.7)] ring-2 ring-white/10`
                               : completed
@@ -1565,7 +1565,7 @@ export function AdminPanelSheet({
                       value={btsCodeInputs[o.id] ?? ""}
                       onChange={(e) => setBtsCodeInputs((prev) => ({ ...prev, [o.id]: e.target.value }))}
                       placeholder={t("adminBtsTrackingCode") + " (BTS-XXXX)"}
-                      className="flex-1 rounded-[14px] border border-ink/15 bg-paper px-3 py-2 text-[11.5px] font-semibold text-ink outline-none uppercase"
+                      className="flex-1 rounded-[14px] border border-ink/15 bg-paper px-3 py-2 text-[12px] font-semibold text-ink outline-none uppercase"
                     />
                     <button
                       onClick={() => {
@@ -1592,7 +1592,7 @@ export function AdminPanelSheet({
                   {/* Expandable details */}
                   {expandedOrder === o.id && (
                     <div className="animate-fadein space-y-2 border-t border-ink/18 pt-3">
-                      <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-ink/65">{lang === "uz" ? "Buyurtma tarkibi" : lang === "ru" ? "Состав заказа" : "Order items"}</p>
+                      <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-ink/65">{lang === "uz" ? "Buyurtma tarkibi" : lang === "ru" ? "Состав заказа" : "Order items"}</p>
                       <div className="space-y-1">
                         {o.items.map((it, i) => (
                           <div key={i} className="flex items-center justify-between rounded-[12px] bg-paper2 px-3 py-1.5 text-[12px]">
@@ -1601,11 +1601,11 @@ export function AdminPanelSheet({
                           </div>
                         ))}
                       </div>
-                      <div className="space-y-1 rounded-[14px] bg-paper2/60 px-3 py-2.5 text-[11.5px]">
+                      <div className="space-y-1 rounded-[14px] bg-paper2/60 px-3 py-2.5 text-[12px]">
                         <div className="flex justify-between text-ink/60"><span>{lang === "uz" ? "Summa" : lang === "ru" ? "Сумма" : "Subtotal"}</span><span>{formatPrice(o.subtotal, lang)}</span></div>
                         {o.discount > 0 && <div className="flex justify-between font-bold text-amberdeep"><span>{lang === "uz" ? "Chegirma" : lang === "ru" ? "Скидка" : "Discount"} {o.promoCode ? `(${o.promoCode})` : ""}</span><span>−{formatPrice(o.discount, lang)}</span></div>}
                         <div className="flex justify-between text-ink/60"><span>{lang === "uz" ? "Yetkazish" : lang === "ru" ? "Доставка" : "Delivery"}</span><span>{o.deliveryFee === 0 ? "0" : formatPrice(o.deliveryFee, lang)}</span></div>
-                        <div className="flex justify-between border-t border-ink/18 pt-1.5 font-display text-[12.5px] font-bold text-ink"><span>Total</span><span>{formatPrice(o.total, lang)}</span></div>
+                        <div className="flex justify-between border-t border-ink/18 pt-1.5 font-display text-[13px] font-bold text-ink"><span>Total</span><span>{formatPrice(o.total, lang)}</span></div>
                       </div>
                       <div className="flex flex-wrap items-center gap-1.5">
                         <span className="rounded-full bg-moss/10 px-2.5 py-1 text-[10px] font-bold text-moss">{o.paymentMethod}</span>
@@ -1692,7 +1692,7 @@ export function AdminPanelSheet({
               {/* Bulk edit: select several products, change price & stock at once */}
               <div className="rounded-[18px] border border-amber/30 bg-amber/[0.06] p-3 space-y-2">
                 <div className="flex items-center justify-between">
-                  <p className="text-[11.5px] font-extrabold text-ink">
+                  <p className="text-[12px] font-extrabold text-ink">
                     {lang === "ru" ? "⚡ Массовое изменение" : lang === "en" ? "⚡ Bulk edit" : "⚡ Ommaviy tahrir"}
                   </p>
                   <div className="flex items-center gap-1.5">
@@ -1717,23 +1717,23 @@ export function AdminPanelSheet({
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="text-[9.5px] font-bold uppercase tracking-wider text-ink2">{lang === "ru" ? "Цена, сум" : lang === "en" ? "Price, UZS" : "Narx, so'm"}</label>
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-ink2">{lang === "ru" ? "Цена, сум" : lang === "en" ? "Price, UZS" : "Narx, so'm"}</label>
                     <input
                       type="number"
                       value={bulkPrice}
                       onChange={(e) => setBulkPrice(e.target.value)}
                       placeholder={lang === "ru" ? "новая цена" : lang === "en" ? "new price" : "yangi narx"}
-                      className="mt-1 w-full rounded-[12px] border border-ink/15 bg-paper px-2.5 py-2 text-[12.5px] font-semibold text-ink outline-none focus:border-amber"
+                      className="mt-1 w-full rounded-[12px] border border-ink/15 bg-paper px-2.5 py-2 text-[13px] font-semibold text-ink outline-none focus:border-amber"
                     />
                   </div>
                   <div>
-                    <label className="text-[9.5px] font-bold uppercase tracking-wider text-ink2">{lang === "ru" ? "Остаток, шт" : lang === "en" ? "Stock, pcs" : "Qoldiq, dona"}</label>
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-ink2">{lang === "ru" ? "Остаток, шт" : lang === "en" ? "Stock, pcs" : "Qoldiq, dona"}</label>
                     <input
                       type="number"
                       value={bulkStock}
                       onChange={(e) => setBulkStock(e.target.value)}
                       placeholder={lang === "ru" ? "новый остаток" : lang === "en" ? "new stock" : "yangi qoldiq"}
-                      className="mt-1 w-full rounded-[12px] border border-ink/15 bg-paper px-2.5 py-2 text-[12.5px] font-semibold text-ink outline-none focus:border-amber"
+                      className="mt-1 w-full rounded-[12px] border border-ink/15 bg-paper px-2.5 py-2 text-[13px] font-semibold text-ink outline-none focus:border-amber"
                     />
                   </div>
                 </div>
@@ -1764,18 +1764,18 @@ export function AdminPanelSheet({
                     onChange={(e) => setImportText(e.target.value)}
                     placeholder={"Window Cleaner;55000;home;500 ml;24;40000\nCar Wax;128000;car;500 ml;12;90000"}
                     rows={4}
-                    className="w-full resize-none rounded-[12px] border border-ink/15 bg-paper px-3 py-2.5 font-mono text-[11.5px] font-semibold text-ink outline-none focus:border-moss"
+                    className="w-full resize-none rounded-[12px] border border-ink/15 bg-paper px-3 py-2.5 font-mono text-[12px] font-semibold text-ink outline-none focus:border-moss"
                   />
                   <div className="flex gap-2">
                     <button
                       onClick={() => { setShowImport(false); setImportText(""); }}
-                      className="press h-9 flex-1 rounded-[12px] bg-paper2 text-[11.5px] font-bold text-ink2"
+                      className="press h-9 flex-1 rounded-[12px] bg-paper2 text-[12px] font-bold text-ink2"
                     >
                       {lang === "ru" ? "Отмена" : lang === "en" ? "Cancel" : "Bekor"}
                     </button>
                     <button
                       onClick={handleImportProducts}
-                      className="press h-9 flex-1 rounded-[12px] bg-moss text-[11.5px] font-bold text-white"
+                      className="press h-9 flex-1 rounded-[12px] bg-moss text-[12px] font-bold text-white"
                     >
                       {lang === "ru" ? "Импортировать" : lang === "en" ? "Import" : "Import"}
                     </button>
@@ -1805,7 +1805,7 @@ export function AdminPanelSheet({
                           <p className="font-display text-[14px] font-bold text-ink">{p.name}</p>
                           <span className="flex items-center gap-1.5">
                             {p.badge && (
-                              <span className={`rounded-full px-2 py-0.5 text-[8.5px] font-extrabold uppercase ${p.badge === "new" ? "bg-moss/15 text-moss" : "bg-amber/15 text-amberdeep"}`}>
+                              <span className={`rounded-full px-2 py-0.5 text-[9px] font-extrabold uppercase ${p.badge === "new" ? "bg-moss/15 text-moss" : "bg-amber/15 text-amberdeep"}`}>
                                 {p.badge === "new" ? (lang === "ru" ? "NEW" : "YANGI") : "HIT"}
                               </span>
                             )}
@@ -1866,7 +1866,7 @@ export function AdminPanelSheet({
                               className="flex-1 rounded-[12px] border border-ink/15 bg-paper px-2.5 py-1.5 text-[13px] font-semibold text-ink outline-none"
                             />
                           </div>
-                          <p className="mt-1.5 text-[9.5px] font-bold uppercase tracking-wider text-ink/50 pl-28">{lang === "ru" ? "Доступные объёмы (выберите)" : lang === "en" ? "Available sizes (select)" : "Qaysi hajmlar bor (tanlang)"}</p>
+                          <p className="mt-1.5 text-[10px] font-bold uppercase tracking-wider text-ink/50 pl-28">{lang === "ru" ? "Доступные объёмы (выберите)" : lang === "en" ? "Available sizes (select)" : "Qaysi hajmlar bor (tanlang)"}</p>
                           <div className="mt-1 flex flex-wrap gap-1.5 pl-28">
                             {["300 ml","500 ml","1 L","2 L","5 L","10 L","20 L"].map((v) => {
                               const on = editVolumes.includes(v);
@@ -1907,7 +1907,7 @@ export function AdminPanelSheet({
                                 });
                               });
                             }}
-                            className="press mt-1 flex h-8 w-full items-center justify-center gap-1.5 rounded-[10px] border border-moss/30 bg-moss/5 text-[10.5px] font-bold text-moss"
+                            className="press mt-1 flex h-8 w-full items-center justify-center gap-1.5 rounded-[10px] border border-moss/30 bg-moss/5 text-[11px] font-bold text-moss"
                           >
                             🤖 {lang === "ru" ? "Авто-перевод" : lang === "en" ? "Auto-translate" : "Avto-tarjima"}
                           </button>
@@ -1955,7 +1955,7 @@ export function AdminPanelSheet({
                             onChange={(e) => setEditCostPrice(e.target.value)}
                             className="w-28 rounded-[12px] border border-ink/15 bg-paper px-2.5 py-1.5 text-center font-display text-[13px] font-bold text-ink"
                           />
-                          <span className="text-[10.5px] font-bold text-pine">
+                          <span className="text-[11px] font-bold text-pine">
                             {(() => {
                               const cp = parseInt(editCostPrice) || 0;
                               const pr = parseInt(newPrice) || p.price;
@@ -2028,13 +2028,13 @@ export function AdminPanelSheet({
                               setEditingProductId(null);
                             })();
                           }}
-                          className="press flex h-10 w-full items-center justify-center gap-2 rounded-[14px] bg-moss text-[12.5px] font-bold text-white"
+                          className="press flex h-10 w-full items-center justify-center gap-2 rounded-[14px] bg-moss text-[13px] font-bold text-white"
                         >
                           <IconCheck size={15} />
                           <span>Saqlash / Сохранить</span>
                         </button>
 
-                        <label className={`flex cursor-pointer items-center justify-center gap-2 rounded-[12px] border border-dashed border-moss/40 bg-sagetint/40 py-2.5 text-[11.5px] font-bold text-pine ${uploadingPhotoId === p.id ? "opacity-60 pointer-events-none" : ""}`}>
+                        <label className={`flex cursor-pointer items-center justify-center gap-2 rounded-[12px] border border-dashed border-moss/40 bg-sagetint/40 py-2.5 text-[12px] font-bold text-pine ${uploadingPhotoId === p.id ? "opacity-60 pointer-events-none" : ""}`}>
                           <IconSymbol symbol={uploadingPhotoId === p.id ? "⏳" : "📷"} size={15} /> {uploadingPhotoId === p.id ? "Yuklanmoqda… / Загрузка…" : "Foto mahsulotni almashtirish"}
                           <input
                             type="file"
@@ -2090,13 +2090,13 @@ export function AdminPanelSheet({
                           <div className="flex gap-1">
                             <button
                               onClick={handleDeleteProduct.bind(null, p.id)}
-                              className="press flex h-9 w-20 items-center justify-center gap-1 rounded-[14px] bg-[#B3402E] text-[10.5px] font-bold text-white shadow-sm animate-fadein"
+                              className="press flex h-9 w-20 items-center justify-center gap-1 rounded-[14px] bg-[#B3402E] text-[11px] font-bold text-white shadow-sm animate-fadein"
                             >
                               <IconTrash size={12} /> Ha
                             </button>
                             <button
                               onClick={cancelDelete}
-                              className="press flex h-9 w-14 items-center justify-center rounded-[14px] bg-paper2 text-[10.5px] font-bold text-ink2"
+                              className="press flex h-9 w-14 items-center justify-center rounded-[14px] bg-paper2 text-[11px] font-bold text-ink2"
                             >
                               Yo'q
                             </button>
@@ -2142,7 +2142,7 @@ export function AdminPanelSheet({
                       <div key={wl.id} className="flex items-center justify-between rounded-[20px] border border-ink/18 bg-card p-3.5 shadow-sm">
                         <div>
                           <p className="font-display text-[13px] font-bold text-ink">{wl.productName}</p>
-                          <p className="text-[11.5px] font-medium text-ink2">
+                          <p className="text-[12px] font-medium text-ink2">
                             {wl.phone} · {wl.requestedQty} {t("stockUnits")}
                           </p>
                           {wl.tgUsername && <p className="text-[11px] text-moss">@{wl.tgUsername}</p>}
@@ -2178,13 +2178,13 @@ export function AdminPanelSheet({
                       <div key={ret.id} className="rounded-[20px] border border-ink/18 bg-card p-3.5 shadow-sm space-y-2">
                         <div className="flex items-center justify-between">
                           <p className="font-display text-[13px] font-bold text-ink">#{ret.id} · {ret.itemName}</p>
-                          <span className={`rounded-full px-2.5 py-0.5 text-[9.5px] font-bold uppercase ${
+                          <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${
                             ret.status === "approved" ? "bg-moss/12 text-moss" : ret.status === "rejected" ? "bg-[#B3402E]/10 text-[#B3402E]" : "bg-amber/15 text-amberdeep"
                           }`}>
                             {ret.status}
                           </span>
                         </div>
-                        <p className="text-[11.5px] text-ink2">Buyurtma #{ret.orderId} · {ret.reason}</p>
+                        <p className="text-[12px] text-ink2">Buyurtma #{ret.orderId} · {ret.reason}</p>
                         {ret.note && <p className="text-[11px] italic text-ink2">“{ret.note}”</p>}
 
                         {ret.status === "pending" && (
@@ -2194,7 +2194,7 @@ export function AdminPanelSheet({
                                 onUpdateReturnStatus(ret.id, "approved");
                                 onToast(`Return #${ret.id} approved`);
                               }}
-                              className="press flex-1 rounded-[12px] bg-moss py-1.5 text-[11.5px] font-bold text-white"
+                              className="press flex-1 rounded-[12px] bg-moss py-1.5 text-[12px] font-bold text-white"
                             >
                               <span className="inline-flex items-center gap-1"><IconCheck size={12} /> Qabul qilish</span>
                             </button>
@@ -2203,7 +2203,7 @@ export function AdminPanelSheet({
                                 onUpdateReturnStatus(ret.id, "rejected");
                                 onToast(`Return #${ret.id} rejected`);
                               }}
-                              className="press flex-1 rounded-[12px] bg-[#B3402E]/10 py-1.5 text-[11.5px] font-bold text-[#B3402E]"
+                              className="press flex-1 rounded-[12px] bg-[#B3402E]/10 py-1.5 text-[12px] font-bold text-[#B3402E]"
                             >
                               <span className="inline-flex items-center gap-1"><IconClose size={12} /> Rad etish</span>
                             </button>
@@ -2268,12 +2268,12 @@ export function AdminPanelSheet({
                       {logs.slice(0, 30).map((log: { id: string; action: string; detail: string; operator: string; time: number }) => (
                         <div key={log.id} className="rounded-[16px] border border-ink/18 bg-card p-3 shadow-sm">
                           <div className="flex items-center justify-between">
-                            <span className="font-display text-[12.5px] font-bold text-ink">{log.action}</span>
+                            <span className="font-display text-[13px] font-bold text-ink">{log.action}</span>
                             <span className="font-mono text-[10px] text-ink2">
                               {new Date(log.time).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
                             </span>
                           </div>
-                          <p className="mt-0.5 text-[11.5px] font-medium text-ink2">{log.detail}</p>
+                          <p className="mt-0.5 text-[12px] font-medium text-ink2">{log.detail}</p>
                           <p className="mt-1 flex items-center gap-1 text-[10px] font-semibold text-moss"><IconUser size={12} /> {log.operator}</p>
                         </div>
                       ))}
@@ -2355,13 +2355,13 @@ function StoriesCombinedTab({ onToast }: { onToast: (msg: string) => void }) {
       <div className="flex gap-1.5 rounded-[18px] bg-paper2 p-1.5">
         <button
           onClick={() => { haptic("light"); setView("admin"); }}
-          className={`press flex-1 rounded-[14px] px-3 py-2 text-[11.5px] font-bold transition-all ${view === "admin" ? "bg-amber text-white shadow-sm" : "text-ink2"}`}
+          className={`press flex-1 rounded-[14px] px-3 py-2 text-[12px] font-bold transition-all ${view === "admin" ? "bg-amber text-white shadow-sm" : "text-ink2"}`}
         >
           🎬 {L("DELIS storylari", "Истории DELIS", "DELIS stories")}
         </button>
         <button
           onClick={() => { haptic("light"); setView("customer"); }}
-          className={`press flex-1 rounded-[14px] px-3 py-2 text-[11.5px] font-bold transition-all ${view === "customer" ? "bg-amber text-white shadow-sm" : "text-ink2"}`}
+          className={`press flex-1 rounded-[14px] px-3 py-2 text-[12px] font-bold transition-all ${view === "customer" ? "bg-amber text-white shadow-sm" : "text-ink2"}`}
         >
           👥 {L("Mijoz storylari", "Истории клиентов", "Customer stories")}
         </button>
@@ -2450,7 +2450,7 @@ function StoriesAdminTab({ onToast }: { onToast: (msg: string) => void }) {
             key={s}
             type="button"
             onClick={() => setFilterStatus(s)}
-            className={`press flex-1 shrink-0 rounded-[12px] px-3 py-2 text-[10.5px] font-bold uppercase tracking-wider transition-all ${
+            className={`press flex-1 shrink-0 rounded-[12px] px-3 py-2 text-[11px] font-bold uppercase tracking-wider transition-all ${
               filterStatus === s
                 ? "bg-card text-ink shadow-sm"
                 : "bg-paper2 text-ink2"
@@ -2473,7 +2473,7 @@ function StoriesAdminTab({ onToast }: { onToast: (msg: string) => void }) {
               <p className="flex flex-wrap items-center gap-1 text-[11px] text-ink2"><IconSymbol symbol="🆔" size={11} /> {story.author?.tgId || "—"} · <IconPhone size={11} /> {story.author?.phone || "yo'q"} · <IconClock size={11} /> {new Date(story.createdAt).toLocaleString(lang === "en" ? "en-GB" : "ru-RU")}</p>
               <p className="mt-1 text-[11px] text-ink/70 line-clamp-2">{story.desc?.[lang] || ""}</p>
               {story.status && (
-                <span className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-[9.5px] font-bold uppercase ${story.status === "approved" ? "bg-moss/10 text-moss" : story.status === "rejected" ? "bg-[#B3402E]/10 text-[#B3402E]" : "bg-amber/15 text-amberdeep"}`}>
+                <span className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${story.status === "approved" ? "bg-moss/10 text-moss" : story.status === "rejected" ? "bg-[#B3402E]/10 text-[#B3402E]" : "bg-amber/15 text-amberdeep"}`}>
                   {story.status}
                 </span>
               )}
@@ -2599,7 +2599,7 @@ function AdminStoriesPanel({ onToast }: { onToast: (msg: string) => void }) {
       {!creating && editingId === null && (
         <button
           onClick={startCreate}
-          className="press flex h-11 w-full items-center justify-center gap-2 rounded-[16px] border border-dashed border-moss/40 bg-sagetint/40 text-[12.5px] font-bold text-pine"
+          className="press flex h-11 w-full items-center justify-center gap-2 rounded-[16px] border border-dashed border-moss/40 bg-sagetint/40 text-[13px] font-bold text-pine"
         >
           <IconPlus size={14} /> {lbl("Yangi story yaratish", "Создать историю", "Create story")}
         </button>
@@ -2617,7 +2617,7 @@ function AdminStoriesPanel({ onToast }: { onToast: (msg: string) => void }) {
               {draft.image ? <img src={draft.image} alt="" className="h-full w-full object-cover" /> : <div className="flex h-full w-full items-center justify-center text-[26px]">{draft.emoji || "✨"}</div>}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate font-display text-[13.5px] font-bold text-ink">{draft.title?.[lang] || draft.title?.uz || lbl("Sarlavha", "Заголовок", "Title")}</p>
+              <p className="truncate font-display text-[14px] font-bold text-ink">{draft.title?.[lang] || draft.title?.uz || lbl("Sarlavha", "Заголовок", "Title")}</p>
               <p className="truncate text-[11px] font-medium text-ink/70">{draft.desc?.[lang] || draft.desc?.uz || ""}</p>
               <p className="mt-0.5 text-[10px] font-bold text-moss">
                 {draft.productId ? `🎯 ${PRODUCT_CATALOG.find((p) => p.id === draft.productId)?.name || draft.productId}` : ""}
@@ -2634,7 +2634,7 @@ function AdminStoriesPanel({ onToast }: { onToast: (msg: string) => void }) {
                 value={draft.title?.[lng] || ""}
                 onChange={(e) => setDraft((d) => ({ ...d, title: { ...(d.title || { uz: "", ru: "", en: "" }), [lng]: e.target.value } }))}
                 placeholder={`Sarlavha (${lng.toUpperCase()})`}
-                className="rounded-[12px] border border-ink/15 bg-paper px-2.5 py-2 text-[11.5px] font-semibold text-ink outline-none focus:border-moss"
+                className="rounded-[12px] border border-ink/15 bg-paper px-2.5 py-2 text-[12px] font-semibold text-ink outline-none focus:border-moss"
               />
             ))}
           </div>
@@ -2678,7 +2678,7 @@ function AdminStoriesPanel({ onToast }: { onToast: (msg: string) => void }) {
               placeholder="https://... yoki images/factory.jpg"
               className="w-full rounded-[12px] border border-ink/15 bg-paper px-3 py-2 text-[12px] font-semibold text-ink outline-none focus:border-moss"
             />
-            <label className={`mt-1.5 flex cursor-pointer items-center justify-center rounded-[12px] border border-dashed border-moss/40 bg-sagetint/40 px-3 py-2 text-[11.5px] font-bold text-pine ${mediaUploading ? "opacity-60 pointer-events-none" : ""}`}>
+            <label className={`mt-1.5 flex cursor-pointer items-center justify-center rounded-[12px] border border-dashed border-moss/40 bg-sagetint/40 px-3 py-2 text-[12px] font-bold text-pine ${mediaUploading ? "opacity-60 pointer-events-none" : ""}`}>
               <span>{mediaUploading ? "⏳ " : (draft.mediaKind === "video" ? "🎬 " : "📷 ")}{mediaUploading ? lbl("Yuklanmoqda…", "Загрузка…", "Uploading…") : lbl("Fayldan yuklash", "Загрузить файл", "Upload file")}</span>
               <input
                 type="file"
@@ -2772,7 +2772,7 @@ function AdminStoriesPanel({ onToast }: { onToast: (msg: string) => void }) {
             value={draft.promoCode || ""}
             onChange={(e) => setDraft((d) => ({ ...d, promoCode: e.target.value.toUpperCase() || undefined }))}
             placeholder={lbl("Promokod (ixtiyoriy)", "Промокод (необязательно)", "Promo code (optional)")}
-            className="w-full rounded-[12px] border border-ink/15 bg-paper px-3 py-2 text-[12.5px] font-bold uppercase text-ink outline-none focus:border-moss"
+            className="w-full rounded-[12px] border border-ink/15 bg-paper px-3 py-2 text-[13px] font-bold uppercase text-ink outline-none focus:border-moss"
           />
 
           <div className="flex gap-2">
@@ -2789,7 +2789,7 @@ function AdminStoriesPanel({ onToast }: { onToast: (msg: string) => void }) {
       {/* List of admin stories */}
       <div className="space-y-2">
         {list.length === 0 ? (
-          <p className="py-6 text-center text-[12.5px] italic text-ink2">{lbl("Storylar yo'q. Birinchisini yarating.", "Историй нет. Создайте первую.", "No stories yet. Create the first one.")}</p>
+          <p className="py-6 text-center text-[13px] italic text-ink2">{lbl("Storylar yo'q. Birinchisini yarating.", "Историй нет. Создайте первую.", "No stories yet. Create the first one.")}</p>
         ) : (
           list.map((s) => {
             const isStale = Date.now() - s.createdAt > 24 * 60 * 60 * 1000;
@@ -2807,7 +2807,7 @@ function AdminStoriesPanel({ onToast }: { onToast: (msg: string) => void }) {
                       {s.promoCode && ` · 🎁 ${s.promoCode}`}
                     </p>
                     {isStale && (
-                      <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-amber/15 px-2 py-0.5 text-[9.5px] font-bold text-amberdeep">
+                      <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-amber/15 px-2 py-0.5 text-[10px] font-bold text-amberdeep">
                         ⏰ {lbl("Eski (24h+)", "Старая (24+ ч)", "Stale (24h+)" )}
                       </p>
                     )}
@@ -2928,7 +2928,7 @@ function ClientsAdminTab({ orders, onToast }: { orders: Order[]; onToast: (msg: 
 
   return (
     <div className="space-y-2.5">
-      <div className="rounded-[18px] bg-sagetint/60 p-3 text-[11.5px] font-medium text-pine">
+      <div className="rounded-[18px] bg-sagetint/60 p-3 text-[12px] font-medium text-pine">
         {L("Hammasi", "Всего", "Total")}: {clients.length} {L("mijoz", "клиентов", "clients")} · {orders.length} {L("buyurtma", "заказов", "orders")} · {L("savdo", "выручка", "revenue")}: {formatPrice(clients.reduce((s, c) => s + c.total, 0), lang)}
       </div>
 
@@ -2970,12 +2970,12 @@ function ClientsAdminTab({ orders, onToast }: { orders: Order[]; onToast: (msg: 
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <p className="truncate font-display text-[14px] font-bold text-ink">{c.name || L("Ismsiz mijoz", "Без имени", "Unnamed")}</p>
-                <span className={`shrink-0 rounded-full px-2 py-0.5 text-[9.5px] font-bold uppercase ${badge.cls}`}>
+                <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${badge.cls}`}>
                   {badge.emoji} {L(badge.labelUz, badge.labelRu, badge.labelEn)}
                 </span>
               </div>
               <p className="mt-0.5 flex flex-wrap items-center gap-1 text-[11px] font-medium text-ink2"><IconPhone size={12} /> {c.phones.join(", ")} · {c.usernames.length ? `@${c.usernames.join(", @")}` : "—"} · <IconSymbol symbol="🆔" size={12} /> {c.tgIds.join(", ") || "—"}</p>
-              <p className="text-[10.5px] text-ink2/85">{L("So'nggi xarid", "Последний заказ", "Last order")}: {new Date(c.lastDate).toLocaleDateString()}</p>
+              <p className="text-[11px] text-ink2/85">{L("So'nggi xarid", "Последний заказ", "Last order")}: {new Date(c.lastDate).toLocaleDateString()}</p>
               <p className="mt-1 text-[11px] text-ink/60">{L("Jami", "Всего", "Total")}: {c.totalItems} {L("dona", "шт", "pcs")} · {c.orders.length} {L("buyurtma", "заказов", "orders")}</p>
             </div>
             <span className="shrink-0 rounded-full bg-moss/10 px-3 py-1 font-display text-[12px] font-bold text-moss">{formatPrice(c.total, lang)}</span>
@@ -3219,7 +3219,7 @@ function PromoEditor({ products, onToast }: { products: Product[]; onToast: (msg
               ))}
             </select>
             {newProductId && (
-              <p className="mt-1 text-[10.5px] font-semibold text-moss">
+              <p className="mt-1 text-[11px] font-semibold text-moss">
                 {lang === "ru" ? "✓ Скидка только на этот товар" : lang === "en" ? "✓ Discount applies only to this product" : "✓ Chegirma faqat shu mahsulotga"}
               </p>
             )}
@@ -3228,13 +3228,13 @@ function PromoEditor({ products, onToast }: { products: Product[]; onToast: (msg
           <div className="flex gap-2">
             <button
               onClick={resetForm}
-              className="press h-11 flex-1 rounded-[14px] bg-paper2 text-[12.5px] font-bold text-ink2"
+              className="press h-11 flex-1 rounded-[14px] bg-paper2 text-[13px] font-bold text-ink2"
             >
               {t("promoCancel")}
             </button>
             <button
               onClick={savePromo}
-              className="press h-11 flex-1 rounded-[14px] bg-amber text-[12.5px] font-bold text-white"
+              className="press h-11 flex-1 rounded-[14px] bg-amber text-[13px] font-bold text-white"
             >
               <span className="inline-flex items-center gap-1"><IconCheck size={14} /> {t("promoSave")}</span>
             </button>
@@ -3265,13 +3265,13 @@ function PromoEditor({ products, onToast }: { products: Product[]; onToast: (msg
                       {isActive ? t("promoActive") : t("promoInactive")}
                     </span>
                   </div>
-                  <p className="mt-0.5 text-[11.5px] font-semibold text-moss">
+                  <p className="mt-0.5 text-[12px] font-semibold text-moss">
                     {p.type === "percent" ? `−${p.value}%` : p.type === "fixed" ? `−${formatPrice(p.value, lang)}` : "Bepul yetkazish"}
                     {p.minSpend ? ` · ${t("promoMinSpend")} ${formatPrice(p.minSpend, lang)}` : ""}
                     {typeof p.maxDiscount === "number" && p.maxDiscount > 0 ? ` · max ${formatPrice(p.maxDiscount, lang)}` : ""}
                   </p>
                   {p.requiredProductId && (
-                    <p className="mt-0.5 inline-flex items-center gap-1 rounded-full bg-amber/10 px-2 py-0.5 text-[9.5px] font-bold text-amberdeep">
+                    <p className="mt-0.5 inline-flex items-center gap-1 rounded-full bg-amber/10 px-2 py-0.5 text-[10px] font-bold text-amberdeep">
                       🎯 {products.find((x) => x.id === p.requiredProductId)?.name || p.requiredProductId}
                     </p>
                   )}
@@ -3475,7 +3475,7 @@ function BackupAdminTab({ onToast }: { onToast: (msg: string) => void }) {
         </p>
         <button
           onClick={resetLocalData}
-          className={`press mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-[14px] text-[12.5px] font-bold transition-all ${
+          className={`press mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-[14px] text-[13px] font-bold transition-all ${
             armed ? "animate-pulse bg-[#B3402E] text-white shadow-lift" : "bg-[#B3402E]/10 text-[#B3402E]"
           }`}
         >
@@ -3524,7 +3524,7 @@ function DailyDealAdminTab({ onToast }: { onToast: (msg: string) => void }) {
             {cfg.enabled ? <IconCheck size={17} /> : <IconClose size={16} />}
           </span>
           <span>
-            <span className="block text-[13.5px] font-bold text-ink">{L("Aktiv", "Активен", "Active")}</span>
+            <span className="block text-[14px] font-bold text-ink">{L("Aktiv", "Активен", "Active")}</span>
             <span className="block text-[11px] font-medium text-ink/70">
               {cfg.enabled ? L("Hozir bosh sahifada ko'rinmoqda", "Сейчас показывается на главной", "Currently shown on the home page") : L("Hozircha o'chirilgan", "Сейчас выключен", "Currently disabled")}
             </span>
@@ -3543,7 +3543,7 @@ function DailyDealAdminTab({ onToast }: { onToast: (msg: string) => void }) {
             <button
               key={p.id}
               onClick={() => { haptic("light"); save({ productId: p.id }); }}
-              className={`press flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-[11.5px] font-bold transition-all ${
+              className={`press flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-[12px] font-bold transition-all ${
                 cfg.productId === p.id ? "border-ink bg-amber text-white" : "border-ink/15 bg-card text-ink/60"
               }`}
             >
@@ -3571,7 +3571,7 @@ function DailyDealAdminTab({ onToast }: { onToast: (msg: string) => void }) {
           onChange={(e) => { haptic("light"); save({ discount: Number(e.target.value) }); }}
           className="mt-2 w-full accent-amber"
         />
-        <div className="mt-1 flex justify-between text-[9.5px] font-bold text-ink/60">
+        <div className="mt-1 flex justify-between text-[10px] font-bold text-ink/60">
           <span>5%</span><span>25%</span><span>50%</span>
         </div>
       </div>
@@ -3590,14 +3590,14 @@ function DailyDealAdminTab({ onToast }: { onToast: (msg: string) => void }) {
       {/* Preview */}
       {product && (
         <div className="rounded-[18px] border border-amber/25 bg-gradient-to-r from-amber/[0.10] to-transparent p-4">
-          <p className="text-[10.5px] font-extrabold uppercase tracking-[0.18em] text-amberdeep">{L("Oldindan ko'rish", "Предпросмотр", "Preview")}</p>
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-amberdeep">{L("Oldindan ko'rish", "Предпросмотр", "Preview")}</p>
           <div className="mt-2 flex items-center gap-3">
             <div className="h-14 w-14 shrink-0 overflow-hidden rounded-[14px] bg-paper2">
               <img src={product.img} alt="" className="h-full w-full object-cover" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate font-display text-[13.5px] font-bold text-ink">{product.name}</p>
-              <p className="mt-0.5 text-[11.5px] font-semibold text-ink/70">
+              <p className="truncate font-display text-[14px] font-bold text-ink">{product.name}</p>
+              <p className="mt-0.5 text-[12px] font-semibold text-ink/70">
                 <span className="text-amberdeep line-through">{formatPrice(product.price, lang)}</span>
                 <span className="ml-2 font-display text-[14px] font-bold text-moss">{formatPrice(dealPrice, lang)}</span>
               </p>
@@ -3678,7 +3678,7 @@ function JobsAdminTab({
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="rounded-full bg-pinedeep px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.08em] text-white">
+                    <span className="rounded-full bg-pinedeep px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.1em] text-white">
                       {pos[lang]}
                     </span>
                     {a.status === "new" && (
@@ -3688,7 +3688,7 @@ function JobsAdminTab({
                     )}
                   </div>
                   <p className="mt-2 font-display text-[14px] font-bold text-ink">{a.name}</p>
-                  <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11.5px] font-semibold text-ink2">
+                  <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[12px] font-semibold text-ink2">
                     <span className="inline-flex items-center gap-1">
                       <IconPhone size={11} /> {a.phone}
                     </span>
@@ -3696,21 +3696,21 @@ function JobsAdminTab({
                     <span>{new Date(a.createdAt).toLocaleDateString()} {new Date(a.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
                   </p>
                   {a.note && (
-                    <p className="mt-1.5 rounded-[12px] bg-paper2 px-3 py-2 text-[11.5px] font-medium text-ink2">“{a.note}”</p>
+                    <p className="mt-1.5 rounded-[12px] bg-paper2 px-3 py-2 text-[12px] font-medium text-ink2">“{a.note}”</p>
                   )}
                 </div>
               </div>
               <div className="mt-3 flex gap-2">
                 <a
                   href={`tel:${a.phone.replace(/[^+\d]/g, "")}`}
-                  className="press flex h-9 flex-1 items-center justify-center gap-1.5 rounded-[12px] border border-moss/25 bg-sagetint/40 text-[11.5px] font-bold text-pine"
+                  className="press flex h-9 flex-1 items-center justify-center gap-1.5 rounded-[12px] border border-moss/25 bg-sagetint/40 text-[12px] font-bold text-pine"
                 >
                   <IconPhone size={13} /> {L("Qo'ng'iroq", "Позвонить", "Call")}
                 </a>
                 {a.status !== "closed" && (
                   <button
                     onClick={() => setStatus(a.id, a.status === "new" ? "contacted" : "closed")}
-                    className="press flex h-9 flex-1 items-center justify-center gap-1.5 rounded-[12px] bg-amber text-[11.5px] font-bold text-white"
+                    className="press flex h-9 flex-1 items-center justify-center gap-1.5 rounded-[12px] bg-amber text-[12px] font-bold text-white"
                   >
                     <IconCheck size={13} />
                     {a.status === "new" ? L("Bog'landim", "Связался", "Contacted") : L("Yopish", "Закрыть", "Close")}
@@ -3719,7 +3719,7 @@ function JobsAdminTab({
                 {a.status === "closed" && (
                   <button
                     onClick={() => setStatus(a.id, "contacted")}
-                    className="press h-9 flex-1 rounded-[12px] border border-ink/15 text-[11.5px] font-bold text-ink2"
+                    className="press h-9 flex-1 rounded-[12px] border border-ink/15 text-[12px] font-bold text-ink2"
                   >
                     {L("Qayta ochish", "Открыть", "Reopen")}
                   </button>

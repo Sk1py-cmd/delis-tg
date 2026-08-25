@@ -81,7 +81,7 @@ export function AdminKpi({
   return (
     <div className="rounded-[18px] border border-white/8 bg-card/85 p-3.5">
       <div className="flex items-center justify-between gap-2">
-        <p className="truncate text-[9.5px] font-bold uppercase tracking-[0.14em] text-ink2">{label}</p>
+        <p className="truncate text-[10px] font-bold uppercase tracking-[0.14em] text-ink2">{label}</p>
         {icon && (
           <span className="grid h-7 w-7 shrink-0 place-items-center rounded-[10px] border border-white/8 bg-white/4 text-ink2">
             {icon}
@@ -140,7 +140,7 @@ export function AdminStatusPill({
 }) {
   return (
     <span
-      className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full border px-2.5 py-1 text-[9.5px] font-extrabold uppercase tracking-[0.1em] ${STATUS_TONES[status] || "border-white/10 bg-white/5 text-ink2"}`}
+      className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full border px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.1em] ${STATUS_TONES[status] || "border-white/10 bg-white/5 text-ink2"}`}
     >
       <span className="h-1.5 w-1.5 rounded-full bg-current opacity-80" />
       {label}

@@ -202,7 +202,7 @@ function LocalInputs({ value, onChange }: { value: L10n; onChange: (next: L10n) 
           <input
             value={value[code]}
             onChange={(e) => onChange({ ...value, [code]: e.target.value })}
-            className="min-w-0 flex-1 rounded-[13px] border border-ink/15 bg-paper px-3 py-2.5 text-[12.5px] font-semibold text-ink outline-none focus:border-moss"
+            className="min-w-0 flex-1 rounded-[13px] border border-ink/15 bg-paper px-3 py-2.5 text-[13px] font-semibold text-ink outline-none focus:border-moss"
           />
         </label>
       ))}
@@ -274,16 +274,16 @@ export function ContentManagementTab({ onToast }: { onToast: (message: string) =
   return (
     <div className="space-y-3 animate-pop">
       <div className="flex rounded-[16px] bg-paper2 p-1">
-        <button onClick={() => setSection("splash")} className={`flex-1 rounded-[12px] py-2 text-[11.5px] font-bold ${section === "splash" ? "bg-card text-ink shadow-sm" : "text-ink2"}`}>
+        <button onClick={() => setSection("splash")} className={`flex-1 rounded-[12px] py-2 text-[12px] font-bold ${section === "splash" ? "bg-card text-ink shadow-sm" : "text-ink2"}`}>
           <span className="inline-flex items-center gap-1"><IconSparkle size={13} /> {lang === "ru" ? "Заставка" : "Zastavka"}</span>
         </button>
-        <button onClick={() => setSection("why")} className={`flex-1 rounded-[12px] py-2 text-[11.5px] font-bold ${section === "why" ? "bg-card text-ink shadow-sm" : "text-ink2"}`}>
+        <button onClick={() => setSection("why")} className={`flex-1 rounded-[12px] py-2 text-[12px] font-bold ${section === "why" ? "bg-card text-ink shadow-sm" : "text-ink2"}`}>
           <span className="inline-flex items-center gap-1"><IconGrid size={13} /> Why ({activeSlides})</span>
         </button>
-        <button onClick={() => setSection("wholesale")} className={`flex-1 rounded-[12px] py-2 text-[11.5px] font-bold ${section === "wholesale" ? "bg-card text-ink shadow-sm" : "text-ink2"}`}>
+        <button onClick={() => setSection("wholesale")} className={`flex-1 rounded-[12px] py-2 text-[12px] font-bold ${section === "wholesale" ? "bg-card text-ink shadow-sm" : "text-ink2"}`}>
           <span className="inline-flex items-center gap-1"><IconFactory size={13} /> B2B</span>
         </button>
-        <button onClick={() => setSection("channel")} className={`flex-1 rounded-[12px] py-2 text-[11.5px] font-bold ${section === "channel" ? "bg-card text-ink shadow-sm" : "text-ink2"}`}>
+        <button onClick={() => setSection("channel")} className={`flex-1 rounded-[12px] py-2 text-[12px] font-bold ${section === "channel" ? "bg-card text-ink shadow-sm" : "text-ink2"}`}>
           <span className="inline-flex items-center gap-1"><IconSend size={13} /> Telegram</span>
         </button>
       </div>
@@ -331,14 +331,14 @@ export function ContentManagementTab({ onToast }: { onToast: (message: string) =
                 haptic("error");
               }
             }}
-            className="press flex h-10 w-full items-center justify-center gap-2 rounded-[13px] bg-[#2AABEE] text-[12.5px] font-extrabold text-white"
+            className="press flex h-10 w-full items-center justify-center gap-2 rounded-[13px] bg-[#2AABEE] text-[13px] font-extrabold text-white"
           >
             {posting ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/60 border-t-white" /> : <IconSend size={15} />}
             {posting
               ? (lang === "ru" ? "Отправка..." : lang === "en" ? "Sending..." : "Yuborilmoqda...")
               : (lang === "ru" ? "Опубликовать в Telegram" : lang === "en" ? "Publish to Telegram" : "Telegramga chop etish")}
           </button>
-          <p className="text-[10.5px] font-semibold text-ink2">
+          <p className="text-[11px] font-semibold text-ink2">
             {lang === "ru" ? "Требуется TELEGRAM_NEWS_CHANNEL и бот с правами администратора канала." : lang === "en" ? "Requires TELEGRAM_NEWS_CHANNEL and the bot as a channel admin." : "TELEGRAM_NEWS_CHANNEL va kanal admin huquqiga ega bot kerak."}
           </p>
         </div>
@@ -408,7 +408,7 @@ export function ContentManagementTab({ onToast }: { onToast: (message: string) =
                 <img src={slide.image} alt="" className="h-16 w-16 rounded-[14px] bg-paper2 object-cover" />
                 <div className="min-w-0 flex-1">
                   <p className="font-display text-[13px] font-bold text-ink">{slide.title[lang]}</p>
-                  <p className="text-[10.5px] text-ink2">#{i + 1} · {slide.stat} · {slide.active ? "active" : "hidden"}</p>
+                  <p className="text-[11px] text-ink2">#{i + 1} · {slide.stat} · {slide.active ? "active" : "hidden"}</p>
                 </div>
                 <button onClick={() => setSlide(i, { active: !slide.active })} className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${slide.active ? "bg-sagetint text-pine" : "bg-amber/8 text-ink2"}`}>
                   {slide.active ? "ON" : "OFF"}
@@ -467,10 +467,10 @@ export function ContentManagementTab({ onToast }: { onToast: (message: string) =
         </div>
       )}
 
-      <button onClick={save} disabled={saving} className="press flex h-12 w-full items-center justify-center gap-2 rounded-[18px] bg-amber text-[13.5px] font-bold text-white shadow-soft disabled:opacity-50">
+      <button onClick={save} disabled={saving} className="press flex h-12 w-full items-center justify-center gap-2 rounded-[18px] bg-amber text-[14px] font-bold text-white shadow-soft disabled:opacity-50">
         <IconCheck size={15} /> {saving ? "..." : lang === "ru" ? "Сохранить и опубликовать" : "Saqlash va joylash"}
       </button>
-      <button onClick={() => setDraft(DEFAULT_MANAGED_CONTENT)} className="press w-full rounded-[15px] bg-paper2 py-2.5 text-[11.5px] font-bold text-ink2">
+      <button onClick={() => setDraft(DEFAULT_MANAGED_CONTENT)} className="press w-full rounded-[15px] bg-paper2 py-2.5 text-[12px] font-bold text-ink2">
         {lang === "ru" ? "Вернуть стандартный контент" : "Standart kontentni qaytarish"}
       </button>
     </div>

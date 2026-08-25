@@ -69,7 +69,7 @@ export function LegalDocsSheet({
                 haptic("light");
                 setActiveDoc(tab.id);
               }}
-              className={`press shrink-0 rounded-[14px] px-3.5 py-2 text-[11.5px] font-bold transition-all ${
+              className={`press shrink-0 rounded-[14px] px-3.5 py-2 text-[12px] font-bold transition-all ${
                 activeDoc === tab.id
                   ? "bg-card text-ink shadow-sm ring-1 ring-ink/10"
                   : "text-ink2 hover:text-ink"
@@ -120,7 +120,7 @@ export function LegalDocsSheet({
           )}
         </div>
 
-        <div className="rounded-[20px] bg-paper2 p-3.5 text-center text-[11.5px] font-semibold text-ink2">
+        <div className="rounded-[20px] bg-paper2 p-3.5 text-center text-[12px] font-semibold text-ink2">
           <span className="inline-flex items-center gap-1.5"><IconFactory size={15} /> {t("legalSellerInfo")}</span>
         </div>
 
@@ -219,7 +219,7 @@ export function WaitlistSheet({
                 {t("stockOut")}
               </span>
               <p className="mt-1 font-display text-[14px] font-bold text-ink">{product.name}</p>
-              <p className="text-[11.5px] font-semibold text-moss">{formatPrice(product.price, lang)}</p>
+              <p className="text-[12px] font-semibold text-moss">{formatPrice(product.price, lang)}</p>
             </div>
           </div>
 
@@ -255,13 +255,13 @@ export function WaitlistSheet({
                 <IconSend size={17} />
               </button>
             </div>
-            <p className="mt-1 text-[10.5px] font-semibold text-ink2">
+            <p className="mt-1 text-[11px] font-semibold text-ink2">
               {t("waitlistSub")} — Telegram kontakt tugmasi orqali 1 bosishda
             </p>
           </div>
 
           <div className="flex items-center justify-between rounded-[18px] border border-ink/18 bg-card p-3">
-            <span className="text-[12.5px] font-bold text-ink">{t("waitlistQty")}</span>
+            <span className="text-[13px] font-bold text-ink">{t("waitlistQty")}</span>
             <div className="flex items-center gap-2.5">
               <button
                 type="button"
@@ -358,7 +358,7 @@ export function ReferralHubSheet({
                 {stats.personalCode}
               </p>
             </div>
-            <span className="rounded-full bg-white/20 px-3 py-1 font-display text-[10.5px] font-bold backdrop-blur-md">
+            <span className="rounded-full bg-white/20 px-3 py-1 font-display text-[11px] font-bold backdrop-blur-md">
               <span className="inline-flex items-center gap-1"><IconGift size={14} /> {L("Har bir do'st uchun +500", "+500 за друга", "+500 per friend")} <IconStarsOrbit size={13} /></span>
             </span>
           </div>
@@ -385,7 +385,7 @@ export function ReferralHubSheet({
         <div className="flex gap-2">
           <button
             onClick={handleShare}
-            className="press flex h-13 flex-1 items-center justify-center gap-2 rounded-[20px] bg-amber text-[13.5px] font-bold text-white shadow-lift hover:brightness-105"
+            className="press flex h-13 flex-1 items-center justify-center gap-2 rounded-[20px] bg-amber text-[14px] font-bold text-white shadow-lift hover:brightness-105"
           >
             <IconShare size={16} />
             <span>{t("refShareBtn")}</span>
@@ -411,7 +411,7 @@ export function ReferralHubSheet({
               { num: "2", text: t("refStep2") },
               { num: "3", text: t("refStep3") },
             ].map((step) => (
-              <div key={step.num} className="flex items-start gap-2.5 text-[12.5px] font-semibold text-ink">
+              <div key={step.num} className="flex items-start gap-2.5 text-[13px] font-semibold text-ink">
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-sagetint font-display text-[10px] font-bold text-pine">
                   {step.num}
                 </span>
@@ -545,29 +545,29 @@ export function PaymentGatewayModal({
   return (
     <Sheet open={open} onClose={onClose} title={t("payGatewayTitle")}>
       <div className="space-y-4 pt-1 text-center">
-        <p className="text-[12.5px] font-medium text-ink2">{t("payGatewaySub")}</p>
+        <p className="text-[13px] font-medium text-ink2">{t("payGatewaySub")}</p>
 
         {/* Payment Amount Card */}
         <div className="rounded-[24px] border border-moss/20 bg-sagetint/70 p-4">
-          <p className="text-[10.5px] font-bold uppercase tracking-wider text-pine">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-pine">
             {paymentBrandTitle} orqali to'lov
           </p>
           <p className="mt-1 font-display text-[26px] font-bold text-ink">
             {formatPrice(order.total, lang)}
           </p>
-          <p className="mt-1 text-[11.5px] font-medium text-ink2">
+          <p className="mt-1 text-[12px] font-medium text-ink2">
             Buyurtma #{order.id} · {order.items.length} ta mahsulot
           </p>
         </div>
 
         {/* Hint */}
-        <div className="flex items-center justify-center gap-2 text-[11.5px] font-semibold text-ink2/80">
+        <div className="flex items-center justify-center gap-2 text-[12px] font-semibold text-ink2/80">
           <IconShieldCheck size={15} className="text-moss" />
           <span>{isStars ? t("payStarsHint") : t("securePaymentGuarantee")}</span>
         </div>
 
         {/* Countdown timer */}
-        <div className="inline-flex items-center gap-2 rounded-full bg-paper2 px-3.5 py-1.5 text-[11.5px] font-semibold text-ink2">
+        <div className="inline-flex items-center gap-2 rounded-full bg-paper2 px-3.5 py-1.5 text-[12px] font-semibold text-ink2">
           <span className="h-2 w-2 animate-pulse rounded-full bg-amber" />
           <span>{t("payTimeRemaining")}: <b>{timeString}</b></span>
         </div>
@@ -607,7 +607,7 @@ export function PaymentGatewayModal({
           {(isPayme || isClick) && !checkoutUrl && (
             <div className="rounded-[20px] border border-amber/25 bg-amber/[0.09] p-4 text-left">
               <p className="text-[13px] font-bold text-amberdeep">{t("payNotConfigured")}</p>
-              <p className="mt-1 text-[11.5px] leading-relaxed text-ink2">{t("payNotConfiguredSub")}</p>
+              <p className="mt-1 text-[12px] leading-relaxed text-ink2">{t("payNotConfiguredSub")}</p>
               <a
                 href={CONFIG.SUPPORT_TG_LINK}
                 target="_blank"

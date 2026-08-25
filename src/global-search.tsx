@@ -99,7 +99,7 @@ export function GlobalSearchSheet({
               }
             }}
             placeholder={t("searchAllPh")}
-            className="flex-1 bg-transparent text-[14.5px] font-semibold text-ink outline-none placeholder:text-ink/60"
+            className="flex-1 bg-transparent text-[15px] font-semibold text-ink outline-none placeholder:text-ink/60"
           />
           {query && (
             <button
@@ -152,7 +152,7 @@ export function GlobalSearchSheet({
             {history.length > 0 ? (
               <div>
                 <div className="flex items-center justify-between">
-                  <p className="text-[10.5px] font-extrabold uppercase tracking-[0.2em] text-ink/65">
+                  <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-ink/65">
                     <span className="inline-flex items-center gap-1.5"><IconClock size={13} /> {lang === "uz" ? "Oxirgi qidiruvlar" : lang === "ru" ? "Недавние запросы" : "Recent searches"}</span>
                   </p>
                   <button
@@ -162,7 +162,7 @@ export function GlobalSearchSheet({
                         localStorage.removeItem("delis_search_history");
                       } catch { /* ignore */ }
                     }}
-                    className="text-[10.5px] font-bold text-ink/60 underline-offset-2 hover:text-[#B3402E] hover:underline"
+                    className="text-[11px] font-bold text-ink/60 underline-offset-2 hover:text-[#B3402E] hover:underline"
                   >
                     {lang === "uz" ? "Tozalash" : lang === "ru" ? "Очистить" : "Clear"}
                   </button>
@@ -201,7 +201,7 @@ export function GlobalSearchSheet({
               <IconSearch size={26} />
             </div>
             <p className="mt-4 font-display text-[16px] font-bold text-ink">{t("searchNothing")}</p>
-            <p className="mt-1.5 text-[12.5px] font-medium text-ink/70">{t("searchTryAgain")}</p>
+            <p className="mt-1.5 text-[13px] font-medium text-ink/70">{t("searchTryAgain")}</p>
           </div>
         )}
 
@@ -226,7 +226,7 @@ export function GlobalSearchSheet({
                       onClose();
                       onOpenProduct(p);
                     }}
-                    className="press flex items-center gap-1.5 rounded-full border border-moss/20 bg-sagetint/50 px-3 py-1.5 text-[11.5px] font-bold text-pine"
+                    className="press flex items-center gap-1.5 rounded-full border border-moss/20 bg-sagetint/50 px-3 py-1.5 text-[12px] font-bold text-pine"
                   >
                     <span className="h-3.5 w-3.5 overflow-hidden rounded-full">
                       <img src={p.img} alt="" className="h-full w-full object-cover" />
@@ -242,7 +242,7 @@ export function GlobalSearchSheet({
         {/* Product results */}
         {foundProducts.length > 0 && (
           <div>
-            <p className="text-[10.5px] font-extrabold uppercase tracking-[0.2em] text-ink/65">
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-ink/65">
               {t("searchInProducts")} · {foundProducts.length}
             </p>
             <div className="mt-2.5 space-y-2">
@@ -257,8 +257,8 @@ export function GlobalSearchSheet({
                     <img src={p.img} alt={p.name} className="h-full w-full object-cover" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-display text-[13.5px] font-bold text-ink">{p.name}</p>
-                    <p className="truncate text-[11.5px] font-medium text-ink/70">{p.desc[lang]}</p>
+                    <p className="truncate font-display text-[14px] font-bold text-ink">{p.name}</p>
+                    <p className="truncate text-[12px] font-medium text-ink/70">{p.desc[lang]}</p>
                   </div>
                   <span className="shrink-0 font-display text-[13px] font-bold text-ink">
                     {formatPrice(p.price, lang)}
@@ -272,7 +272,7 @@ export function GlobalSearchSheet({
         {/* FAQ results */}
         {faqItems.length > 0 && (
           <div>
-            <p className="text-[10.5px] font-extrabold uppercase tracking-[0.2em] text-ink/65">
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-ink/65">
               {t("searchInFaq")} · {faqItems.length}
             </p>
             <div className="mt-2.5 space-y-2">
@@ -321,7 +321,7 @@ export function PriceFilter({
   return (
     <div className="rounded-[20px] border border-ink/18 bg-card p-4 shadow-sm">
       <div className="flex items-center justify-between">
-        <p className="text-[10.5px] font-extrabold uppercase tracking-[0.18em] text-ink/65">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-ink/65">
           {t("priceFilter")}
         </p>
         {isActive && (

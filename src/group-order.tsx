@@ -73,7 +73,7 @@ export function GroupOrderSheet({ open, onClose, onToast }: { open: boolean; onC
   return (
     <Sheet open={open} onClose={onClose} title={L("Guruhli buyurtma", "Групповой заказ", "Group order")}>
       <div className="space-y-4 pt-1">
-        <p className="text-[12.5px] font-medium leading-relaxed text-ink/70">
+        <p className="text-[13px] font-medium leading-relaxed text-ink/70">
           {L(
             "Qo'shnilar, ofis yoki oila bilan birlashing — 5 kishi yig'ilsa, hamma 20% chegirma oladi!",
             "Объединитесь с соседями, офисом или семьёй — соберёте 5 человек, все получат скидку 20%!",
@@ -90,7 +90,7 @@ export function GroupOrderSheet({ open, onClose, onToast }: { open: boolean; onC
                   <button
                     key={p.id}
                     onClick={() => { haptic("light"); setProductId(p.id); }}
-                    className={`press flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-[11.5px] font-bold transition-all ${
+                    className={`press flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-[12px] font-bold transition-all ${
                       productId === p.id ? "border-ink bg-amber text-white" : "border-ink/15 bg-card text-ink/60"
                     }`}
                   >
@@ -149,11 +149,11 @@ export function GroupOrderSheet({ open, onClose, onToast }: { open: boolean; onC
             <div className="space-y-1.5">
               {group.members.map((m, i) => (
                 <div key={i} className="flex items-center justify-between rounded-[14px] bg-paper2/70 px-3.5 py-2.5">
-                  <span className="flex items-center gap-2 text-[12.5px] font-bold text-ink">
+                  <span className="flex items-center gap-2 text-[13px] font-bold text-ink">
                     <span className="flex h-7 w-7 items-center justify-center rounded-full bg-pine text-[11px] text-white">{m.name.slice(0, 1).toUpperCase()}</span>
                     {m.name}
                   </span>
-                  <span className="text-[11.5px] font-semibold text-ink/70">{m.items} {L("dona", "шт", "pcs")} · {formatPrice(m.sum, lang)}</span>
+                  <span className="text-[12px] font-semibold text-ink/70">{m.items} {L("dona", "шт", "pcs")} · {formatPrice(m.sum, lang)}</span>
                 </div>
               ))}
             </div>

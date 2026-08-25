@@ -50,7 +50,7 @@ export function BundleSection({ onOpen }: { onOpen: () => void }) {
     <section className="px-5 pt-14">
       <div className="flex items-end justify-between">
         <div>
-          <p className="flex items-center gap-1.5 text-[10.5px] font-extrabold uppercase tracking-[0.22em] text-amberdeep">
+          <p className="flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-[0.2em] text-amberdeep">
             <IconSparkle size={12} />
             {t("bundlesTitle")}
           </p>
@@ -129,7 +129,7 @@ export function BundleSheet({ open, onClose, onAdd }: { open: boolean; onClose: 
                     setAdded(bundle.id);
                     setTimeout(() => setAdded(null), 1600);
                   }}
-                  className={`press flex items-center gap-1.5 rounded-[14px] px-3 py-2 text-[11.5px] font-bold ${isAdded ? "bg-moss text-white" : "bg-amber text-white"}`}
+                  className={`press flex items-center gap-1.5 rounded-[14px] px-3 py-2 text-[12px] font-bold ${isAdded ? "bg-moss text-white" : "bg-amber text-white"}`}
                 >
                   {isAdded ? <IconCheck size={14} /> : <IconPlus size={14} />}
                   {isAdded ? t("bundleAdded") : t("bundleAdd")}

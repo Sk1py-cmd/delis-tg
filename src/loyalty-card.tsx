@@ -228,8 +228,8 @@ export function LoyaltyCard({
               <span className="loyalty-tier-up__signal mx-auto grid h-24 w-24 place-items-center rounded-[28px]" style={{ color: accent }}>
                 <IconTierSignal size={58} filled />
               </span>
-              <p className="mt-5 font-mono text-[10px] font-black uppercase tracking-[0.34em] text-white/60">{L("YANGI DARAJA", "НОВЫЙ УРОВЕНЬ", "TIER ASCENDED")}</p>
-              <p className="mt-2 font-display text-[27px] font-black text-white">{levelNames[tierUp][lang]}</p>
+              <p className="mt-5 font-mono text-[10px] font-black uppercase tracking-[0.3em] text-white/60">{L("YANGI DARAJA", "НОВЫЙ УРОВЕНЬ", "TIER ASCENDED")}</p>
+              <p className="mt-2 font-display text-[26px] font-black text-white">{levelNames[tierUp][lang]}</p>
             </div>
           </div>
         )}
@@ -253,7 +253,7 @@ export function LoyaltyCard({
           <div className="relative z-10">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.34em] text-white/45">
+                <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.3em] text-white/45">
                   <span className="loyalty-live-dot h-1.5 w-1.5 rounded-full" /> {L("FAOL A'ZO", "АКТИВНЫЙ УЧАСТНИК", "LIVE MEMBER")}
                 </div>
                 <div className="mt-1 flex items-center gap-2">
@@ -278,7 +278,7 @@ export function LoyaltyCard({
                 </p>
               </div>
               <div className="rounded-[14px] border border-white/10 bg-white/[0.06] px-3 py-2 text-right backdrop-blur-xl">
-                <p className="text-[8px] font-black uppercase tracking-[0.18em] text-white/35">{L("A'zo", "Участник", "Member")}</p>
+                <p className="text-[9px] font-black uppercase tracking-[0.18em] text-white/35">{L("A'zo", "Участник", "Member")}</p>
                 <p className="max-w-[110px] truncate text-[11px] font-extrabold">{userName}</p>
               </div>
             </div>
@@ -286,7 +286,7 @@ export function LoyaltyCard({
             <div className="mt-6 flex items-end justify-between gap-3 border-t border-white/10 pt-4">
               <div>
                 <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/35">{L("Himoyalangan karta", "Защищённая карта", "Secure card")}</p>
-                <p className="mt-1 font-mono text-[11px] font-bold tracking-[0.08em]" style={{ color: accent }}>
+                <p className="mt-1 font-mono text-[11px] font-bold tracking-[0.1em]" style={{ color: accent }}>
                   {data.cardCode || L("SINXRONLANMOQDA…", "СИНХРОНИЗАЦИЯ…", "SYNCING…")}
                 </p>
               </div>
@@ -385,7 +385,7 @@ export function LoyaltyCard({
                     </span>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2"><p className="truncate text-[13px] font-black text-ink">{mission.title}</p><span className="inline-flex items-center gap-1 text-[11px] font-black text-[#20a85b]">+{mission.reward} <IconStarsOrbit size={13} /></span></div>
-                      <p className="mt-0.5 truncate text-[10.5px] font-medium text-ink2">{mission.description}</p>
+                      <p className="mt-0.5 truncate text-[11px] font-medium text-ink2">{mission.description}</p>
                       <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-black/10"><div className="h-full rounded-full bg-gradient-to-r from-[#18d66b] to-[#67e8f9] transition-all duration-700" style={{ width: `${pct}%` }} /></div>
                       <div className="mt-1 flex justify-between text-[9px] font-bold text-ink2"><span>{mission.progress.toLocaleString()} / {mission.target.toLocaleString()}</span><span>{mission.claimed ? L("Olindi", "Получено", "Claimed") : mission.claimable ? L("OLISH", "ЗАБРАТЬ", "CLAIM") : `${pct}%`}</span></div>
                     </div>
@@ -397,8 +397,8 @@ export function LoyaltyCard({
         </section>
 
         <div className="grid grid-cols-2 gap-3">
-          <div className="loyalty-panel motion-surface rounded-[20px] p-4"><p className="loyalty-kicker">{L("JAMI OLINDI", "ВСЕГО НАЧИСЛЕНО", "TOTAL EARNED")}</p><p className="mt-2 flex items-center gap-1 font-display text-[23px] font-black text-[#20a85b]">+{data.totalEarned.toLocaleString()} <IconStarsOrbit size={18} /></p><p className="mt-1 text-[10px] text-ink2">{formatPrice(data.totalEarned * data.starValueUzs, lang)}</p></div>
-          <div className="loyalty-panel motion-surface rounded-[20px] p-4"><p className="loyalty-kicker">{L("JAMI SARFLANDI", "ВСЕГО СПИСАНО", "TOTAL SPENT")}</p><p className="mt-2 flex items-center gap-1 font-display text-[23px] font-black text-[#a855f7]">-{data.totalSpent.toLocaleString()} <IconStarsOrbit size={18} /></p><p className="mt-1 text-[10px] text-ink2">{formatPrice(data.totalSpent * data.starValueUzs, lang)}</p></div>
+          <div className="loyalty-panel motion-surface rounded-[20px] p-4"><p className="loyalty-kicker">{L("JAMI OLINDI", "ВСЕГО НАЧИСЛЕНО", "TOTAL EARNED")}</p><p className="mt-2 flex items-center gap-1 font-display text-[22px] font-black text-[#20a85b]">+{data.totalEarned.toLocaleString()} <IconStarsOrbit size={18} /></p><p className="mt-1 text-[10px] text-ink2">{formatPrice(data.totalEarned * data.starValueUzs, lang)}</p></div>
+          <div className="loyalty-panel motion-surface rounded-[20px] p-4"><p className="loyalty-kicker">{L("JAMI SARFLANDI", "ВСЕГО СПИСАНО", "TOTAL SPENT")}</p><p className="mt-2 flex items-center gap-1 font-display text-[22px] font-black text-[#a855f7]">-{data.totalSpent.toLocaleString()} <IconStarsOrbit size={18} /></p><p className="mt-1 text-[10px] text-ink2">{formatPrice(data.totalSpent * data.starValueUzs, lang)}</p></div>
         </div>
 
         <section>
@@ -406,7 +406,7 @@ export function LoyaltyCard({
             <p className="loyalty-kicker">{L("TRANZAKSIYALAR OQIMI", "ПОТОК ТРАНЗАКЦИЙ", "TRANSACTION STREAM")}</p>
             <div className="flex rounded-full bg-black/10 p-0.5">
               {(["all", "earn", "spend"] as const).map((filter) => (
-                <button key={filter} onClick={() => { setHistoryFilter(filter); setHistoryExpanded(false); }} className={`rounded-full px-2.5 py-1 text-[8px] font-black uppercase ${historyFilter === filter ? "bg-[#05070b] text-[#60ff9b]" : "text-ink2"}`}>{filterLabels[filter][lang]}</button>
+                <button key={filter} onClick={() => { setHistoryFilter(filter); setHistoryExpanded(false); }} className={`rounded-full px-2.5 py-1 text-[9px] font-black uppercase ${historyFilter === filter ? "bg-[#05070b] text-[#60ff9b]" : "text-ink2"}`}>{filterLabels[filter][lang]}</button>
               ))}
             </div>
           </div>
@@ -419,7 +419,7 @@ export function LoyaltyCard({
               {visibleHistory.map((item, index) => (
                 <div key={item.id} className={`loyalty-history-row motion-surface is-${item.type} flex items-center justify-between gap-3 rounded-[18px] p-3`} style={{ animationDelay: `${index * 45}ms` }}>
                   <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-[12px] ${item.type === "earn" ? "bg-[#60ff9b]/12 text-[#20a85b]" : "bg-[#a855f7]/12 text-[#9333ea]"}`}>{item.type === "earn" ? <IconSparkle size={15} /> : <IconStar size={15} />}</span>
-                  <div className="min-w-0 flex-1"><p className="truncate text-[11.5px] font-extrabold text-ink">{item.description}</p><p className="mt-0.5 text-[9.5px] text-ink2">{formatHistoryDate(item.date, lang)} · {(sourceLabels[item.source || "stars"]?.[lang] || item.source || "Stars").toUpperCase()}</p></div>
+                  <div className="min-w-0 flex-1"><p className="truncate text-[12px] font-extrabold text-ink">{item.description}</p><p className="mt-0.5 text-[10px] text-ink2">{formatHistoryDate(item.date, lang)} · {(sourceLabels[item.source || "stars"]?.[lang] || item.source || "Stars").toUpperCase()}</p></div>
                   <span className={`inline-flex shrink-0 items-center gap-1 font-display text-[13px] font-black ${item.type === "earn" ? "text-[#20a85b]" : "text-[#9333ea]"}`}>{item.type === "earn" ? "+" : "-"}{item.amount.toLocaleString()} <IconStarsOrbit size={13} /></span>
                 </div>
               ))}

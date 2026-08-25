@@ -41,16 +41,16 @@ export function Wholesale({ onPartner, onBankDetails }: { onPartner: () => void;
         <div className="relative overflow-hidden rounded-[32px] bg-[#30253e] p-5 min-[390px]:p-7 text-white shadow-soft">
           <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-[#94c7b4]/20 blur-3xl" />
           <div className="pointer-events-none absolute -left-20 bottom-0 h-40 w-40 rounded-full bg-[#638872]/25 blur-3xl" />
-          <p className="relative text-[10px] font-extrabold uppercase tracking-[0.26em] text-[#c3c88c]">{wholesale.kicker[lang]}</p>
+          <p className="relative text-[10px] font-extrabold uppercase tracking-[0.24em] text-[#c3c88c]">{wholesale.kicker[lang]}</p>
           <h2 className="relative mt-3 font-display text-[24px] font-bold leading-tight tracking-tight text-white">
             {wholesale.title[lang]}
           </h2>
-          <p className="relative mt-2.5 max-w-[300px] text-[13.5px] font-medium leading-relaxed text-white/70">
+          <p className="relative mt-2.5 max-w-[300px] text-[14px] font-medium leading-relaxed text-white/70">
             {wholesale.lead[lang]}
           </p>
           <div className="relative mt-5 flex flex-wrap gap-2">
             {audiences.map((audience) => (
-              <span key={audience} className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[10.5px] font-bold text-white/90 backdrop-blur-sm">
+              <span key={audience} className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] font-bold text-white/90 backdrop-blur-sm">
                 {audience}
               </span>
             ))}
@@ -58,7 +58,7 @@ export function Wholesale({ onPartner, onBankDetails }: { onPartner: () => void;
           <ul className="relative mt-6 space-y-2.5">
             {bullets.map((b, i) => (
               <Reveal key={b} delay={i * 90}>
-                <li className="flex items-center gap-2.5 text-[13.5px] font-semibold text-white/90">
+                <li className="flex items-center gap-2.5 text-[14px] font-semibold text-white/90">
                   <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#c3c88c]/20 text-[#c3c88c]">
                     <IconCheck size={11} strokeWidth={2.4} />
                   </span>
@@ -112,7 +112,7 @@ export function News() {
                 >
                   <img src={n.cover} alt="" className="h-[74px] w-[74px] shrink-0 rounded-[18px] object-cover" />
                   <div className="min-w-0 flex-1">
-                    <span className="rounded-full bg-sagetint px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.12em] text-pine">
+                    <span className="rounded-full bg-sagetint px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.14em] text-pine">
                       {n.tag?.[lang] ?? ""}
                     </span>
                     <h3 className="mt-1.5 text-[14px] font-bold leading-snug text-ink">{n.title[lang]}</h3>
@@ -138,7 +138,7 @@ export function News() {
                       <ol className="space-y-3.5">
                         {n.steps?.map((st, j) => (
                           <li key={j} className="flex gap-3">
-                            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber font-display text-[10.5px] font-bold text-white">
+                            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber font-display text-[11px] font-bold text-white">
                               {j + 1}
                             </span>
                             <p className="pt-0.5 text-[13px] font-medium leading-relaxed text-ink2">{st[lang]}</p>
@@ -204,7 +204,7 @@ export function Footer({
                 <IconSend size={20} />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block font-display text-[13.5px] font-black text-ink">{t("footerSubscribe")}</span>
+                <span className="block font-display text-[14px] font-black text-ink">{t("footerSubscribe")}</span>
                 <span className="block text-[11px] font-semibold text-ink/65">{t("footerSubscribeSub")}</span>
               </span>
               <IconChevron size={16} className="shrink-0 text-[#2AABEE]" />
@@ -258,7 +258,7 @@ export function Footer({
                       else if (s === "linkDelivery") onNavigate?.("delivery");
                       else if (s === "linkReturns") onNavigate?.("returns");
                     }}
-                    className="text-[13.5px] font-semibold text-ink/75 transition-colors hover:text-amber"
+                    className="text-[14px] font-semibold text-ink/75 transition-colors hover:text-amber"
                   >
                     {t(s)}
                   </button>
@@ -282,7 +282,7 @@ export function Footer({
                         s === "linkAbout" ? "about" : s === "linkProduction" ? "production" : "careers"
                       );
                     }}
-                    className="text-[13.5px] font-semibold text-ink/75 transition-colors hover:text-amber"
+                    className="text-[14px] font-semibold text-ink/75 transition-colors hover:text-amber"
                   >
                     {t(s)}
                   </button>
@@ -314,7 +314,7 @@ export function Footer({
           <p className="text-[11px] font-medium text-ink/45">{t("rights")}</p>
           <p className="mt-2 flex items-center gap-2 text-[12px] font-bold text-ink/70">
             {t("madeIn")} <span aria-hidden>🇺🇿</span>
-            <span className="ml-auto flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-[0.18em] text-ink/40">
+            <span className="ml-auto flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-ink/40">
               <IconSparkle size={10} className="text-amber/70" />
               Telegram Mini App
             </span>

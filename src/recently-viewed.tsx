@@ -39,7 +39,7 @@ export function RecentlyViewed({
             <span className="flex h-7 w-7 items-center justify-center rounded-full bg-paper2 text-ink/70">
               <IconClock size={14} />
             </span>
-            <h2 className="font-display text-[19px] font-bold tracking-tight text-ink">
+            <h2 className="font-display text-[18px] font-bold tracking-tight text-ink">
               {t("recentlyViewed")}
             </h2>
           </div>
@@ -49,7 +49,7 @@ export function RecentlyViewed({
             haptic("light");
             onClear();
           }}
-          className="press text-[11.5px] font-bold text-ink/65"
+          className="press text-[12px] font-bold text-ink/65"
         >
           {t("clearHistory")}
         </button>
@@ -84,8 +84,8 @@ export function RecentlyViewed({
                   </button>
                 </div>
                 <div className="p-3">
-                  <p className="truncate font-display text-[12.5px] font-bold text-ink">{p.name}</p>
-                  <p className="mt-1 font-display text-[12.5px] font-bold text-ink/70">
+                  <p className="truncate font-display text-[13px] font-bold text-ink">{p.name}</p>
+                  <p className="mt-1 font-display text-[13px] font-bold text-ink/70">
                     {formatPrice(p.price, lang)}
                   </p>
                 </div>

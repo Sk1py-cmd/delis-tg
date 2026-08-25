@@ -147,14 +147,14 @@ export function StarsShopSheet({
         </div>
 
         <div className="rounded-[18px] border border-moss/15 bg-sagetint/45 px-3.5 py-3">
-          <p className="text-[11.5px] font-bold leading-relaxed text-pine">
+          <p className="text-[12px] font-bold leading-relaxed text-pine">
             {L(
               "Har bir mukofot savat minimumiga ega — shunda bonus foydali xaridni ochadi.",
               "Каждая награда открывается при минимальной корзине — бонус дополняет выгодную покупку.",
               "Each reward unlocks at a minimum basket, so the bonus supports a valuable purchase.",
             )}
           </p>
-          <p className="mt-1 text-[9.5px] font-semibold text-ink/55">
+          <p className="mt-1 text-[10px] font-semibold text-ink/55">
             {L("1 kupon · chakana buyurtma", "1 купон · розничный заказ", "1 coupon · retail order")} · {rewards[0]?.expiresInDays ?? 14} {L("kun", "дней", "days")}
           </p>
         </div>
@@ -162,7 +162,7 @@ export function StarsShopSheet({
         {rewards.length === 0 && (
           <div className="rounded-[20px] border border-amber/20 bg-amber/8 p-4 text-center">
             <p className="font-display text-[13px] font-bold text-ink">{L("Mukofotlar vaqtincha to'xtatilgan", "Награды временно приостановлены", "Rewards are temporarily paused")}</p>
-            <p className="mt-1 text-[10.5px] font-medium text-ink2">{L("Stars balansingiz saqlanadi", "Ваш баланс Stars сохраняется", "Your Stars balance is safe")}</p>
+            <p className="mt-1 text-[11px] font-medium text-ink2">{L("Stars balansingiz saqlanadi", "Ваш баланс Stars сохраняется", "Your Stars balance is safe")}</p>
           </div>
         )}
 
@@ -186,8 +186,8 @@ export function StarsShopSheet({
                     <RewardGlyph kind={r.kind} />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="font-display text-[14.5px] font-bold text-ink">{r.title[lang]}</p>
-                    <p className="mt-0.5 text-[11.5px] font-medium text-ink/70">
+                    <p className="font-display text-[15px] font-bold text-ink">{r.title[lang]}</p>
+                    <p className="mt-0.5 text-[12px] font-medium text-ink/70">
                       {r.sub[lang]}
                       {giftProduct ? ` · ${giftProduct.name} (${formatPrice(giftProduct.price, lang)})` : ""}
                     </p>

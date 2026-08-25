@@ -322,7 +322,7 @@ export function StoriesBar({
                 <IconPlus size={20} />
               </div>
             </div>
-            <span className="flex h-7 w-[76px] items-start justify-center text-center text-[10.5px] font-semibold leading-[1.25] text-white/60">
+            <span className="flex h-7 w-[76px] items-start justify-center text-center text-[11px] font-semibold leading-[1.25] text-white/60">
               {lang === "uz" ? "Qo'shish" : lang === "ru" ? "Добавить" : "Add"}
             </span>
           </button>
@@ -338,7 +338,7 @@ export function StoriesBar({
               className="flex shrink-0 flex-col items-center gap-1.5"
             >
               <StoryRing story={story} isSeen={false} />
-              <span className="line-clamp-2 h-7 w-[76px] text-center text-[10.5px] font-semibold leading-[1.25] tracking-wide text-white/70">
+              <span className="line-clamp-2 h-7 w-[76px] text-center text-[11px] font-semibold leading-[1.25] tracking-wide text-white/70">
                 {story.title[lang]}
               </span>
             </button>
@@ -518,7 +518,7 @@ function StoryViewer({
                 )}
               </div>
               <div>
-                <p className="flex items-center gap-1.5 text-[13.5px] font-bold leading-tight text-white">
+                <p className="flex items-center gap-1.5 text-[14px] font-bold leading-tight text-white">
                   {author?.name || "DELIS"}
                   {isAdmin && <span className="flex h-4 w-4 items-center justify-center rounded-full bg-amber text-black"><IconCheck size={9} strokeWidth={2.8} /></span>}
                 </p>
@@ -579,7 +579,7 @@ function StoryViewer({
             <span className="text-white"><IconSymbol symbol={story.emoji} size={34} /></span>
             <div>
               <h3 className="font-display text-[20px] font-bold leading-tight text-white">{story.title[lang]}</h3>
-              <p className="mt-1 max-w-[280px] text-[13.5px] font-medium leading-snug text-white/70">{story.desc[lang]}</p>
+              <p className="mt-1 max-w-[280px] text-[14px] font-medium leading-snug text-white/70">{story.desc[lang]}</p>
             </div>
           </div>
 
@@ -590,7 +590,7 @@ function StoryViewer({
                 onBuy?.(story.productId!);
                 onClose();
               }}
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-[18px] bg-amber py-3.5 text-[14.5px] font-bold text-white shadow-lift"
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-[18px] bg-amber py-3.5 text-[15px] font-bold text-white shadow-lift"
             >
               <IconStore size={18} /> {lang === "uz" ? "Sotib olish" : lang === "ru" ? "Купить" : "Shop now"}
             </button>

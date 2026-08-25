@@ -315,7 +315,7 @@ export function LoyaltyAdminTab({ onToast }: { onToast: (message: string) => voi
     <div className="loyalty-admin rounded-[24px] border border-[#60ff9b]/15 bg-[#070a0f] p-4 text-white shadow-2xl">
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <p className="text-[9px] font-black uppercase tracking-[0.25em] text-[#60ff9b]/60">
+          <p className="text-[9px] font-black uppercase tracking-[0.24em] text-[#60ff9b]/60">
             {L("SODIQLIK BOSHQARUVI", "УПРАВЛЕНИЕ ЛОЯЛЬНОСТЬЮ", "LOYALTY CONTROL")}
           </p>
           <h3 className="mt-1 font-display text-[17px] font-black">
@@ -429,7 +429,7 @@ export function LoyaltyAdminTab({ onToast }: { onToast: (message: string) => voi
               <div className="max-h-60 space-y-1.5 overflow-y-auto">
                 {profile.history.slice(0, 12).map((history) => (
                   <div key={history.id} className="flex justify-between rounded-[12px] bg-white/[0.04] p-2.5">
-                    <div className="min-w-0"><p className="truncate text-[9.5px] font-bold">{history.description}</p><p className="text-[8px] text-white/30">{sourceLabels[history.source || ""] || history.source || "Stars"}</p></div>
+                    <div className="min-w-0"><p className="truncate text-[10px] font-bold">{history.description}</p><p className="text-[9px] text-white/30">{sourceLabels[history.source || ""] || history.source || "Stars"}</p></div>
                     <span className={`text-[10px] font-black ${history.type === "earn" ? "text-[#60ff9b]" : "text-[#c084fc]"}`}>{history.type === "earn" ? "+" : "−"}{history.amount}</span>
                   </div>
                 ))}
@@ -468,7 +468,7 @@ export function LoyaltyAdminTab({ onToast }: { onToast: (message: string) => voi
             </p>
             {(["uz", "ru", "en"] as const).map((fieldLang) => (
               <div key={fieldLang} className="grid grid-cols-[32px_1fr] gap-2">
-                <span className="grid place-items-center rounded-[10px] bg-white/[0.06] text-[8px] font-black uppercase text-white/45">{fieldLang}</span>
+                <span className="grid place-items-center rounded-[10px] bg-white/[0.06] text-[9px] font-black uppercase text-white/45">{fieldLang}</span>
                 <div className="space-y-2">
                   <input
                     value={missionTitle[fieldLang]}
@@ -502,7 +502,7 @@ export function LoyaltyAdminTab({ onToast }: { onToast: (message: string) => voi
               <span className="motion-icon-tile grid h-10 w-10 shrink-0 place-items-center rounded-[13px] bg-[#60ff9b]/10 text-[#60ff9b]"><MissionAdminGlyph metric={mission.metric as MissionMetric} /></span>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[11px] font-black">{mission[`title_${lang}`] || mission.title_uz}</p>
-                <p className="flex flex-wrap items-center gap-1 text-[8.5px] text-white/35">
+                <p className="flex flex-wrap items-center gap-1 text-[9px] text-white/35">
                   {metricLabels[mission.metric as MissionMetric] || mission.metric}: {mission.target} · +{mission.reward} <IconStarsOrbit size={11} /> · {mission.active ? L("Faol", "Активна", "Active") : L("O'chirilgan", "Отключена", "Disabled")}
                 </p>
               </div>
@@ -550,7 +550,7 @@ export function LoyaltyAdminTab({ onToast }: { onToast: (message: string) => voi
                       [L("Taxminiy marja", "Расчётная маржа", "Estimated margin"), `${rewardAnalytics.estimatedMarginPercent}% / ${rewardAnalytics.targetMarginPercent}%`],
                     ].map(([label, value]) => (
                       <div key={label} className="rounded-[13px] bg-white/[0.05] p-2.5">
-                        <p className="text-[8px] font-black uppercase text-white/30">{label}</p>
+                        <p className="text-[9px] font-black uppercase text-white/30">{label}</p>
                         <p className="mt-1 text-[11px] font-black text-white">{value}</p>
                       </div>
                     ))}
@@ -560,7 +560,7 @@ export function LoyaltyAdminTab({ onToast }: { onToast: (message: string) => voi
                     <br />{L("Tannarx qamrovi", "Заполненность себестоимости", "Cost coverage")}: <b className={rewardAnalytics.costCoveragePercent === 100 ? "text-[#60ff9b]" : "text-amber-300"}>{rewardAnalytics.costCoveragePercent}%</b>
                   </div>
                   {rewardAnalytics.warnings.map((warning) => (
-                    <p key={warning} className="rounded-[11px] border border-amber-300/15 bg-amber-300/8 px-2.5 py-2 text-[8.5px] font-bold text-amber-200">
+                    <p key={warning} className="rounded-[11px] border border-amber-300/15 bg-amber-300/8 px-2.5 py-2 text-[9px] font-bold text-amber-200">
                       {warning === "missing_product_costs"
                         ? L("Barcha mahsulotlar tannarxini kiriting", "Заполните себестоимость всех товаров", "Enter cost for every product")
                         : warning === "margin_below_target"
@@ -583,7 +583,7 @@ export function LoyaltyAdminTab({ onToast }: { onToast: (message: string) => voi
                       <div className="mb-2.5 flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
                           <span className="grid h-9 w-9 place-items-center rounded-[12px] bg-[#60ff9b]/10 text-[#60ff9b]">{reward.kind === "freeship" ? <IconTruck size={17} /> : reward.kind === "gift" ? <IconStore size={17} /> : <IconStarsOrbit size={18} />}</span>
-                          <div><p className="text-[10.5px] font-black">{title}</p><p className="text-[8px] text-white/30">{stats?.redeemed || 0}/{stats?.issued || 0} · {formatPrice(stats?.revenue || 0, lang)}</p></div>
+                          <div><p className="text-[11px] font-black">{title}</p><p className="text-[9px] text-white/30">{stats?.redeemed || 0}/{stats?.issued || 0} · {formatPrice(stats?.revenue || 0, lang)}</p></div>
                         </div>
                         <button onClick={() => updateReward(reward.id, { active: !reward.active })} role="switch" aria-checked={reward.active} className={`relative h-7 w-12 rounded-full ${reward.active ? "bg-[#60ff9b]" : "bg-white/10"}`}>
                           <span className={`absolute top-1 h-5 w-5 rounded-full bg-white transition-[left] ${reward.active ? "left-6" : "left-1"}`} />
@@ -597,7 +597,7 @@ export function LoyaltyAdminTab({ onToast }: { onToast: (message: string) => voi
                       </div>
                       {reward.kind === "gift" && (
                         <label className="mt-2 block">
-                          <span className="mb-1 block text-[8.5px] font-black uppercase tracking-wider text-white/35">{L("Sovg'a mahsuloti", "Товар-подарок", "Gift product")}</span>
+                          <span className="mb-1 block text-[9px] font-black uppercase tracking-wider text-white/35">{L("Sovg'a mahsuloti", "Товар-подарок", "Gift product")}</span>
                           <select value={reward.productId || ""} onChange={(event) => updateReward(reward.id, { productId: event.target.value })} className={input}>
                             {rewardConfig.products.filter((product) => Boolean(product.active)).map((product) => <option key={product.id} value={product.id}>{product.nameRu || product.nameUz} · {formatPrice(product.price, lang)}</option>)}
                           </select>
@@ -616,7 +616,7 @@ export function LoyaltyAdminTab({ onToast }: { onToast: (message: string) => voi
                   aria-checked={rewardConfig.economics.profitGuardEnabled}
                   className={`flex w-full items-center justify-between rounded-[12px] border px-3 py-2.5 text-left ${rewardConfig.economics.profitGuardEnabled ? "border-[#60ff9b]/20 bg-[#60ff9b]/8" : "border-red-300/15 bg-red-300/5"}`}
                 >
-                  <span><b className="block text-[9px] uppercase text-white">Profit Guard</b><small className="text-[8px] text-white/35">{L("Maqsadli marjadan past mukofotni rad etadi", "Не применяет награду ниже целевой маржи", "Rejects rewards below target margin")}</small></span>
+                  <span><b className="block text-[9px] uppercase text-white">Profit Guard</b><small className="text-[9px] text-white/35">{L("Maqsadli marjadan past mukofotni rad etadi", "Не применяет награду ниже целевой маржи", "Rejects rewards below target margin")}</small></span>
                   <span className={rewardConfig.economics.profitGuardEnabled ? "text-[#60ff9b]" : "text-red-300"}>{rewardConfig.economics.profitGuardEnabled ? "ON" : "OFF"}</span>
                 </button>
                 <div className="grid grid-cols-2 gap-2">
@@ -652,7 +652,7 @@ export function LoyaltyAdminTab({ onToast }: { onToast: (message: string) => voi
 function Rule({ label, value, onChange, disabled = false }: { label: string; value: number; onChange: (value: number) => void; disabled?: boolean }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-[8.5px] font-black uppercase tracking-wider text-white/35">{label}</span>
+      <span className="mb-1 block text-[9px] font-black uppercase tracking-wider text-white/35">{label}</span>
       <input disabled={disabled} type="number" value={value} onChange={(event) => onChange(Number(event.target.value))} className={`${input} disabled:opacity-35`} />
     </label>
   );

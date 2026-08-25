@@ -373,7 +373,7 @@ export function ProductScreen({
           {/* content */}
           <div className="px-4 pt-4 min-[390px]:px-5 min-[390px]:pt-5">
               <div className="flex items-center justify-between">
-                <p className="text-[10.5px] font-extrabold uppercase tracking-[0.22em] text-moss">
+                <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-moss">
                   {product.cat === "home" ? t("homeCare") : t("carCare")}
                 </p>
 
@@ -453,11 +453,11 @@ export function ProductScreen({
 
               {mode === "retail" ? (
                 <div className="mt-3 flex items-center gap-3">
-                  <span className="font-display text-[23px] font-bold text-ink">
+                  <span className="font-display text-[22px] font-bold text-ink">
                     {formatPrice(effectivePrice, lang)}
                   </span>
                   <span className="text-[12px] font-semibold text-ink/70">{t("perUnit")}</span>
-                  <span className="rounded-full bg-sagetint px-3 py-1 text-[10.5px] font-extrabold uppercase tracking-[0.1em] text-pine">
+                  <span className="rounded-full bg-sagetint px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.1em] text-pine">
                     {product.spec[lang]}
                   </span>
                 </div>
@@ -465,7 +465,7 @@ export function ProductScreen({
                 <div className="mt-3 rounded-[22px] border border-amber/25 bg-amber/[0.06] p-4">
                   {/* Volume discount ladder */}
                   <div className="flex items-center justify-between">
-                    <p className="flex items-center gap-1.5 text-[10.5px] font-extrabold uppercase tracking-[0.16em] text-amberdeep">
+                    <p className="flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-amberdeep">
                       <IconSparkle size={12} /> {t("wholesaleTiers")}
                     </p>
                     <span className="text-[11px] font-bold text-moss">{t("wholesaleHint")}</span>
@@ -482,7 +482,7 @@ export function ProductScreen({
                           }`}
                         >
                           <span className="block font-display text-[13px] font-bold">−{tier.discountPercent}%</span>
-                          <span className="block text-[9.5px] font-semibold">{tier.minQty}+ {t("wholesaleUnits")}</span>
+                          <span className="block text-[10px] font-semibold">{tier.minQty}+ {t("wholesaleUnits")}</span>
                         </button>
                       );
                     })}
@@ -490,7 +490,7 @@ export function ProductScreen({
 
                   {/* Qty stepper */}
                   <div className="mt-4 flex items-center justify-between rounded-[16px] bg-card p-2">
-                    <span className="pl-2 text-[12.5px] font-bold text-ink">{t("qtyLabel")}</span>
+                    <span className="pl-2 text-[13px] font-bold text-ink">{t("qtyLabel")}</span>
                     <div className="flex items-center gap-2.5">
                       <button
                         onClick={() => { haptic("light"); setWholesaleQty(Math.max(minimumWholesaleQty, wholesaleQty - 1)); }}
@@ -511,7 +511,7 @@ export function ProductScreen({
                         {formatPrice(wholesale.unit, lang)} · {t("perUnit")}
                         {wholesale.discount > 0 && <span className="ml-1.5 text-moss">(−{wholesale.discount}%)</span>}
                       </p>
-                      <p className="text-[10.5px] font-medium text-ink/65">
+                      <p className="text-[11px] font-medium text-ink/65">
                         {t("wholesaleMin")}: {minimumWholesaleQty} {t("wholesaleUnits")}
                       </p>
                     </div>
@@ -530,7 +530,7 @@ export function ProductScreen({
                   {product.features.map((feat, idx) => (
                     <span
                       key={idx}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-ink/18 bg-card px-3 py-1.5 text-[11.5px] font-semibold text-ink/80 shadow-sm"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-ink/18 bg-card px-3 py-1.5 text-[12px] font-semibold text-ink/80 shadow-sm"
                     >
                       <IconCheck size={12} className="text-moss" strokeWidth={2.4} />
                       {feat[lang]}
@@ -567,24 +567,24 @@ export function ProductScreen({
 
             {/* story highlight */}
             <div className="mt-6 border-y border-ink/18 bg-card px-4 py-4 min-[390px]:px-5 min-[390px]:py-5">
-              <p className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[0.22em] text-amber">
+              <p className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[0.2em] text-amber">
                 <IconSparkle size={11} />
                 {t("story")}
               </p>
-              <p className="mt-2.5 font-display text-[15.5px] font-bold leading-snug text-ink">
+              <p className="mt-2.5 font-display text-[16px] font-bold leading-snug text-ink">
                 “{product.story[lang]}”
               </p>
             </div>
 
             {/* accordions */}
             <Accordion title={t("usage")} icon={<IconLeaf size={17} />} delay={60}>
-              <p className="text-[13.5px] font-medium leading-relaxed text-ink2">
+              <p className="text-[14px] font-medium leading-relaxed text-ink2">
                 {product.usage[lang]}
               </p>
             </Accordion>
 
             <Accordion title={t("composition")} icon={<IconFlask size={17} />} delay={120}>
-              <p className="text-[13.5px] font-medium leading-relaxed text-ink2">
+              <p className="text-[14px] font-medium leading-relaxed text-ink2">
                 {product.composition[lang]}
               </p>
             </Accordion>
@@ -627,7 +627,7 @@ export function ProductScreen({
                 </div>
                 <button
                   onClick={() => { haptic("medium"); onWriteReview?.(product); }}
-                  className="press shrink-0 rounded-full bg-amber px-3.5 py-2 text-[11.5px] font-bold text-white shadow-sm"
+                  className="press shrink-0 rounded-full bg-amber px-3.5 py-2 text-[12px] font-bold text-white shadow-sm"
                 >
                   {t("writeReview")}
                 </button>
@@ -648,7 +648,7 @@ export function ProductScreen({
                                 {rev.author}
                                 {rev.photo && <span className="inline-flex rounded-full bg-amber/20 px-1.5 py-0.5 text-amberdeep"><IconImage size={11} /></span>}
                               </span>
-                              <span className="mt-0.5 block text-[9.5px] font-bold text-moss">{reviewCategory}</span>
+                              <span className="mt-0.5 block text-[10px] font-bold text-moss">{reviewCategory}</span>
                             </span>
                           </span>
                           <span className="shrink-0 text-[11px] font-semibold text-ink/65">{rev.date}</span>
@@ -657,7 +657,7 @@ export function ProductScreen({
                         {rev.photo && (
                           <img src={rev.photo} alt={rev.author} className="mt-2.5 h-[150px] w-full rounded-[14px] border border-amber/15 object-cover" loading="lazy" />
                         )}
-                        <p className="mt-2 text-[12.5px] font-medium leading-relaxed text-ink2">{rev.text}</p>
+                        <p className="mt-2 text-[13px] font-medium leading-relaxed text-ink2">{rev.text}</p>
                       </div>
                     ))}
                 </div>
@@ -691,7 +691,7 @@ export function ProductScreen({
                       {"★".repeat(rev.rating)}
                     </div>
 
-                    <p className="mt-2 text-[12.5px] font-medium leading-relaxed text-ink2">
+                    <p className="mt-2 text-[13px] font-medium leading-relaxed text-ink2">
                       {rev.comment[lang]}
                     </p>
                   </div>
@@ -757,7 +757,7 @@ export function ProductScreen({
             ) : mode === "wholesale" ? (
               <button
                 onClick={add}
-                className={`product-add-cta press relative flex h-[60px] w-full items-center justify-center gap-3 overflow-hidden rounded-[20px] text-[14.5px] font-bold transition-all duration-300 active:scale-[0.97] ${
+                className={`product-add-cta press relative flex h-[60px] w-full items-center justify-center gap-3 overflow-hidden rounded-[20px] text-[15px] font-bold transition-all duration-300 active:scale-[0.97] ${
                   added
                     ? "is-added bg-moss text-white shadow-[0_12px_34px_-14px_rgba(55,65,81,0.8)]"
                     : "btn-shine animate-glowpulse bg-gradient-to-r from-[#10a35f] via-[#10a35f] to-[#10a35f] bg-[length:200%_200%] text-white shadow-[0_16px_40px_-14px_rgba(31,41,55,0.9)] hover:brightness-105 animate-gradient-shift"
@@ -832,7 +832,7 @@ function Accordion({
         <span className="flex h-9 w-9 items-center justify-center rounded-full bg-sagetint text-pine">
           {icon}
         </span>
-        <span className="flex-1 font-display text-[14.5px] font-bold text-ink">{title}</span>
+        <span className="flex-1 font-display text-[15px] font-bold text-ink">{title}</span>
         <span
           className={`flex h-7 w-7 items-center justify-center rounded-full border border-ink/15 text-ink/70 transition-transform duration-400 ${
             open ? "rotate-90" : ""

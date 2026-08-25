@@ -62,7 +62,7 @@ export function BulkPricingBadge({
             <span className="block text-[13px] font-bold text-ink">
               {formatPrice(tier.discounted, lang)}
             </span>
-            <span className="block text-[9.5px] font-semibold text-amberdeep">
+            <span className="block text-[10px] font-semibold text-amberdeep">
               −{tier.discountPercent}%
             </span>
           </div>
@@ -326,31 +326,31 @@ export function BatchInfo({ product, lang }: { product: Product; lang: Lang }) {
 
   return (
     <div className="rounded-[20px] border border-ink/18 bg-card p-4 space-y-2.5">
-      <p className="flex items-center gap-2 text-[10.5px] font-extrabold uppercase tracking-[0.2em] text-ink/65">
+      <p className="flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.2em] text-ink/65">
         <IconMicroscope size={14} />
         {lang === "uz" ? "Mahsulot pasporti" : lang === "ru" ? "Паспорт продукта" : "Product passport"}
       </p>
       <div className="grid grid-cols-2 gap-2">
         <div className="rounded-[12px] bg-paper2 p-3">
-          <p className="text-[9.5px] font-bold uppercase text-ink/65">{lang === "ru" ? "Партия" : "Batch"}</p>
+          <p className="text-[10px] font-bold uppercase text-ink/65">{lang === "ru" ? "Партия" : "Batch"}</p>
           <p className="mt-1 font-display text-[14px] font-bold text-ink">{batchCode}</p>
         </div>
         <div className="rounded-[12px] bg-paper2 p-3">
-          <p className="text-[9.5px] font-bold uppercase text-ink/65">{lang === "ru" ? "Объём" : "Volume"}</p>
+          <p className="text-[10px] font-bold uppercase text-ink/65">{lang === "ru" ? "Объём" : "Volume"}</p>
           <p className="mt-1 font-display text-[14px] font-bold text-ink">{product.volume}</p>
         </div>
         <div className="rounded-[12px] bg-paper2 p-3">
-          <p className="text-[9.5px] font-bold uppercase text-ink/65">{lang === "ru" ? "Изготовлено" : "Made"}</p>
+          <p className="text-[10px] font-bold uppercase text-ink/65">{lang === "ru" ? "Изготовлено" : "Made"}</p>
           <p className="mt-1 font-display text-[13px] font-bold text-ink">{manDate}</p>
         </div>
         <div className="rounded-[12px] bg-paper2 p-3">
-          <p className="text-[9.5px] font-bold uppercase text-ink/65">{lang === "ru" ? "Годен до" : "Best before"}</p>
+          <p className="text-[10px] font-bold uppercase text-ink/65">{lang === "ru" ? "Годен до" : "Best before"}</p>
           <p className="mt-1 font-display text-[13px] font-bold text-moss">{expDate}</p>
         </div>
       </div>
       <div className="rounded-[12px] bg-sagetint/60 p-3">
-        <p className="text-[9.5px] font-bold uppercase text-ink/65">{lang === "ru" ? "Производитель" : "Manufacturer"}</p>
-        <p className="mt-1 text-[12.5px] font-bold text-ink">{CONFIG.COMPANY_NAME_SHORT} · Namangan, To'raqo'rg'on</p>
+        <p className="text-[10px] font-bold uppercase text-ink/65">{lang === "ru" ? "Производитель" : "Manufacturer"}</p>
+        <p className="mt-1 text-[13px] font-bold text-ink">{CONFIG.COMPANY_NAME_SHORT} · Namangan, To'raqo'rg'on</p>
         <p className="text-[10px] text-ink2">ISO 9001 · {lang === "ru" ? "Сертифицировано" : "Certified"}</p>
       </div>
     </div>

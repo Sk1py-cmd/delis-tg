@@ -985,10 +985,10 @@ function Shell() {
           }}
         />
         <div className="noise-layer" />
-        <p className="absolute left-9 bottom-10 select-none text-[10px] font-extrabold uppercase tracking-[0.34em] text-white/25" style={{ writingMode: "vertical-rl" }}>
+        <p className="absolute left-9 bottom-10 select-none text-[10px] font-extrabold uppercase tracking-[0.3em] text-white/25" style={{ writingMode: "vertical-rl" }}>
           Telegram Mini App — DELIS V2
         </p>
-        <p className="absolute right-9 top-10 select-none text-[10px] font-extrabold uppercase tracking-[0.34em] text-white/25" style={{ writingMode: "vertical-rl" }}>
+        <p className="absolute right-9 top-10 select-none text-[10px] font-extrabold uppercase tracking-[0.3em] text-white/25" style={{ writingMode: "vertical-rl" }}>
           DELIS Factory · Namangan, Turakurgan · 2026
         </p>
       </div>

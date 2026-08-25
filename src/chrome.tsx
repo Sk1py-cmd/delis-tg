@@ -51,7 +51,7 @@ export function TopBar({
             >
               <IconBell size={19} />
               {notifCount > 0 && (
-                <span className="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#E11D48] px-1 text-[8px] font-bold text-white">
+                <span className="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#E11D48] px-1 text-[9px] font-bold text-white">
                   {notifCount}
                 </span>
               )}
@@ -180,7 +180,7 @@ export function BottomNav({
                   </span>
                 </span>
                 <span
-                  className={`text-[9.5px] font-semibold tracking-wide transition-colors duration-300 ${
+                  className={`text-[10px] font-semibold tracking-wide transition-colors duration-300 ${
                     active ? "text-[#30253E] dark:text-[#f5f5f7]" : "text-[#9aa0a6] dark:text-[#8b949d]"
                   }`}
                   style={active ? { color: x.color } : undefined}
@@ -292,8 +292,8 @@ export function Sheet({
           <span className="h-[5px] w-10 rounded-full bg-amber/15" />
         </div>
         {title && (
-          <div className="flex items-center justify-between px-4 pb-2 pt-1 min-[390px]:px-6">
-            <h3 className="font-display text-[19px] font-bold tracking-tight text-ink">{title}</h3>
+          <div className="flex items-center justify-between px-4 pb-2 pt-1 min-[390px]:px-5">
+            <h3 className="font-display text-[18px] font-bold tracking-tight text-ink">{title}</h3>
             <button
               onClick={onClose}
               aria-label="Close"
@@ -303,11 +303,11 @@ export function Sheet({
             </button>
           </div>
         )}
-        <div ref={contentRef} className="no-scrollbar flex-1 overflow-y-auto px-4 pb-[calc(env(safe-area-inset-bottom,0px)+24px)] min-[390px]:px-6 min-[390px]:pb-[calc(env(safe-area-inset-bottom,0px)+28px)] pt-2 text-ink">
+        <div ref={contentRef} className="no-scrollbar flex-1 overflow-y-auto px-4 pb-[calc(env(safe-area-inset-bottom,0px)+24px)] min-[390px]:px-5 min-[390px]:pb-[calc(env(safe-area-inset-bottom,0px)+28px)] pt-2 text-ink">
           {children}
         </div>
         {footer && (
-          <div className="shrink-0 border-t border-ink/10 bg-paper/95 px-4 pb-[calc(env(safe-area-inset-bottom,0px)+12px)] pt-3 backdrop-blur-xl min-[390px]:px-6">
+          <div className="shrink-0 border-t border-ink/10 bg-paper/95 px-4 pb-[calc(env(safe-area-inset-bottom,0px)+12px)] pt-3 backdrop-blur-xl min-[390px]:px-5">
             {footer}
           </div>
         )}

@@ -40,10 +40,10 @@ type ToastFn = (msg: string) => void;
 
 const card = "rounded-[20px] border border-ink/18 bg-card p-4 shadow-sm";
 const inputCls =
-  "w-full rounded-[14px] border border-ink/15 bg-paper px-3 py-2.5 text-[12.5px] font-semibold text-ink outline-none focus:border-moss";
+  "w-full rounded-[14px] border border-ink/15 bg-paper px-3 py-2.5 text-[13px] font-semibold text-ink outline-none focus:border-moss";
 const btnDark = "press rounded-[14px] bg-amber px-4 py-2.5 text-[12px] font-bold text-white disabled:opacity-40";
-const btnGhost = "press rounded-full border border-ink/15 px-3 py-1.5 text-[10.5px] font-bold text-ink/70";
-const btnDanger = "press rounded-full border border-[#E11D48]/25 px-3 py-1.5 text-[10.5px] font-bold text-[#E11D48]";
+const btnGhost = "press rounded-full border border-ink/15 px-3 py-1.5 text-[11px] font-bold text-ink/70";
+const btnDanger = "press rounded-full border border-[#E11D48]/25 px-3 py-1.5 text-[11px] font-bold text-[#E11D48]";
 
 function copyToClipboard(text: string, onToast: ToastFn, okMsg: string) {
   try {
@@ -153,7 +153,7 @@ export function QrBatchesAdminTab({ onToast }: { onToast: ToastFn }) {
     <div className="animate-pop space-y-3">
       {/* Шпаргалка */}
       <div className="rounded-[16px] border border-amber/20 bg-amber/[0.06] p-3">
-        <p className="flex items-center gap-1.5 text-[11.5px] font-bold text-amberdeep"><IconClipboard size={15} /> {L("Shpargalka", "Шпаргалка", "Cheat sheet")}</p>
+        <p className="flex items-center gap-1.5 text-[12px] font-bold text-amberdeep"><IconClipboard size={15} /> {L("Shpargalka", "Шпаргалка", "Cheat sheet")}</p>
         <ul className="mt-1.5 list-disc space-y-0.5 pl-4 text-[11px] font-medium leading-[1.4] text-ink2">
           <li>{L("Har bir flakonga alohida kod bosiladi — kodni shu yerda ro'yxatga oling.", "На каждый флакон — отдельный код. Зарегистрируйте его здесь.", "Each bottle gets its own code — register it here.")}</li>
           <li>{L("Kod bo'sh qolsa — avto DL-XXXXXX yaratiladi.", "Если поле кода пустое — создастся авто DL-XXXXXX.", "Leave code empty for auto DL-XXXXXX.")}</li>
@@ -164,7 +164,7 @@ export function QrBatchesAdminTab({ onToast }: { onToast: ToastFn }) {
 
       {/* Add form */}
       <div className={card + " space-y-2.5"}>
-        <p className="text-[10.5px] font-extrabold uppercase tracking-[0.16em] text-ink/60">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-ink/60">
           ➕ {L("Yangi kod", "Новый код", "New code")}
         </p>
         <select value={productId} onChange={(e) => setProductId(e.target.value)} className={inputCls}>
@@ -204,7 +204,7 @@ export function QrBatchesAdminTab({ onToast }: { onToast: ToastFn }) {
       {/* List */}
       {filtered === null ? (
         loadFailed ? (
-          <div className="rounded-[16px] border border-amber/30 bg-amber/10 px-3.5 py-2.5 text-[11.5px] font-semibold text-amberdeep">
+          <div className="rounded-[16px] border border-amber/30 bg-amber/10 px-3.5 py-2.5 text-[12px] font-semibold text-amberdeep">
             {L(
               "Server javob bermadi yoki bu akkaunt admin emas — kodlar yuklanmagan.",
               "Сервер не ответил или этот аккаунт не админ — список не загружен.",
@@ -263,11 +263,11 @@ function QrBatchCard({
       </div>
       <div className="mt-2.5 flex items-end gap-2">
         <div className="flex-1">
-          <label className="mb-1 block text-[9.5px] font-bold text-ink/55">{lang === "ru" ? "Дата пр-ва" : "Sana"}</label>
+          <label className="mb-1 block text-[10px] font-bold text-ink/55">{lang === "ru" ? "Дата пр-ва" : "Sana"}</label>
           <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputCls + " !py-1.5 text-[11px]"} />
         </div>
         <div className="w-[72px]">
-          <label className="mb-1 block text-[9.5px] font-bold text-ink/55">{lang === "ru" ? "Партия" : "Partiya"}</label>
+          <label className="mb-1 block text-[10px] font-bold text-ink/55">{lang === "ru" ? "Партия" : "Partiya"}</label>
           <input type="number" min={1} value={batch} onChange={(e) => setBatch(Math.max(1, parseInt(e.target.value || "1", 10)))} className={inputCls + " !py-1.5 text-[11px]"} />
         </div>
         <button
@@ -345,7 +345,7 @@ export function B2bAdminTab({ onToast }: { onToast: ToastFn }) {
     <div className="animate-pop space-y-4">
       {/* Wholesale ladder */}
       <div className={card + " space-y-2.5"}>
-        <p className="text-[10.5px] font-extrabold uppercase tracking-[0.16em] text-ink/60">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-ink/60">
           <span className="inline-flex items-center gap-1.5"><IconChart size={14} /> {L("Opt chegirmalar (sondan → %)", "Оптовые скидки (от N шт → %)", "Wholesale discounts (from N pcs → %)")}</span>
         </p>
         <p className="text-[11px] font-medium text-ink2">
@@ -379,7 +379,7 @@ export function B2bAdminTab({ onToast }: { onToast: ToastFn }) {
                     <span className="text-[11px] font-bold text-ink/60">%</span>
                     <button onClick={() => setTiers((prev) => prev!.filter((_, j) => j !== i))} className={btnDanger}><IconTrash size={13} /></button>
                   </div>
-                  <p className="text-[10.5px] font-semibold text-moss">
+                  <p className="text-[11px] font-semibold text-moss">
                     {L("Misol: flagman", "Пример: флагман", "E.g. flagship")} {formatPrice(FLAGSHIP_PRICE, lang as never)} → <b>{formatPrice(unit, lang as never)}</b> {L("dona", "шт", "pcs")} (−{t.percent}%)
                   </p>
                 </div>
@@ -402,7 +402,7 @@ export function B2bAdminTab({ onToast }: { onToast: ToastFn }) {
 
       {/* Access codes */}
       <div className={card + " space-y-2.5"}>
-        <p className="text-[10.5px] font-extrabold uppercase tracking-[0.16em] text-ink/60">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-ink/60">
           <span className="inline-flex items-center gap-1.5"><IconKey size={14} /> {L("B2B kirish kodlari", "Коды доступа в B2B", "B2B access codes")}</span>
         </p>
         {codes === null ? (
@@ -422,7 +422,7 @@ export function B2bAdminTab({ onToast }: { onToast: ToastFn }) {
                     {lang === "ru" ? "Копировать" : lang === "en" ? "Copy" : "Nusxa"}
                   </button>
                 </div>
-                {c.label && <p className="truncate text-[10.5px] font-semibold text-ink/60">{c.label}</p>}
+                {c.label && <p className="truncate text-[11px] font-semibold text-ink/60">{c.label}</p>}
                 <p className="text-[10px] font-medium text-ink/45">{new Date(c.created_at).toLocaleDateString(lang === "en" ? "en-GB" : "ru-RU")}</p>
               </div>
               <button
@@ -510,7 +510,7 @@ export function CertsAdminTab({ onToast }: { onToast: ToastFn }) {
 
       {/* Manual issue */}
       <div className={card + " space-y-2.5"}>
-        <p className="text-[10.5px] font-extrabold uppercase tracking-[0.16em] text-ink/60">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-ink/60">
           ➕ {L("Qo'lda chiqarish (darhol faol)", "Выпустить вручную (сразу активен)", "Issue manually (active now)")}
         </p>
         <div className="flex gap-2">
@@ -538,7 +538,7 @@ export function CertsAdminTab({ onToast }: { onToast: ToastFn }) {
             <div className="flex items-center justify-between gap-2">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
-                  <p className="font-mono text-[12.5px] font-bold text-ink">{r.code}</p>
+                  <p className="font-mono text-[13px] font-bold text-ink">{r.code}</p>
                   <button
                     onClick={() => copyToClipboard(r.code, onToast, lang === "ru" ? "Код скопирован ✓" : lang === "en" ? "Code copied ✓" : "Kod nusxalandi ✓")}
                     className="press rounded-full bg-moss/10 px-2 py-0.5 text-[10px] font-bold text-moss"
@@ -546,8 +546,8 @@ export function CertsAdminTab({ onToast }: { onToast: ToastFn }) {
                     {lang === "ru" ? "Копировать" : lang === "en" ? "Copy" : "Nusxa"}
                   </button>
                 </div>
-                <p className="text-[11.5px] font-bold text-amberdeep">{formatPrice(r.amount, lang as never)}</p>
-                <p className="truncate text-[10.5px] font-medium text-ink/60">
+                <p className="text-[12px] font-bold text-amberdeep">{formatPrice(r.amount, lang as never)}</p>
+                <p className="truncate text-[11px] font-medium text-ink/60">
                   {(lang === "ru" ? "кому: " : "") + (r.to_name || "—")}{r.order_id ? ` · ${lang === "ru" ? "заказ" : "buyurtma"} ${r.order_id}` : ""}
                 </p>
               </div>
@@ -558,7 +558,7 @@ export function CertsAdminTab({ onToast }: { onToast: ToastFn }) {
             {(r.status === "pending" || r.status === "active") && (
               <div className="mt-2.5 flex gap-2">
                 {r.status === "pending" && (
-                  <button onClick={() => void act(r.code, "activate")} className="press flex-1 rounded-[12px] bg-moss py-2 text-[11.5px] font-bold text-white">
+                  <button onClick={() => void act(r.code, "activate")} className="press flex-1 rounded-[12px] bg-moss py-2 text-[12px] font-bold text-white">
                     <span className="inline-flex items-center gap-1"><IconCheck size={13} /> {L("Faollashtirish", "Активировать", "Activate")}</span>
                   </button>
                 )}

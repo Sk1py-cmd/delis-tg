@@ -129,7 +129,7 @@ export function ThankYouScreen({
             </p>
 
             <div className="ty-bob ty-rise mx-auto mt-6 inline-flex items-center gap-2.5 rounded-full border border-white/20 bg-white/10 px-5 py-2.5 backdrop-blur-md" {...rise(320)}>
-              <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/65">
+              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/65">
                 {t("orderNumber")}
               </span>
               <span className="font-display text-[16px] font-bold text-amber">#{order.id}</span>
@@ -164,7 +164,7 @@ export function ThankYouScreen({
                 <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-moss/12 text-moss">
                   <IconTruck size={16} />
                 </span>
-                <p className="truncate text-[12.5px] font-semibold text-ink/75">{order.deliveryTime}</p>
+                <p className="truncate text-[13px] font-semibold text-ink/75">{order.deliveryTime}</p>
               </div>
             </div>
 
@@ -174,7 +174,7 @@ export function ThankYouScreen({
                 <IconStar size={26} />
               </span>
               <div className="min-w-0 flex-1">
-                <p className="text-[13.5px] font-bold text-ink">
+                <p className="text-[14px] font-bold text-ink">
                   {lang === "ru" ? "Ожидаемый кэшбэк" : lang === "en" ? "Expected cashback" : "Kutilayotgan keshbek"}
                 </p>
                 <p className="mt-0.5 font-display text-[26px] font-extrabold leading-tight text-amberdeep">
@@ -189,7 +189,7 @@ export function ThankYouScreen({
 
           {/* Timeline */}
           <div className="ty-rise mt-8" {...rise(520)}>
-            <p className="text-[11px] font-extrabold uppercase tracking-[0.22em] text-ink/60">
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-ink/60">
               {t("thanksTimeline")}
             </p>
             <div className="mt-3 space-y-3">
@@ -201,7 +201,7 @@ export function ThankYouScreen({
                 >
                   <span className={`relative flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px] ${s.tint}`}>
                     <s.icon size={20} />
-                    <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-amber font-display text-[9.5px] font-bold text-white">
+                    <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-amber font-display text-[10px] font-bold text-white">
                       {i + 1}
                     </span>
                   </span>
@@ -233,7 +233,7 @@ export function ThankYouScreen({
         </button>
         <button
           onClick={() => { haptic("light"); onContinue(); }}
-          className="press mt-2.5 flex h-[50px] w-full items-center justify-center gap-1.5 rounded-[18px] bg-paper2 text-[13.5px] font-bold text-ink/75 transition-colors hover:bg-amber/5 active:scale-[0.98]"
+          className="press mt-2.5 flex h-[50px] w-full items-center justify-center gap-1.5 rounded-[18px] bg-paper2 text-[14px] font-bold text-ink/75 transition-colors hover:bg-amber/5 active:scale-[0.98]"
         >
           {t("thanksContinue")}
           <IconArrow size={14} className="rotate-180" />

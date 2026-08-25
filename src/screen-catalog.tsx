@@ -71,7 +71,7 @@ function ProductCard({
 
         {/* Badge */}
         {p.badge && (
-          <span className={`animate-pulse-soft absolute left-2.5 top-2.5 rounded-full px-2.5 py-1 text-[8.5px] font-extrabold uppercase tracking-[0.14em] shadow-sm ${
+          <span className={`animate-pulse-soft absolute left-2.5 top-2.5 rounded-full px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.14em] shadow-sm ${
             p.badge === "new" ? "bg-moss text-white" : "bg-amber text-white"
           }`}>
             {p.badge === "new" ? t("badgeNew") : t("badgeBest")}
@@ -95,7 +95,7 @@ function ProductCard({
 
         {/* Low stock */}
         {!out && p.stock !== undefined && p.stock <= 10 && (
-          <span className="absolute bottom-2.5 left-2.5 rounded-full bg-amber/70 px-2 py-0.5 text-[8.5px] font-bold text-white backdrop-blur-sm">
+          <span className="absolute bottom-2.5 left-2.5 rounded-full bg-amber/70 px-2 py-0.5 text-[9px] font-bold text-white backdrop-blur-sm">
             {lang === "uz" ? `Kam: ${p.stock}` : lang === "ru" ? `Мало: ${p.stock}` : `Low: ${p.stock}`}
           </span>
         )}
@@ -112,9 +112,9 @@ function ProductCard({
 
       {/* Content */}
       <div className="p-3">
-        <h3 className="truncate font-display text-[13.5px] font-bold leading-snug tracking-tight text-ink">{p.name}</h3>
+        <h3 className="truncate font-display text-[14px] font-bold leading-snug tracking-tight text-ink">{p.name}</h3>
 
-        <div className="mt-1 flex items-center gap-1.5 text-[10.5px] font-semibold">
+        <div className="mt-1 flex items-center gap-1.5 text-[11px] font-semibold">
           <span className="text-ink/65">{p.volume}</span>
           <span className="text-ink/15">·</span>
           <span className="flex items-center gap-0.5 text-amberdeep">
@@ -132,7 +132,7 @@ function ProductCard({
         <div className="mt-2.5 flex items-center justify-between gap-2">
           <div className="min-w-0">
             <p className="font-display text-[15px] font-bold tracking-tight text-ink">{formatPrice(p.price, lang)}</p>
-            <p className="mt-0.5 text-[9.5px] font-bold text-amberdeep">{t("wholesaleSave")} −12%</p>
+            <p className="mt-0.5 text-[10px] font-bold text-amberdeep">{t("wholesaleSave")} −12%</p>
           </div>
           <button
             onClick={clickAdd}
@@ -347,7 +347,7 @@ export function CatalogScreen({
                 <button
                   key={group.id}
                   onClick={() => { haptic("light"); setSubFilter(group.id); }}
-                  className={`press shrink-0 rounded-full border px-3 py-1.5 text-[10.5px] font-bold transition-colors ${
+                  className={`press shrink-0 rounded-full border px-3 py-1.5 text-[11px] font-bold transition-colors ${
                     active ? "border-moss bg-moss text-white" : "border-ink/15 bg-card/75 text-ink/65"
                   }`}
                 >
@@ -363,7 +363,7 @@ export function CatalogScreen({
       <div className="px-4 pb-4 pt-4">
         {/* Sort row */}
         <Reveal delay={160} className="flex items-center justify-between gap-3">
-          <p className="text-[11.5px] font-semibold text-ink/70">
+          <p className="text-[12px] font-semibold text-ink/70">
             {sorted.length} {lang === "uz" ? t("products").toLowerCase() : lang === "ru" ? t("products").toLowerCase() : t("products").toLowerCase()}
           </p>
 
@@ -411,12 +411,12 @@ export function CatalogScreen({
             <p className="mt-4 font-display text-[16px] font-bold text-ink">
               {filter === "wishlist" ? t("wishlistEmpty") : filter === "all" ? t("emptyRes") : t("emptyRes")}
             </p>
-            <p className="mt-1.5 text-[12.5px] font-medium text-ink/70">
+            <p className="mt-1.5 text-[13px] font-medium text-ink/70">
               {filter === "wishlist" ? t("wishlistEmptySub") : t("emptyResSub")}
             </p>
             <button
               onClick={resetAll}
-              className="press mt-5 rounded-full bg-amber px-5 py-2.5 text-[12.5px] font-bold text-white shadow-soft"
+              className="press mt-5 rounded-full bg-amber px-5 py-2.5 text-[13px] font-bold text-white shadow-soft"
             >
               {t("resetFilters")}
             </button>

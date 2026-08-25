@@ -126,7 +126,7 @@ export function AddressBookSheet({
                     const r = UZBEKISTAN_REGIONS.find((x) => x.id === e.target.value)!;
                     setDraft((d) => ({ ...d, regionId: r.id, district: r.districts[0] }));
                   }}
-                  className="w-full appearance-none rounded-[16px] border border-ink/15 bg-paper py-3 pl-3 pr-8 text-[12.5px] font-semibold text-ink outline-none"
+                  className="w-full appearance-none rounded-[16px] border border-ink/15 bg-paper py-3 pl-3 pr-8 text-[13px] font-semibold text-ink outline-none"
                 >
                   {UZBEKISTAN_REGIONS.map((r) => (
                     <option key={r.id} value={r.id}>{r[lang]}</option>
@@ -141,7 +141,7 @@ export function AddressBookSheet({
                 <select
                   value={draft.district}
                   onChange={(e) => setDraft((d) => ({ ...d, district: e.target.value }))}
-                  className="w-full appearance-none rounded-[16px] border border-ink/15 bg-paper py-3 pl-3 pr-8 text-[12.5px] font-semibold text-ink outline-none"
+                  className="w-full appearance-none rounded-[16px] border border-ink/15 bg-paper py-3 pl-3 pr-8 text-[13px] font-semibold text-ink outline-none"
                 >
                   {region.districts.map((d) => (
                     <option key={d} value={d}>{d}</option>
@@ -156,23 +156,23 @@ export function AddressBookSheet({
             value={draft.street}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setDraft((d) => ({ ...d, street: e.target.value }))}
             placeholder={t("streetAddress")}
-            className="w-full rounded-[16px] border border-ink/15 bg-paper px-3.5 py-3 text-[13.5px] font-semibold text-ink outline-none focus:border-moss"
+            className="w-full rounded-[16px] border border-ink/15 bg-paper px-3.5 py-3 text-[14px] font-semibold text-ink outline-none focus:border-moss"
           />
           <input
             value={draft.apartment || ""}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setDraft((d) => ({ ...d, apartment: e.target.value }))}
             placeholder={t("apartmentOffice")}
-            className="w-full rounded-[16px] border border-ink/15 bg-paper px-3.5 py-3 text-[13.5px] font-semibold text-ink outline-none focus:border-moss"
+            className="w-full rounded-[16px] border border-ink/15 bg-paper px-3.5 py-3 text-[14px] font-semibold text-ink outline-none focus:border-moss"
           />
           <input
             value={draft.phone}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setDraft((d) => ({ ...d, phone: e.target.value }))}
             placeholder={t("phoneNumber")}
             inputMode="tel"
-            className="w-full rounded-[16px] border border-ink/15 bg-paper px-3.5 py-3 text-[13.5px] font-semibold text-ink outline-none focus:border-moss"
+            className="w-full rounded-[16px] border border-ink/15 bg-paper px-3.5 py-3 text-[14px] font-semibold text-ink outline-none focus:border-moss"
           />
 
-          <label className="flex items-center gap-2.5 text-[12.5px] font-semibold text-ink/70">
+          <label className="flex items-center gap-2.5 text-[13px] font-semibold text-ink/70">
             <input
               type="checkbox"
               checked={!!draft.isDefault}
@@ -204,7 +204,7 @@ export function AddressBookSheet({
                 <IconPin size={28} />
               </div>
               <p className="mt-4 font-display text-[16px] font-bold text-ink">{t("addressEmpty")}</p>
-              <p className="mt-1.5 text-[12.5px] font-medium text-ink/70">{t("addressEmptySub")}</p>
+              <p className="mt-1.5 text-[13px] font-medium text-ink/70">{t("addressEmptySub")}</p>
             </div>
           ) : (
             addresses.map((a) => {
@@ -215,18 +215,18 @@ export function AddressBookSheet({
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         <span className="text-moss">{a.label === "home" ? <IconHome size={16} /> : a.label === "work" ? <IconBriefcase size={16} /> : <IconPin size={16} />}</span>
-                        <span className="font-display text-[13.5px] font-bold text-ink">{t(LABEL_KEYS[a.label])}</span>
+                        <span className="font-display text-[14px] font-bold text-ink">{t(LABEL_KEYS[a.label])}</span>
                         {a.isDefault && (
                           <span className="rounded-full bg-moss/12 px-2 py-0.5 text-[9px] font-extrabold uppercase text-moss">
                             {t("addressDefault")}
                           </span>
                         )}
                       </div>
-                      <p className="mt-1.5 text-[12.5px] font-semibold leading-snug text-ink/70">
+                      <p className="mt-1.5 text-[13px] font-semibold leading-snug text-ink/70">
                         {reg?.[lang]}, {a.district}, {a.street}
                         {a.apartment ? `, ${a.apartment}` : ""}
                       </p>
-                      <p className="mt-1 text-[11.5px] font-medium text-ink/70">{a.phone}</p>
+                      <p className="mt-1 text-[12px] font-medium text-ink/70">{a.phone}</p>
                     </div>
                   </div>
                   <div className="mt-3 flex gap-2">
@@ -537,7 +537,7 @@ export function ReturnsSheet({
           </div>
           <h3 className="mt-4 font-display text-[18px] font-bold text-ink">{t("returnsSuccess")}</h3>
           <p className="mt-2 text-[13px] font-medium text-ink/75">{t("returnsSuccessSub")}</p>
-          <button onClick={onClose} className="press mt-7 w-full rounded-[18px] bg-amber py-3.5 text-[13.5px] font-bold text-white">
+          <button onClick={onClose} className="press mt-7 w-full rounded-[18px] bg-amber py-3.5 text-[14px] font-bold text-white">
             {t("done")}
           </button>
         </div>
@@ -547,7 +547,7 @@ export function ReturnsSheet({
             <div className="py-10 text-center">
               <div className="motion-icon-tile mx-auto flex h-16 w-16 items-center justify-center rounded-[20px] bg-sagetint text-pine"><IconReturn size={28} /></div>
               <p className="mt-4 font-display text-[16px] font-bold text-ink">{t("returnsEmpty")}</p>
-              <p className="mt-1.5 text-[12.5px] font-medium text-ink/70">{t("returnsEmptySub")}</p>
+              <p className="mt-1.5 text-[13px] font-medium text-ink/70">{t("returnsEmptySub")}</p>
             </div>
           ) : (
             <>
@@ -560,7 +560,7 @@ export function ReturnsSheet({
                     <p className="truncate font-display text-[13px] font-bold text-ink">{r.itemName}</p>
                     <p className="text-[11px] font-medium text-ink/70">#{r.orderId} · {t(r.reason as never)}</p>
                   </div>
-                  <span className={`rounded-full px-2.5 py-1 text-[9.5px] font-extrabold uppercase ${
+                  <span className={`rounded-full px-2.5 py-1 text-[10px] font-extrabold uppercase ${
                     r.status === "pending" ? "bg-amber/15 text-amberdeep" :
                     r.status === "approved" ? "bg-moss/12 text-moss" : "bg-[#B3402E]/10 text-[#B3402E]"
                   }`}>
@@ -574,7 +574,7 @@ export function ReturnsSheet({
           {delivered.length > 0 && (
             <button
               onClick={() => { haptic("light"); setStep("pick-order"); }}
-              className="press flex h-12 w-full items-center justify-center gap-2 rounded-[18px] bg-amber text-[13.5px] font-bold text-white"
+              className="press flex h-12 w-full items-center justify-center gap-2 rounded-[18px] bg-amber text-[14px] font-bold text-white"
             >
               <IconPlus size={16} /> {t("returnsNew")}
             </button>
@@ -590,8 +590,8 @@ export function ReturnsSheet({
               className="press flex w-full items-center justify-between rounded-[18px] border border-ink/18 bg-card p-4 text-left"
             >
               <div>
-                <p className="font-display text-[13.5px] font-bold text-ink">#{o.id}</p>
-                <p className="text-[11.5px] font-medium text-ink/70">{o.date} · {o.count} {t("itemsWord")}</p>
+                <p className="font-display text-[14px] font-bold text-ink">#{o.id}</p>
+                <p className="text-[12px] font-medium text-ink/70">{o.date} · {o.count} {t("itemsWord")}</p>
               </div>
               <span className="font-display text-[13px] font-bold text-ink">{formatPrice(o.total, lang)}</span>
             </button>
@@ -657,7 +657,7 @@ export function ReturnsSheet({
             className="w-full resize-none rounded-[16px] border border-ink/15 bg-paper px-3.5 py-3 text-[13px] font-semibold text-ink outline-none focus:border-moss"
           />
 
-          {submitError && <p className="text-center text-[11.5px] font-bold text-[#B3402E]">{lang === "ru" ? "Не удалось создать заявку. Проверьте 14-дневный срок и подключение." : lang === "en" ? "Could not create the request. Check the 14-day window and connection." : "Ariza yaratilmadi. 14 kunlik muddat va internetni tekshiring."}</p>}
+          {submitError && <p className="text-center text-[12px] font-bold text-[#B3402E]">{lang === "ru" ? "Не удалось создать заявку. Проверьте 14-дневный срок и подключение." : lang === "en" ? "Could not create the request. Check the 14-day window and connection." : "Ariza yaratilmadi. 14 kunlik muddat va internetni tekshiring."}</p>}
           <button onClick={() => void submit()} disabled={submitting} className="press h-13 w-full rounded-[18px] bg-amber text-[14px] font-bold text-white disabled:opacity-50">
             {submitting ? "…" : t("returnsSubmit")}
           </button>

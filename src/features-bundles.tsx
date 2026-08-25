@@ -37,11 +37,11 @@ export function BundleSection({
   if (BUNDLES.length === 0) return null;
 
   return (
-    <section className="px-4 pt-10 min-[390px]:px-5">
+    <section className="px-4 pt-12 min-[390px]:px-5">
       <Reveal>
         <div className="flex items-end justify-between">
           <div>
-            <p className="flex items-center gap-1.5 text-[10.5px] font-extrabold uppercase tracking-[0.22em] text-moss">
+            <p className="flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-[0.2em] text-moss">
               <IconGift size={14} /> {t("featuredTitle")} · To'plamlar
             </p>
             <p className="mt-1 text-[12px] font-medium text-ink2">
@@ -75,7 +75,7 @@ export function BundleSection({
                         </span>
                       )}
                     </div>
-                    <p className="mt-0.5 truncate text-[11.5px] font-medium text-ink2">
+                    <p className="mt-0.5 truncate text-[12px] font-medium text-ink2">
                       {bundle.desc[lang]}
                     </p>
                   </div>
@@ -97,7 +97,7 @@ export function BundleSection({
                           className="press relative h-14 w-14 overflow-hidden rounded-[14px] bg-paper2"
                         >
                           <img src={p!.img} alt={p!.name} className="h-full w-full object-cover" />
-                          <span className="absolute bottom-0 right-0 bg-amber/80 px-1 text-[8px] font-bold text-white">
+                          <span className="absolute bottom-0 right-0 bg-amber/80 px-1 text-[9px] font-bold text-white">
                             ×{bundle.items[i].qty}
                           </span>
                         </button>
@@ -117,7 +117,7 @@ export function BundleSection({
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-[10.5px] font-bold text-moss">
+                      <p className="text-[11px] font-bold text-moss">
                         {t("wholesaleSave")}: {formatPrice(saved, lang)}
                       </p>
                       <button

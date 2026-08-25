@@ -102,7 +102,7 @@ export function Featured({
   ];
 
   return (
-    <section id="featured" className="scroll-mt-16 pt-10">
+    <section id="featured" className="scroll-mt-16 pt-12">
       <div className="px-4 min-[390px]:px-5">
         <SectionHead
           title={t("featuredTitle")}
@@ -116,7 +116,7 @@ export function Featured({
                     haptic("light");
                     setFilter(c.id);
                   }}
-                  className={`press rounded-full px-3.5 py-2 text-[11.5px] font-bold transition-colors duration-300 ${
+                  className={`press rounded-full px-3.5 py-2 text-[12px] font-bold transition-colors duration-300 ${
                     filter === c.id
                       ? "bg-amber text-white"
                       : "border border-ink/18 text-ink/75 hover:border-ink/30 hover:text-ink"
@@ -144,7 +144,7 @@ export function Featured({
               <div className="relative flex h-full flex-col justify-between p-6">
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="rounded-full bg-amber px-3 py-1.5 text-[9.5px] font-extrabold uppercase tracking-[0.2em] text-white">
+                    <span className="rounded-full bg-amber px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-white">
                       {t("badgeSignature")}
                     </span>
                     <button
@@ -161,11 +161,11 @@ export function Featured({
                       <IconHeart size={14} filled={favorites.includes(signature.id)} />
                     </button>
                   </div>
-                  <h3 className="mt-5 font-display text-[23px] font-bold tracking-tight text-white">
+                  <h3 className="mt-5 font-display text-[22px] font-bold tracking-tight text-white">
                     {signature.name}
                   </h3>
                   <div className="mt-1 flex items-center gap-2">
-                    <p className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-white/60">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/60">
                       {signature.spec[lang]}
                     </p>
                     <span className="flex items-center gap-1 text-[11px] font-bold text-amber">
@@ -178,7 +178,7 @@ export function Featured({
                   </p>
                 </div>
                 <div className="flex items-center justify-between gap-3">
-                  <span className="font-display text-[19px] font-bold text-amber">
+                  <span className="font-display text-[18px] font-bold text-amber">
                     {formatPrice(signature.price, lang)}
                   </span>
                   <AddButton withLabel onAdd={() => onAdd(signature)} labels={[t("navCart") + " +", t("added")]} />
@@ -210,7 +210,7 @@ export function Featured({
               <div className="absolute inset-x-3.5 top-3.5 flex items-start justify-between">
                 {p.badge ? (
                   <span
-                    className={`rounded-full px-3 py-1.5 text-[9.5px] font-extrabold uppercase tracking-[0.16em] ${
+                    className={`rounded-full px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] ${
                       p.badge === "new" ? "bg-moss text-white" : "bg-amber text-white"
                     }`}
                   >
@@ -239,7 +239,7 @@ export function Featured({
 
               {/* Social proof from the server order log */}
               {p.soldToday != null && p.soldToday > 0 && (
-                <span className="absolute bottom-3.5 left-3.5 rounded-full bg-card/90 px-2.5 py-1 text-[9.5px] font-extrabold text-moss shadow-sm backdrop-blur-sm">
+                <span className="absolute bottom-3.5 left-3.5 rounded-full bg-card/90 px-2.5 py-1 text-[10px] font-extrabold text-moss shadow-sm backdrop-blur-sm">
                   <span className="inline-flex items-center gap-1"><IconFire size={11} /> {p.soldToday} {lang === "ru" ? "сегодня" : lang === "en" ? "today" : "bugun"}</span>
                 </span>
               )}
@@ -252,10 +252,10 @@ export function Featured({
                   <span>{p.rating}</span>
                 </div>
               </div>
-              <p className="mt-1.5 text-[12.5px] font-medium leading-snug text-ink2">{p.desc[lang]}</p>
+              <p className="mt-1.5 text-[13px] font-medium leading-snug text-ink2">{p.desc[lang]}</p>
               <div className="mt-4 flex items-center justify-between">
                 <p className="font-display text-[15px] font-bold text-ink">{formatPrice(p.price, lang)}</p>
-                <span className="text-[10.5px] font-bold text-ink/65">{p.spec[lang]}</span>
+                <span className="text-[11px] font-bold text-ink/65">{p.spec[lang]}</span>
               </div>
             </div>
           </article>
@@ -290,7 +290,7 @@ export function Why() {
 
       <div className="relative px-4 pb-12 pt-12 min-[390px]:px-5">
         <Reveal>
-          <p className="flex items-center gap-2 text-[10.5px] font-extrabold uppercase tracking-[0.24em] text-amber">
+          <p className="flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.24em] text-amber">
             <IconSparkleDot />
             {content.why.kicker[lang]}
           </p>
@@ -299,7 +299,7 @@ export function Why() {
           <MaskLineWrap>{content.why.title[lang]}</MaskLineWrap>
         </h2>
         <Reveal delay={80}>
-          <p className="mt-3 max-w-[330px] text-[13.5px] font-medium leading-relaxed text-ink/60">
+          <p className="mt-3 max-w-[330px] text-[14px] font-medium leading-relaxed text-ink/60">
             {content.why.intro[lang]}
           </p>
         </Reveal>
@@ -319,7 +319,7 @@ export function Why() {
                 <div className="absolute inset-0 bg-gradient-to-t from-[#30253e] via-[#30253e]/35 to-transparent" />
 
                 {/* Badge */}
-                <span className="absolute left-5 top-5 rounded-full bg-[#c3c88c] px-3 py-1.5 text-[10.5px] font-extrabold uppercase tracking-[0.16em] text-[#30253e] shadow-sm">
+                <span className="absolute left-5 top-5 rounded-full bg-[#c3c88c] px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-[#30253e] shadow-sm">
                   {slideData.badge[lang]}
                 </span>
 
@@ -332,7 +332,7 @@ export function Why() {
                   <h3 className="mt-2 font-display text-[24px] font-bold leading-tight tracking-tight text-white">
                     {slideData.title[lang]}
                   </h3>
-                  <p className="mt-2 max-w-[280px] text-[13.5px] font-medium leading-snug text-white/75">
+                  <p className="mt-2 max-w-[280px] text-[14px] font-medium leading-snug text-white/75">
                     {slideData.text[lang]}
                   </p>
                 </div>
@@ -404,7 +404,7 @@ export function Promos({ onToast }: { onToast: (m: string) => void }) {
               {t("promo1title")}
             </h3>
             <div className="mt-6 flex items-center gap-3">
-              <span className="flex-1 rounded-[18px] border border-dashed border-white/30 px-4 py-3 text-center font-display text-[15px] font-bold tracking-[0.22em] text-white">
+              <span className="flex-1 rounded-[18px] border border-dashed border-white/30 px-4 py-3 text-center font-display text-[15px] font-bold tracking-[0.2em] text-white">
                 DELIS15
               </span>
               <button
@@ -424,8 +424,8 @@ export function Promos({ onToast }: { onToast: (m: string) => void }) {
             </span>
             <div>
               <p className="text-[10px] font-extrabold uppercase tracking-[0.24em] text-moss">{t("promo2tag")}</p>
-              <h3 className="mt-1.5 text-[14.5px] font-bold leading-snug text-ink">{t("promo2title")}</h3>
-              <p className="mt-2 flex items-center gap-1.5 text-[11.5px] font-semibold text-ink/75">
+              <h3 className="mt-1.5 text-[15px] font-bold leading-snug text-ink">{t("promo2title")}</h3>
+              <p className="mt-2 flex items-center gap-1.5 text-[12px] font-semibold text-ink/75">
                 <IconCheck size={13} className="text-moss" />
                 {t("promo2note")}
               </p>

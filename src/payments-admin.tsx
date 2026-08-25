@@ -63,7 +63,7 @@ const SOURCE_BADGE: Record<"admin" | "env" | "none", { label: string; cls: strin
 function StatusChip({ label, on }: { label: string; on: boolean }) {
   return (
     <span
-      className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-[10.5px] font-bold ring-1 ${
+      className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold ring-1 ${
         on ? "bg-moss/12 text-moss ring-moss/25" : "bg-ink/6 text-ink2 ring-ink/12"
       }`}
     >
@@ -87,12 +87,12 @@ function CopyRow({ label, value }: { label: string; value: string }) {
   };
   return (
     <div className="rounded-[14px] border border-ink/12 bg-paper px-3 py-2.5">
-      <p className="text-[9.5px] font-extrabold uppercase tracking-wider text-ink2">{label}</p>
+      <p className="text-[10px] font-extrabold uppercase tracking-wider text-ink2">{label}</p>
       <div className="mt-1 flex items-center gap-2">
         <code className="min-w-0 flex-1 break-all text-[11px] font-semibold text-ink">{value}</code>
         <button
           onClick={copy}
-          className="press flex shrink-0 items-center gap-1 rounded-full bg-ink/6 px-2.5 py-1 text-[10.5px] font-bold text-ink2"
+          className="press flex shrink-0 items-center gap-1 rounded-full bg-ink/6 px-2.5 py-1 text-[11px] font-bold text-ink2"
         >
           {done ? <IconCheck size={11} /> : <IconCopy size={11} />} {done ? "Скопировано" : "Копировать"}
         </button>
@@ -189,7 +189,7 @@ export function PaymentsAdminTab({ onToast }: { onToast: (message: string) => vo
   if (!state) {
     return (
       <div className="space-y-3 py-6 text-center">
-        <p className="text-[12.5px] font-semibold text-ink2">
+        <p className="text-[13px] font-semibold text-ink2">
           {ru ? "API недоступен — платежи настраиваются на сервере." : "API mavjud emas."}
         </p>
         <button onClick={() => void load()} className="press rounded-[14px] bg-moss px-4 py-2.5 text-[12px] font-bold text-white">
@@ -260,14 +260,14 @@ export function PaymentsAdminTab({ onToast }: { onToast: (message: string) => vo
           <button
             onClick={() => void save()}
             disabled={saving || !dirty}
-            className="flex-1 rounded-[16px] bg-moss py-3 text-[12.5px] font-bold text-white transition disabled:opacity-40"
+            className="flex-1 rounded-[16px] bg-moss py-3 text-[13px] font-bold text-white transition disabled:opacity-40"
           >
             {saving ? (ru ? "Сохранение…" : "Saqlanmoqda…") : ru ? "Сохранить ключи" : "Kalitlarni saqlash"}
           </button>
           {dirty && (
             <button
               onClick={() => { haptic("light"); setDraft({}); }}
-              className="rounded-[16px] border border-ink/18 bg-card px-4 text-[12.5px] font-bold text-ink2"
+              className="rounded-[16px] border border-ink/18 bg-card px-4 text-[13px] font-bold text-ink2"
             >
               {ru ? "Сброс" : "Bekor"}
             </button>
@@ -282,7 +282,7 @@ export function PaymentsAdminTab({ onToast }: { onToast: (message: string) => vo
         <CopyRow label="Payme · Merchant API URL" value={state.webhooks.payme} />
         <CopyRow label="Click · PREPARE и COMPLETE" value={state.webhooks.click} />
         {!state.baseUrl && (
-          <p className="text-[10.5px] font-semibold text-amberdeep">
+          <p className="text-[11px] font-semibold text-amberdeep">
             {ru ? "Адрес API не определился — задайте PUBLIC_API_URL на сервере." : "PUBLIC_API_URL ni belgilang."}
           </p>
         )}
@@ -313,15 +313,15 @@ export function PaymentsAdminTab({ onToast }: { onToast: (message: string) => vo
                       : "bg-[#E11D48]/8 ring-[#E11D48]/25"
                 }`}
               >
-                <p className="text-[11.5px] font-bold text-ink">
+                <p className="text-[12px] font-bold text-ink">
                   {c.level === "ok" ? "✓" : c.level === "warn" ? "!" : "×"} {c.title}
                 </p>
-                <p className="mt-0.5 text-[10.5px] leading-snug text-ink2">{c.detail}</p>
+                <p className="mt-0.5 text-[11px] leading-snug text-ink2">{c.detail}</p>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-[10.5px] leading-snug text-ink2">
+          <p className="text-[11px] leading-snug text-ink2">
             {ru
               ? "Кнопка проверит ключи, адреса webhook, токен бота и получателя уведомлений. Секреты в отчёт не попадают."
               : "Tugma kalitlar, webhook manzillari va bot tokenini tekshiradi."}

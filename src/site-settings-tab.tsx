@@ -125,14 +125,14 @@ export function SiteSettingsTab({ onToast }: { onToast: (message: string) => voi
         <button
           onClick={save}
           disabled={saving || !dirty}
-          className="flex-1 rounded-[16px] bg-moss py-3 text-[12.5px] font-bold text-white transition disabled:opacity-40"
+          className="flex-1 rounded-[16px] bg-moss py-3 text-[13px] font-bold text-white transition disabled:opacity-40"
         >
           {saving ? (ru ? "Сохранение…" : "Saqlanmoqda…") : ru ? "Сохранить" : "Saqlash"}
         </button>
         {dirty && (
           <button
             onClick={reset}
-            className="rounded-[16px] border border-ink/18 bg-card px-4 text-[12.5px] font-bold text-ink2"
+            className="rounded-[16px] border border-ink/18 bg-card px-4 text-[13px] font-bold text-ink2"
           >
             {ru ? "Сброс" : "Bekor"}
           </button>

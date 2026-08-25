@@ -46,7 +46,7 @@ function CertCard({ cert, lang }: { cert: CertificateRow; lang: string }) {
 
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-[9.5px] font-extrabold uppercase tracking-[0.3em] text-[#e6c878]">
+            <p className="text-[10px] font-extrabold uppercase tracking-[0.3em] text-[#e6c878]">
               DELIS · Gift Certificate
             </p>
             <p className="mt-2 font-display text-[26px] font-bold tracking-tight text-white">
@@ -143,7 +143,7 @@ export function GiftCertificateSheet({
   return (
     <Sheet open={open} onClose={onClose} title={L("Sovg'a sertifikati", "Подарочный сертификат", "Gift certificate")}>
       <div className="space-y-4 pt-1">
-        <p className="text-[12.5px] font-medium text-ink/70">
+        <p className="text-[13px] font-medium text-ink/70">
           {L(
             "Mablag' tanlang — kod yaratiladi. Menejer to'lovdan so'ng uni faollashtiradi va kodni chekoutda ishlatish mumkin bo'ladi.",
             "Выберите сумму — код создаётся сразу. Менеджер активирует его после оплаты, и им можно оплатить заказ в корзине.",
@@ -173,7 +173,7 @@ export function GiftCertificateSheet({
           className="w-full rounded-[16px] border border-ink/15 bg-card px-4 py-3 text-[13px] font-semibold text-ink outline-none focus:border-amberdeep"
         />
         {custom && !amountValid && (
-          <p className="text-[11.5px] font-semibold text-[#B3402E]">
+          <p className="text-[12px] font-semibold text-[#B3402E]">
             {L("Summa 50 000 dan 5 000 000 gacha", "Сумма от 50 000 до 5 000 000 сум", "Amount must be 50,000–5,000,000 UZS")}
           </p>
         )}
@@ -222,7 +222,7 @@ export function GiftCertificateSheet({
         {/* My certificates (server) */}
         {certs.length > 0 && (
           <div className="space-y-3 pt-2">
-            <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-ink/50">
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-ink/50">
               {L("Mening sertifikatlarim", "Мои сертификаты", "My certificates")}
             </p>
             {certs.map((c) => (

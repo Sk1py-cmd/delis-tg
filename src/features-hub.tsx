@@ -136,7 +136,7 @@ export function LoyaltyHomeBanner({
           {/* Top row: tier + cashback */}
           <div className="flex items-center justify-between gap-2">
             <span
-              className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.12em]"
+              className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em]"
               style={{
                 background: `${info.color}26`,
                 color: info.color === "#CD7F32" ? "#e8a56e" : info.color === "#94A3B8" ? "#cbd5e1" : "#374151",
@@ -146,7 +146,7 @@ export function LoyaltyHomeBanner({
               <IconTierSignal size={15} filled />
               {info.name[lang]}
             </span>
-            <span className="flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 text-[10.5px] font-bold text-white/90 backdrop-blur-sm">
+            <span className="flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-bold text-white/90 backdrop-blur-sm">
               <IconStarsOrbit size={14} /> {info.cashbackPercent}% {L("keshbek", "кэшбэк", "cashback")}
             </span>
           </div>
@@ -352,7 +352,7 @@ export function NotificationPanel({
                 <span className="motion-icon-tile grid h-10 w-10 shrink-0 place-items-center rounded-[13px] bg-black/5 text-pine"><IconSymbol symbol={kindIcon[n.kind] || "💡"} size={21} /></span>
                 <div className="min-w-0 flex-1">
                   <p className="text-[13px] font-bold text-ink">{n.title}</p>
-                  <p className="mt-0.5 line-clamp-2 text-[11.5px] text-ink2">
+                  <p className="mt-0.5 line-clamp-2 text-[12px] text-ink2">
                     {n.body}
                   </p>
                   <p className="mt-1 text-[10px] font-medium text-ink2/75">
@@ -481,7 +481,7 @@ export function AdminAnalyticsTab({
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[12.5px] font-bold text-ink">{p.name}</p>
+                <p className="truncate text-[13px] font-bold text-ink">{p.name}</p>
               </div>
               <span className="font-display text-[13px] font-bold text-ink">
                 {p.qty}×
@@ -689,7 +689,7 @@ export function AdminPushPanel({
           <button
             key={k.id}
             onClick={() => setKind(k.id)}
-            className={`press flex-1 rounded-[16px] px-3 py-2.5 text-[11.5px] font-bold text-center transition-all ${
+            className={`press flex-1 rounded-[16px] px-3 py-2.5 text-[12px] font-bold text-center transition-all ${
               kind === k.id
                 ? "bg-amber text-white shadow-sm"
                 : "bg-paper2 text-ink2 border border-ink/18"
@@ -704,14 +704,14 @@ export function AdminPushPanel({
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder={t("pushTitlePh")}
-        className="w-full rounded-[16px] border border-ink/15 bg-card px-4 py-3 text-[13.5px] font-semibold text-ink outline-none placeholder:text-ink2/75 focus:border-moss"
+        className="w-full rounded-[16px] border border-ink/15 bg-card px-4 py-3 text-[14px] font-semibold text-ink outline-none placeholder:text-ink2/75 focus:border-moss"
       />
       <textarea
         value={body}
         onChange={(e) => setBody(e.target.value)}
         placeholder={t("pushBodyPh")}
         rows={3}
-        className="w-full resize-none rounded-[16px] border border-ink/15 bg-card px-4 py-3 text-[13.5px] font-semibold text-ink outline-none placeholder:text-ink2/75 focus:border-moss"
+        className="w-full resize-none rounded-[16px] border border-ink/15 bg-card px-4 py-3 text-[14px] font-semibold text-ink outline-none placeholder:text-ink2/75 focus:border-moss"
       />
       <button
         onClick={() => {
@@ -722,7 +722,7 @@ export function AdminPushPanel({
           }
         }}
         disabled={!title.trim()}
-        className="press flex h-12 w-full items-center justify-center gap-2 rounded-[18px] bg-amber text-[13.5px] font-bold text-white shadow-sm disabled:opacity-40"
+        className="press flex h-12 w-full items-center justify-center gap-2 rounded-[18px] bg-amber text-[14px] font-bold text-white shadow-sm disabled:opacity-40"
       >
         <IconSend size={15} /> {t("pushSend")}
       </button>

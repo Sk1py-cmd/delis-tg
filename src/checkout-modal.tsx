@@ -728,7 +728,7 @@ export function CheckoutSheet({
       footer={step === "cart" && cartEntries.length > 0 ? (
         <div className="checkout-cart-footer flex items-center gap-3">
           <div className="min-w-0 flex-1">
-            <p className="text-[9.5px] font-extrabold uppercase tracking-[0.16em] text-ink/55">{t("cartTotal")}</p>
+            <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-ink/55">{t("cartTotal")}</p>
             <p className="truncate font-display text-[17px] font-bold tracking-tight text-ink">{formatPrice(Math.max(0, subtotal - discount), lang)}</p>
           </div>
           <button
@@ -741,7 +741,7 @@ export function CheckoutSheet({
       ) : step === "delivery" ? (
         <button
           onClick={() => { if (!validateDelivery()) { haptic("light"); return; } haptic("medium"); setStep("payment"); }}
-          className="press flex h-12 w-full items-center justify-center gap-2.5 rounded-[18px] bg-amber text-[13.5px] font-bold text-white shadow-soft"
+          className="press flex h-12 w-full items-center justify-center gap-2.5 rounded-[18px] bg-amber text-[14px] font-bold text-white shadow-soft"
         >
           <span>{t("continueToPayment")}</span><IconArrow size={15} />
         </button>
@@ -790,20 +790,20 @@ export function CheckoutSheet({
               </div>
             </div>
             <div className="p-4 space-y-3">
-              <div className="flex items-start gap-3"><span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-sagetint text-pine"><IconTruck size={14} /></span><div className="min-w-0 flex-1"><p className="text-[11px] font-semibold text-ink/70">{t("deliveryFee")}</p><p className="truncate text-[13px] font-bold text-ink">{placedOrder.deliveryAddress}</p><p className="text-[11.5px] font-medium text-moss">{placedOrder.deliveryTime}</p></div></div>
-              <div className="border-t border-ink/6 pt-3"><p className="text-[11px] font-bold uppercase tracking-[0.14em] text-ink/65">{t("itemsList")} ({placedOrder.count})</p><div className="mt-2 space-y-2 max-h-36 overflow-y-auto pr-1">{placedOrder.items.map((it) => (<div key={it.id} className="flex items-center justify-between text-[12.5px]"><span className="truncate font-semibold text-ink/80">{it.name} <span className="text-ink/65">× {it.qty}</span></span><span className="font-bold text-ink">{formatPrice(it.price * it.qty, lang)}</span></div>))}</div></div>
+              <div className="flex items-start gap-3"><span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-sagetint text-pine"><IconTruck size={14} /></span><div className="min-w-0 flex-1"><p className="text-[11px] font-semibold text-ink/70">{t("deliveryFee")}</p><p className="truncate text-[13px] font-bold text-ink">{placedOrder.deliveryAddress}</p><p className="text-[12px] font-medium text-moss">{placedOrder.deliveryTime}</p></div></div>
+              <div className="border-t border-ink/6 pt-3"><p className="text-[11px] font-bold uppercase tracking-[0.14em] text-ink/65">{t("itemsList")} ({placedOrder.count})</p><div className="mt-2 space-y-2 max-h-36 overflow-y-auto pr-1">{placedOrder.items.map((it) => (<div key={it.id} className="flex items-center justify-between text-[13px]"><span className="truncate font-semibold text-ink/80">{it.name} <span className="text-ink/65">× {it.qty}</span></span><span className="font-bold text-ink">{formatPrice(it.price * it.qty, lang)}</span></div>))}</div></div>
               <div className="border-t border-ink/18 pt-3 space-y-1.5">
                 <div className="flex justify-between text-[12px] font-medium text-ink/60"><span>{t("subtotal")}</span><span>{formatPrice(placedOrder.subtotal, lang)}</span></div>
                 {placedOrder.discount > 0 && <div className="flex justify-between text-[12px] font-bold text-amberdeep"><span>{t("discount")} ({placedOrder.promoCode})</span><span>-{formatPrice(placedOrder.discount, lang)}</span></div>}
                 <div className="flex justify-between text-[12px] font-medium text-ink/60"><span>{t("deliveryFee")}</span><span>{placedOrder.deliveryFee === 0 ? t("deliveryFree") : formatPrice(placedOrder.deliveryFee, lang)}</span></div>
-                <div className="flex items-baseline justify-between border-t border-ink/18 pt-2"><span className="text-[13.5px] font-bold text-ink">{t("cartTotal")}</span><span className="font-display text-[18px] font-bold text-ink">{formatPrice(placedOrder.total, lang)}</span></div>
+                <div className="flex items-baseline justify-between border-t border-ink/18 pt-2"><span className="text-[14px] font-bold text-ink">{t("cartTotal")}</span><span className="font-display text-[18px] font-bold text-ink">{formatPrice(placedOrder.total, lang)}</span></div>
               </div>
             </div>
           </div>
 
           {placedOrder.paymentStatus !== "paid" && placedOrder.paymentStatus !== "cod" && (
             <div className="mt-3 rounded-[22px] border border-amber/30 bg-amber/8 p-4 text-left">
-              <p className="text-[12.5px] font-bold text-ink">{t("payPendingTitle")}</p>
+              <p className="text-[13px] font-bold text-ink">{t("payPendingTitle")}</p>
               <p className="mt-0.5 text-[11px] font-medium leading-relaxed text-ink/60">{t("payPendingSub")}</p>
               <div className="mt-3 flex gap-2">
                 {placedOrder.paymentMethod === "payme" && placedOrder.paymentUrl && (
@@ -812,7 +812,7 @@ export function CheckoutSheet({
                     target="_blank"
                     rel="noreferrer"
                     onClick={() => haptic("medium")}
-                    className="press flex h-11 flex-1 items-center justify-center rounded-[14px] bg-[#33C965] text-[12.5px] font-bold text-white"
+                    className="press flex h-11 flex-1 items-center justify-center rounded-[14px] bg-[#33C965] text-[13px] font-bold text-white"
                   >
                     {t("payWithPayme")}
                   </a>
@@ -823,7 +823,7 @@ export function CheckoutSheet({
                     target="_blank"
                     rel="noreferrer"
                     onClick={() => haptic("medium")}
-                    className="press flex h-11 flex-1 items-center justify-center rounded-[14px] bg-[#25B4F8] text-[12.5px] font-bold text-white"
+                    className="press flex h-11 flex-1 items-center justify-center rounded-[14px] bg-[#25B4F8] text-[13px] font-bold text-white"
                   >
                     {t("payWithClick")}
                   </a>
@@ -831,7 +831,7 @@ export function CheckoutSheet({
                 {placedOrder.paymentMethod === "stars" && (
                   <button
                     onClick={payWithStars}
-                    className="press flex h-11 flex-1 items-center justify-center gap-1.5 rounded-[14px] bg-[#3E99FA] text-[12.5px] font-bold text-white"
+                    className="press flex h-11 flex-1 items-center justify-center gap-1.5 rounded-[14px] bg-[#3E99FA] text-[13px] font-bold text-white"
                   >
                     <IconStar size={13} /> {t("payWithStars")}
                   </button>
@@ -841,7 +841,7 @@ export function CheckoutSheet({
           )}
 
           <div className="mt-5 space-y-2.5">
-            <button onClick={handleSendReceiptToBot} disabled={receiptSent} className={`press flex h-13 w-full items-center justify-center gap-2.5 rounded-[20px] text-[13.5px] font-bold shadow-lift transition-colors ${receiptSent ? "bg-moss text-white" : "bg-amber text-white hover:bg-pine"}`}>
+            <button onClick={handleSendReceiptToBot} disabled={receiptSent} className={`press flex h-13 w-full items-center justify-center gap-2.5 rounded-[20px] text-[14px] font-bold shadow-lift transition-colors ${receiptSent ? "bg-moss text-white" : "bg-amber text-white hover:bg-pine"}`}>
               {receiptSent ? <IconCheck size={16} /> : <IconSend size={16} />}{receiptSent ? t("receiptSentToBot") : t("sendReceiptToBot")}
             </button>
             {receiptSent && <p className="text-center text-[11px] font-semibold text-moss">{t("orderSentToBot")}</p>}
@@ -877,7 +877,7 @@ export function CheckoutSheet({
             <div className="space-y-3.5 pt-1">
               <div className="rounded-[20px] border border-moss/18 bg-sagetint/60 p-3.5">
                 <div className="flex items-start justify-between gap-3">
-                  <span className="flex min-w-0 items-start gap-1.5 text-[11.5px] font-bold leading-snug text-pine"><IconSparkle size={13} className="mt-0.5 shrink-0 text-amber" />{freeShippingRemaining === 0 ? t("freeDeliveryUnlocked") : `${t("freeDeliveryProgress")} ${formatPrice(freeShippingRemaining, lang)}`}</span>
+                  <span className="flex min-w-0 items-start gap-1.5 text-[12px] font-bold leading-snug text-pine"><IconSparkle size={13} className="mt-0.5 shrink-0 text-amber" />{freeShippingRemaining === 0 ? t("freeDeliveryUnlocked") : `${t("freeDeliveryProgress")} ${formatPrice(freeShippingRemaining, lang)}`}</span>
                   <span className="shrink-0 font-display text-[11px] font-bold text-moss">{freeShippingProgress}%</span>
                 </div>
                 <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-card"><div className="h-full rounded-full bg-moss transition-all duration-500" style={{ width: `${freeShippingProgress}%` }} /></div>
@@ -888,7 +888,7 @@ export function CheckoutSheet({
               {cartNudgeActive && subtotal < nudgeThreshold && (
                 <div className="flex items-center gap-2.5 rounded-[20px] border border-amber/30 bg-amber/[0.08] px-3.5 py-3">
                   <span className="shrink-0 text-amberdeep"><IconGift size={18} /></span>
-                  <p className="min-w-0 text-[11.5px] font-bold leading-snug text-amberdeep">
+                  <p className="min-w-0 text-[12px] font-bold leading-snug text-amberdeep">
                     {t("cartNudgeRemaining").replace("{sum}", formatPrice(nudgeRemaining, lang))}
                   </p>
                 </div>
@@ -914,11 +914,11 @@ export function CheckoutSheet({
                           <div className={`h-[68px] w-[68px] shrink-0 overflow-hidden rounded-[17px] ${p.cat === "home" ? "bg-sagetint" : "bg-graphite2"}`}><img src={p.img} alt={p.name} className="h-full w-full object-cover" /></div>
                           <div className="min-w-0 flex-1">
                             <p className="truncate font-display text-[14px] font-bold text-ink">{p.name}</p>
-                            <p className="mt-0.5 text-[10.5px] font-semibold text-ink/65">{formatPrice(ws.unit, lang)} · {p.volume}</p>
+                            <p className="mt-0.5 text-[11px] font-semibold text-ink/65">{formatPrice(ws.unit, lang)} · {p.volume}</p>
                             {ws.discount > 0 && <span className="mt-1 inline-flex rounded-full bg-amber/15 px-1.5 py-0.5 text-[9px] font-extrabold text-amberdeep">ОПТ −{ws.discount}%</span>}
                           </div>
                           <div className="shrink-0 text-right">
-                            <p className="font-display text-[13.5px] font-bold text-ink">{formatPrice(lineTotal, lang)}</p>
+                            <p className="font-display text-[14px] font-bold text-ink">{formatPrice(lineTotal, lang)}</p>
                             {ws.discount > 0 && <p className="text-[10px] font-semibold text-ink/55 line-through">{formatPrice(p.price * qty, lang)}</p>}
                           </div>
                         </div>
@@ -942,7 +942,7 @@ export function CheckoutSheet({
                             onClick={() => { haptic("light"); for (let i = qty; i < nextTier.minQty; i++) onInc(id); }}
                             className="mt-2.5 flex w-full items-center justify-between rounded-[12px] bg-amber/[0.08] px-3 py-2 text-left"
                           >
-                            <span className="text-[10.5px] font-bold text-amberdeep">
+                            <span className="text-[11px] font-bold text-amberdeep">
                               +{nextTier.minQty - qty} {t("cartUnitsShort")} {t("cartAddMore")} −{nextTier.discountPercent}% {t("cartToDiscount")}
                             </span>
                             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber text-white"><IconPlus size={12} /></span>
@@ -958,8 +958,8 @@ export function CheckoutSheet({
                 <section className="rounded-[22px] border border-moss/20 bg-gradient-to-br from-sagetint/45 to-card p-3.5">
                   <div className="flex items-center justify-between gap-2">
                     <div>
-                      <p className="flex items-center gap-1.5 text-[10.5px] font-extrabold uppercase tracking-[0.18em] text-pine"><IconSparkle size={13} /> {lang === "uz" ? "To'plamni yakunlang" : lang === "ru" ? "Дополните набор" : "Complete the routine"}</p>
-                      <p className="mt-0.5 text-[10.5px] font-medium text-ink/60">{lang === "uz" ? "Savatingizga mos mahsulotlar" : lang === "ru" ? "Подходит к вашей корзине" : "Matched to your cart"}</p>
+                      <p className="flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-[0.18em] text-pine"><IconSparkle size={13} /> {lang === "uz" ? "To'plamni yakunlang" : lang === "ru" ? "Дополните набор" : "Complete the routine"}</p>
+                      <p className="mt-0.5 text-[11px] font-medium text-ink/60">{lang === "uz" ? "Savatingizga mos mahsulotlar" : lang === "ru" ? "Подходит к вашей корзине" : "Matched to your cart"}</p>
                     </div>
                     <span className="rounded-full bg-moss/10 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-moss">SMART</span>
                   </div>
@@ -969,11 +969,11 @@ export function CheckoutSheet({
                         <div className="flex min-w-0 items-center gap-2">
                           <img src={product.img} alt={product.name} className="h-11 w-11 shrink-0 rounded-[11px] object-cover" />
                           <div className="min-w-0 flex-1">
-                            <p className="truncate text-[10.5px] font-black text-ink">{product.name}</p>
-                            <p className="mt-0.5 text-[9.5px] font-bold text-moss">{formatPrice(product.price, lang)}</p>
+                            <p className="truncate text-[11px] font-black text-ink">{product.name}</p>
+                            <p className="mt-0.5 text-[10px] font-bold text-moss">{formatPrice(product.price, lang)}</p>
                           </div>
                         </div>
-                        <button onClick={() => { haptic("success"); onInc(product.id); }} className="press mt-2 flex h-10 w-full items-center justify-center gap-1 rounded-[12px] bg-amber px-2 text-[9.5px] font-black text-white"><IconPlus size={11} /> {lang === "uz" ? "Qo'shish" : lang === "ru" ? "Добавить" : "Add"}</button>
+                        <button onClick={() => { haptic("success"); onInc(product.id); }} className="press mt-2 flex h-10 w-full items-center justify-center gap-1 rounded-[12px] bg-amber px-2 text-[10px] font-black text-white"><IconPlus size={11} /> {lang === "uz" ? "Qo'shish" : lang === "ru" ? "Добавить" : "Add"}</button>
                       </article>
                     ))}
                   </div>
@@ -981,28 +981,28 @@ export function CheckoutSheet({
               )}
 
               <div className="rounded-[22px] border border-ink/18 bg-card p-3.5">
-                <p className="flex items-center gap-1.5 text-[10.5px] font-extrabold uppercase tracking-[0.2em] text-ink/65"><IconTag size={12} className="text-amber" />{t("promoTitleCheckout")}</p>
+                <p className="flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-[0.2em] text-ink/65"><IconTag size={12} className="text-amber" />{t("promoTitleCheckout")}</p>
                 {appliedPromo ? (
-                  <div className="mt-2.5 flex items-center justify-between rounded-[16px] bg-sagetint px-3.5 py-2.5"><div className="flex items-center gap-2"><IconCheck size={15} className="text-moss" /><div><p className="font-display text-[12.5px] font-bold text-pine">{appliedPromo}</p><p className="text-[11px] font-semibold text-pine/70">{promoCodes[appliedPromo]?.title[lang]}</p></div></div><button onClick={() => { haptic("light"); setAppliedPromo(null); }} className="text-[11.5px] font-bold text-[#B3402E]">{t("promoRemove")}</button></div>
+                  <div className="mt-2.5 flex items-center justify-between rounded-[16px] bg-sagetint px-3.5 py-2.5"><div className="flex items-center gap-2"><IconCheck size={15} className="text-moss" /><div><p className="font-display text-[13px] font-bold text-pine">{appliedPromo}</p><p className="text-[11px] font-semibold text-pine/70">{promoCodes[appliedPromo]?.title[lang]}</p></div></div><button onClick={() => { haptic("light"); setAppliedPromo(null); }} className="text-[12px] font-bold text-[#B3402E]">{t("promoRemove")}</button></div>
                 ) : (
-                  <div className="mt-2 flex gap-2"><input value={promoInput} onChange={(e: ChangeEvent<HTMLInputElement>) => { setPromoInput(e.target.value); setPromoError(null); }} placeholder={t("promoPlaceholder")} className="min-w-0 flex-1 rounded-[16px] border border-ink/15 bg-paper px-3.5 py-2.5 text-[13px] font-semibold text-ink placeholder:text-ink/75 outline-none uppercase" /><button onClick={handleApplyPromo} className="press shrink-0 rounded-[16px] bg-amber px-4 py-2.5 text-[12.5px] font-bold text-white">{t("promoApply")}</button></div>
+                  <div className="mt-2 flex gap-2"><input value={promoInput} onChange={(e: ChangeEvent<HTMLInputElement>) => { setPromoInput(e.target.value); setPromoError(null); }} placeholder={t("promoPlaceholder")} className="min-w-0 flex-1 rounded-[16px] border border-ink/15 bg-paper px-3.5 py-2.5 text-[13px] font-semibold text-ink placeholder:text-ink/75 outline-none uppercase" /><button onClick={handleApplyPromo} className="press shrink-0 rounded-[16px] bg-amber px-4 py-2.5 text-[13px] font-bold text-white">{t("promoApply")}</button></div>
                 )}
                 {promoError && <p className="mt-1.5 text-[11px] font-semibold text-[#B3402E]">{promoError}</p>}
               </div>
 
               {/* Gift certificate — server-validated, single-use */}
               <div className="rounded-[22px] border border-amberdeep/25 bg-gradient-to-br from-amber/[0.07] to-transparent p-3.5">
-                <p className="flex items-center gap-1.5 text-[10.5px] font-extrabold uppercase tracking-[0.2em] text-ink/65"><IconGift size={13} /> {lang === "uz" ? "Sovg'a sertifikati" : lang === "ru" ? "Подарочный сертификат" : "Gift certificate"}</p>
+                <p className="flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-[0.2em] text-ink/65"><IconGift size={13} /> {lang === "uz" ? "Sovg'a sertifikati" : lang === "ru" ? "Подарочный сертификат" : "Gift certificate"}</p>
                 {certApproved ? (
                   <div className="mt-2.5 flex items-center justify-between rounded-[16px] bg-amber/15 px-3.5 py-2.5">
                     <div className="flex items-center gap-2">
                       <IconCheck size={15} className="text-amberdeep" />
                       <div>
-                        <p className="font-mono text-[12.5px] font-bold text-amberdeep">{certApproved.code}</p>
+                        <p className="font-mono text-[13px] font-bold text-amberdeep">{certApproved.code}</p>
                         <p className="text-[11px] font-semibold text-amberdeep/80">-{formatPrice(certAppliedEstimate, lang)}</p>
                       </div>
                     </div>
-                    <button onClick={() => { haptic("light"); setCertApproved(null); }} className="text-[11.5px] font-bold text-[#B3402E]">{t("promoRemove")}</button>
+                    <button onClick={() => { haptic("light"); setCertApproved(null); }} className="text-[12px] font-bold text-[#B3402E]">{t("promoRemove")}</button>
                   </div>
                 ) : (
                   <div className="mt-2 flex gap-2">
@@ -1012,7 +1012,7 @@ export function CheckoutSheet({
                       placeholder={lang === "uz" ? "GIFT-XXXXXX" : lang === "ru" ? "Код сертификата GIFT-XXXXXX" : "Certificate code GIFT-XXXXXX"}
                       className="min-w-0 flex-1 rounded-[16px] border border-ink/15 bg-paper px-3.5 py-2.5 text-[13px] font-semibold uppercase text-ink outline-none placeholder:normal-case placeholder:text-ink/75"
                     />
-                    <button onClick={() => void handleApplyCert()} className="press shrink-0 rounded-[16px] bg-amberdeep px-4 py-2.5 text-[12.5px] font-bold text-white">{t("promoApply")}</button>
+                    <button onClick={() => void handleApplyCert()} className="press shrink-0 rounded-[16px] bg-amberdeep px-4 py-2.5 text-[13px] font-bold text-white">{t("promoApply")}</button>
                   </div>
                 )}
                 {certError && <p className="mt-1.5 text-[11px] font-semibold text-[#B3402E]">{certError}</p>}
@@ -1024,15 +1024,15 @@ export function CheckoutSheet({
                   <div className="flex items-center gap-2.5">
                     <span className="text-amberdeep"><IconStarsOrbit size={23} /></span>
                     <div>
-                      <p className="font-display text-[12.5px] font-bold text-amberdeep">{starsCouponObj.title[lang]}</p>
-                      <p className="text-[10.5px] font-semibold text-ink/70">
+                      <p className="font-display text-[13px] font-bold text-amberdeep">{starsCouponObj.title[lang]}</p>
+                      <p className="text-[11px] font-semibold text-ink/70">
                         {lang === "uz" ? "Yulduzlar do'konidan — avtomatik qo'llandi" : lang === "ru" ? "Из магазина звёзд — применён автоматически" : "From the stars shop — applied automatically"}
                       </p>
                     </div>
                   </div>
                   <button
                     onClick={() => { haptic("light"); onClearStarsCoupon?.(); }}
-                    className="press rounded-full bg-paper px-2.5 py-1 text-[10.5px] font-bold text-[#B3402E]"
+                    className="press rounded-full bg-paper px-2.5 py-1 text-[11px] font-bold text-[#B3402E]"
                   >
                     ✕
                   </button>
@@ -1046,16 +1046,16 @@ export function CheckoutSheet({
                     <span className="line-through">{formatPrice(retailSubtotal, lang)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-[12.5px] font-medium text-ink/60"><span>{t("subtotal")}</span><span>{formatPrice(subtotal, lang)}</span></div>
+                <div className="flex justify-between text-[13px] font-medium text-ink/60"><span>{t("subtotal")}</span><span>{formatPrice(subtotal, lang)}</span></div>
                 {wholesaleSavings > 0 && (
-                  <div className="flex justify-between rounded-[12px] bg-moss/8 px-2.5 py-1.5 text-[12.5px] font-bold text-moss">
+                  <div className="flex justify-between rounded-[12px] bg-moss/8 px-2.5 py-1.5 text-[13px] font-bold text-moss">
                     <span className="flex items-center gap-1"><IconFactory size={14} /> {t("cartWholesaleSavings")}</span>
                     <span>−{formatPrice(wholesaleSavings, lang)}</span>
                   </div>
                 )}
-                {nudgeDiscount > 0 && <div className="flex justify-between rounded-[12px] bg-amber/[0.10] px-2.5 py-1.5 text-[12.5px] font-bold text-amberdeep"><span>{t("cartNudgeApplied")}</span><span>-{formatPrice(nudgeDiscount, lang)}</span></div>}
-                {discount > 0 && <div className="flex justify-between text-[12.5px] font-bold text-amberdeep"><span>{t("discount")} ({appliedPromo})</span><span>-{formatPrice(discount, lang)}</span></div>}
-                <div className="flex justify-between text-[12.5px] font-medium text-ink/60"><span>{t("deliveryFee")}</span><span className="font-semibold text-moss">{subtotal >= getFreeShippingThreshold() ? t("deliveryFree") : `${t("fromPrice")} ${formatPrice(getDeliveryConfig().defaultTariff.courier, lang)}`}</span></div>
+                {nudgeDiscount > 0 && <div className="flex justify-between rounded-[12px] bg-amber/[0.10] px-2.5 py-1.5 text-[13px] font-bold text-amberdeep"><span>{t("cartNudgeApplied")}</span><span>-{formatPrice(nudgeDiscount, lang)}</span></div>}
+                {discount > 0 && <div className="flex justify-between text-[13px] font-bold text-amberdeep"><span>{t("discount")} ({appliedPromo})</span><span>-{formatPrice(discount, lang)}</span></div>}
+                <div className="flex justify-between text-[13px] font-medium text-ink/60"><span>{t("deliveryFee")}</span><span className="font-semibold text-moss">{subtotal >= getFreeShippingThreshold() ? t("deliveryFree") : `${t("fromPrice")} ${formatPrice(getDeliveryConfig().defaultTariff.courier, lang)}`}</span></div>
                 <div className="flex items-baseline justify-between border-t border-ink/18 pt-3"><span className="font-display text-[14px] font-bold text-ink">{t("cartTotal")}</span><span className="font-display text-[20px] font-bold tracking-tight text-ink">{formatPrice(subtotal - totalDiscount, lang)}</span></div>
               </div>
 
@@ -1074,7 +1074,7 @@ export function CheckoutSheet({
                   setRecipientPhone(phone);
                   void handlePlaceOrder("pickup");
                 }}
-                className="press flex h-12 w-full items-center justify-center gap-2 rounded-[18px] border border-moss/22 bg-moss/[0.07] text-[12.5px] font-bold text-moss"
+                className="press flex h-12 w-full items-center justify-center gap-2 rounded-[18px] border border-moss/22 bg-moss/[0.07] text-[13px] font-bold text-moss"
               >
                 <IconSparkle size={15} /> {lang === "ru" ? "Быстрый самовывоз в 1 клик" : lang === "en" ? "1-click factory pickup" : "Zavoddan 1 klikda olib ketish"}
               </button>
@@ -1088,19 +1088,19 @@ export function CheckoutSheet({
           <button onClick={() => setStep("cart")} className="flex items-center gap-1.5 text-[12px] font-bold text-ink/70"><IconArrow size={13} className="rotate-180" />{t("backStep")}: {t("stepCart")}</button>
 
           <div>
-            <p className="text-[10.5px] font-extrabold uppercase tracking-[0.2em] text-ink/65">{t("deliveryMethodLabel")}</p>
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-ink/65">{t("deliveryMethodLabel")}</p>
             <div className="mt-2.5 space-y-2">
               <button onClick={() => { haptic("light"); setDeliveryMethod("courier_uzb"); }} className={`motion-surface press flex w-full items-start gap-3 rounded-[20px] border p-3.5 text-left ${deliveryMethod === "courier_uzb" ? "border-moss/55 bg-card shadow-sm ring-1 ring-moss/25" : "border-ink/18 bg-card/60 opacity-85"}`}>
                 <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${deliveryMethod === "courier_uzb" ? "bg-moss text-white" : "bg-paper2 text-ink/60"}`}><IconTruck size={16} /></span>
-                <div className="min-w-0 flex-1"><div className="flex items-start justify-between gap-3"><p className="min-w-0 font-display text-[13.5px] font-bold leading-snug text-ink">{t("methodCourierUzb")}</p><span className="shrink-0 font-display text-[11.5px] font-bold text-moss">{subtotal >= getFreeShippingThreshold() ? t("deliveryFree") : formatPrice(tariff.courier, lang)}</span></div><p className="mt-1 text-[11.5px] font-medium leading-relaxed text-ink/70">{t("methodCourierUzbDesc")} · {etaLabel} {t("etaDays")}</p></div>
+                <div className="min-w-0 flex-1"><div className="flex items-start justify-between gap-3"><p className="min-w-0 font-display text-[14px] font-bold leading-snug text-ink">{t("methodCourierUzb")}</p><span className="shrink-0 font-display text-[12px] font-bold text-moss">{subtotal >= getFreeShippingThreshold() ? t("deliveryFree") : formatPrice(tariff.courier, lang)}</span></div><p className="mt-1 text-[12px] font-medium leading-relaxed text-ink/70">{t("methodCourierUzbDesc")} · {etaLabel} {t("etaDays")}</p></div>
               </button>
               <button onClick={() => { haptic("light"); setDeliveryMethod("bts_express"); }} className={`motion-surface press flex w-full items-start gap-3 rounded-[20px] border p-3.5 text-left ${deliveryMethod === "bts_express" ? "border-moss/55 bg-card shadow-sm ring-1 ring-moss/25" : "border-ink/18 bg-card/60 opacity-85"}`}>
                 <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${deliveryMethod === "bts_express" ? "bg-moss text-white" : "bg-paper2 text-ink/60"}`}><IconSend size={15} /></span>
-                <div className="min-w-0 flex-1"><div className="flex items-start justify-between gap-3"><p className="min-w-0 font-display text-[13.5px] font-bold leading-snug text-ink">{t("methodBtsExpress")}</p><span className="shrink-0 font-display text-[11.5px] font-bold text-moss">{subtotal >= getFreeShippingThreshold() ? t("deliveryFree") : formatPrice(tariff.bts, lang)}</span></div><p className="mt-1 text-[11.5px] font-medium leading-relaxed text-ink/70">{t("methodBtsExpressDesc")} · {etaLabel} {t("etaDays")}</p></div>
+                <div className="min-w-0 flex-1"><div className="flex items-start justify-between gap-3"><p className="min-w-0 font-display text-[14px] font-bold leading-snug text-ink">{t("methodBtsExpress")}</p><span className="shrink-0 font-display text-[12px] font-bold text-moss">{subtotal >= getFreeShippingThreshold() ? t("deliveryFree") : formatPrice(tariff.bts, lang)}</span></div><p className="mt-1 text-[12px] font-medium leading-relaxed text-ink/70">{t("methodBtsExpressDesc")} · {etaLabel} {t("etaDays")}</p></div>
               </button>
               <button onClick={() => { haptic("light"); setDeliveryMethod("pickup"); }} className={`motion-surface press flex w-full items-start gap-3 rounded-[20px] border p-3.5 text-left ${deliveryMethod === "pickup" ? "border-moss/55 bg-card shadow-sm ring-1 ring-moss/25" : "border-ink/18 bg-card/60 opacity-85"}`}>
                 <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${deliveryMethod === "pickup" ? "bg-moss text-white" : "bg-paper2 text-ink/60"}`}><IconStore size={16} /></span>
-                <div className="min-w-0 flex-1"><div className="flex items-start justify-between gap-3"><p className="min-w-0 font-display text-[13.5px] font-bold leading-snug text-ink">{t("methodPickup")}</p><span className="shrink-0 font-display text-[11.5px] font-bold text-moss">{t("deliveryFree")}</span></div><p className="mt-1 text-[11.5px] font-medium leading-relaxed text-ink/70">{t("methodPickupDesc")}</p></div>
+                <div className="min-w-0 flex-1"><div className="flex items-start justify-between gap-3"><p className="min-w-0 font-display text-[14px] font-bold leading-snug text-ink">{t("methodPickup")}</p><span className="shrink-0 font-display text-[12px] font-bold text-moss">{t("deliveryFree")}</span></div><p className="mt-1 text-[12px] font-medium leading-relaxed text-ink/70">{t("methodPickupDesc")}</p></div>
               </button>
             </div>
           </div>
@@ -1142,32 +1142,32 @@ export function CheckoutSheet({
           )}
 
           <div className="rounded-[24px] border border-ink/18 bg-card p-4 space-y-3">
-            <div className="flex items-center justify-between"><p className="text-[10.5px] font-extrabold uppercase tracking-[0.2em] text-ink/65">{t("recipientDetails")}</p>{(nameFromTg || phoneFromTg) && <span className="flex items-center gap-1 rounded-full bg-[#229ED9]/12 px-2.5 py-1 text-[9.5px] font-bold text-[#1c88bd]"><IconSend size={10} />{t("autofilledFromTg")}</span>}</div>
+            <div className="flex items-center justify-between"><p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-ink/65">{t("recipientDetails")}</p>{(nameFromTg || phoneFromTg) && <span className="flex items-center gap-1 rounded-full bg-[#229ED9]/12 px-2.5 py-1 text-[10px] font-bold text-[#1c88bd]"><IconSend size={10} />{t("autofilledFromTg")}</span>}</div>
             <div>
               <label className="text-[11px] font-bold text-ink/70">{t("fullName")}</label>
-              <div className="relative mt-1"><input value={recipientName} onChange={(e: ChangeEvent<HTMLInputElement>) => setRecipientName(e.target.value)} placeholder={t("fullName")} className={`w-full rounded-[16px] border bg-paper px-3.5 py-3 text-[13.5px] font-semibold text-ink outline-none ${errors.name ? "border-[#B3402E]" : "border-ink/15 focus:border-moss"}`} />{nameFromTg && !errors.name && <IconCheck size={15} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-moss" />}</div>
+              <div className="relative mt-1"><input value={recipientName} onChange={(e: ChangeEvent<HTMLInputElement>) => setRecipientName(e.target.value)} placeholder={t("fullName")} className={`w-full rounded-[16px] border bg-paper px-3.5 py-3 text-[14px] font-semibold text-ink outline-none ${errors.name ? "border-[#B3402E]" : "border-ink/15 focus:border-moss"}`} />{nameFromTg && !errors.name && <IconCheck size={15} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-moss" />}</div>
               {errors.name && <p className="mt-1 text-[11px] font-bold text-[#B3402E]">{t("errName")}</p>}
             </div>
             <div>
               <label className="text-[11px] font-bold text-ink/70">{t("phoneNumber")}</label>
-              <div className="mt-1 flex gap-2"><div className="relative min-w-0 flex-1"><input value={recipientPhone} onChange={(e: ChangeEvent<HTMLInputElement>) => setRecipientPhone(e.target.value)} placeholder={t("phoneNumber")} inputMode="tel" className={`w-full rounded-[16px] border bg-paper px-3.5 py-3 text-[13.5px] font-semibold text-ink outline-none ${errors.phone ? "border-[#B3402E]" : "border-ink/15 focus:border-moss"}`} />{phoneFromTg && !errors.phone && <IconCheck size={15} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-moss" />}</div>{!phoneFromTg && <button type="button" onClick={() => requestTelegramContact((phone) => { if (phone) { setRecipientPhone(phone); haptic("success"); } })} className="press flex shrink-0 items-center gap-1.5 rounded-[16px] bg-[#229ED9]/12 px-3 text-[11px] font-bold text-[#1c88bd]"><IconSend size={14} /></button>}</div>
+              <div className="mt-1 flex gap-2"><div className="relative min-w-0 flex-1"><input value={recipientPhone} onChange={(e: ChangeEvent<HTMLInputElement>) => setRecipientPhone(e.target.value)} placeholder={t("phoneNumber")} inputMode="tel" className={`w-full rounded-[16px] border bg-paper px-3.5 py-3 text-[14px] font-semibold text-ink outline-none ${errors.phone ? "border-[#B3402E]" : "border-ink/15 focus:border-moss"}`} />{phoneFromTg && !errors.phone && <IconCheck size={15} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-moss" />}</div>{!phoneFromTg && <button type="button" onClick={() => requestTelegramContact((phone) => { if (phone) { setRecipientPhone(phone); haptic("success"); } })} className="press flex shrink-0 items-center gap-1.5 rounded-[16px] bg-[#229ED9]/12 px-3 text-[11px] font-bold text-[#1c88bd]"><IconSend size={14} /></button>}</div>
               {errors.phone && <p className="mt-1 text-[11px] font-bold text-[#B3402E]">{t("errPhone")}</p>}
             </div>
 
             {deliveryMethod !== "pickup" && (
               <>
                 <div className="grid grid-cols-2 gap-2.5">
-                  <div><label className="text-[11px] font-bold text-ink/70">{t("regionSelectLabel")}</label><div className="relative mt-1"><select value={selectedRegionId} onChange={(e) => handleRegionChange(e.target.value)} className="w-full appearance-none rounded-[16px] border border-ink/15 bg-paper py-3 pl-3 pr-8 text-[12.5px] font-semibold text-ink outline-none"><option value="">{t("regionSelectLabel")}</option>{UZBEKISTAN_REGIONS.map((r) => (<option key={r.id} value={r.id}>{r[lang]}</option>))}</select><IconChevron size={13} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-ink/65 rotate-90" /></div></div>
-                  <div><label className="text-[11px] font-bold text-ink/70">{t("selectDistrict")}</label><div className="relative mt-1"><select value={selectedDistrict} onChange={(e) => { haptic("light"); setSelectedDistrict(e.target.value); }} className="w-full appearance-none rounded-[16px] border border-ink/15 bg-paper py-3 pl-3 pr-8 text-[12.5px] font-semibold text-ink outline-none"><option value="">{t("selectDistrict")}</option>{currentRegion.districts.map((d) => (<option key={d} value={d}>{d}</option>))}</select><IconChevron size={13} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-ink/65 rotate-90" /></div></div>
+                  <div><label className="text-[11px] font-bold text-ink/70">{t("regionSelectLabel")}</label><div className="relative mt-1"><select value={selectedRegionId} onChange={(e) => handleRegionChange(e.target.value)} className="w-full appearance-none rounded-[16px] border border-ink/15 bg-paper py-3 pl-3 pr-8 text-[13px] font-semibold text-ink outline-none"><option value="">{t("regionSelectLabel")}</option>{UZBEKISTAN_REGIONS.map((r) => (<option key={r.id} value={r.id}>{r[lang]}</option>))}</select><IconChevron size={13} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-ink/65 rotate-90" /></div></div>
+                  <div><label className="text-[11px] font-bold text-ink/70">{t("selectDistrict")}</label><div className="relative mt-1"><select value={selectedDistrict} onChange={(e) => { haptic("light"); setSelectedDistrict(e.target.value); }} className="w-full appearance-none rounded-[16px] border border-ink/15 bg-paper py-3 pl-3 pr-8 text-[13px] font-semibold text-ink outline-none"><option value="">{t("selectDistrict")}</option>{currentRegion.districts.map((d) => (<option key={d} value={d}>{d}</option>))}</select><IconChevron size={13} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-ink/65 rotate-90" /></div></div>
                 </div>
                 <div>
                   <label className="text-[11px] font-bold text-ink/70">{t("streetAddress")}</label>
-                  <input value={streetAddress} onChange={(e: ChangeEvent<HTMLInputElement>) => setStreetAddress(e.target.value)} placeholder={t("streetAddress")} className={`mt-1 w-full rounded-[16px] border bg-paper px-3.5 py-3 text-[13.5px] font-semibold text-ink outline-none ${errors.address ? "border-[#B3402E]" : "border-ink/15 focus:border-moss"}`} />
+                  <input value={streetAddress} onChange={(e: ChangeEvent<HTMLInputElement>) => setStreetAddress(e.target.value)} placeholder={t("streetAddress")} className={`mt-1 w-full rounded-[16px] border bg-paper px-3.5 py-3 text-[14px] font-semibold text-ink outline-none ${errors.address ? "border-[#B3402E]" : "border-ink/15 focus:border-moss"}`} />
                   {errors.address && <p className="mt-1 text-[11px] font-bold text-[#B3402E]">{t("errAddress")}</p>}
                 </div>
                 <div>
                   <label className="text-[11px] font-bold text-ink/70">{t("apartmentOffice")}</label>
-                  <input value={apartment} onChange={(e: ChangeEvent<HTMLInputElement>) => setApartment(e.target.value)} placeholder={t("apartmentOffice")} className="mt-1 w-full rounded-[16px] border border-ink/15 bg-paper px-3.5 py-3 text-[13.5px] font-semibold text-ink outline-none" />
+                  <input value={apartment} onChange={(e: ChangeEvent<HTMLInputElement>) => setApartment(e.target.value)} placeholder={t("apartmentOffice")} className="mt-1 w-full rounded-[16px] border border-ink/15 bg-paper px-3.5 py-3 text-[14px] font-semibold text-ink outline-none" />
                 </div>
                 <div><label className="text-[11px] font-bold text-ink/70">{t("deliveryTimeSlot")}</label><div className="relative mt-1"><select value={timeSlot} onChange={(e) => setTimeSlot(e.target.value)} className="w-full appearance-none rounded-[16px] border border-ink/15 bg-paper px-3.5 py-3 text-[13px] font-semibold text-ink outline-none"><option value="">{t("deliveryTimeSlot")}</option>{TIME_SLOTS.map((s) => (<option key={s.id} value={s.id}>{s.label[lang]}</option>))}</select><IconChevron size={14} className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 rotate-90 text-ink/65" /></div></div>
                 <div>
@@ -1194,45 +1194,45 @@ export function CheckoutSheet({
           {!showConfirm && (
             <>
               <div>
-                <div className="flex items-center justify-between"><p className="text-[10.5px] font-extrabold uppercase tracking-[0.2em] text-ink/65">{t("selectPayment")}</p><span className="flex items-center gap-1 text-[10px] font-bold text-moss"><IconLock size={10} />SSL 256-bit</span></div>
+                <div className="flex items-center justify-between"><p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-ink/65">{t("selectPayment")}</p><span className="flex items-center gap-1 text-[10px] font-bold text-moss"><IconLock size={10} />SSL 256-bit</span></div>
                 <div className="mt-2.5 space-y-2">
                   {checkoutPaymentMethods.map((pm) => (
                     <button key={pm} onClick={() => { haptic("light"); setPaymentMethod(pm); }} className={`motion-surface press flex w-full items-center gap-3.5 rounded-[20px] border p-3 text-left ${paymentMethod === pm ? "border-ink bg-card shadow-sm ring-1 ring-ink" : "border-ink/18 bg-card/60 opacity-85"}`}>
                       <PaymentBrandLogo method={pm} />
-                      <div className="min-w-0 flex-1"><p className="font-display text-[13.5px] font-bold text-ink">{paymentTitles[pm]}</p><p className="text-[11.5px] font-medium text-ink/70">{paymentDescriptions[pm]}</p></div>
+                      <div className="min-w-0 flex-1"><p className="font-display text-[14px] font-bold text-ink">{paymentTitles[pm]}</p><p className="text-[12px] font-medium text-ink/70">{paymentDescriptions[pm]}</p></div>
                       {paymentMethod === pm && <IconCheck size={18} className="shrink-0 text-moss" />}
                     </button>
                   ))}
                 </div>
                 {!paymentReadinessLoaded ? (
-                  <div className="mt-2.5 flex items-center gap-2 rounded-[14px] bg-paper2/60 px-3 py-2.5 text-[10.5px] font-semibold text-ink/55">
+                  <div className="mt-2.5 flex items-center gap-2 rounded-[14px] bg-paper2/60 px-3 py-2.5 text-[11px] font-semibold text-ink/55">
                     <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-moss/30 border-t-moss" />
                     {lang === "uz" ? "To'lov usullari tekshirilmoqda" : lang === "ru" ? "Проверяем способы оплаты" : "Checking payment methods"}
                   </div>
                 ) : unavailablePaymentNames.length > 0 ? (
-                  <div className="mt-2.5 rounded-[14px] border border-amber/16 bg-amber/[0.06] px-3 py-2.5 text-[10.5px] font-semibold leading-relaxed text-ink/60">
+                  <div className="mt-2.5 rounded-[14px] border border-amber/16 bg-amber/[0.06] px-3 py-2.5 text-[11px] font-semibold leading-relaxed text-ink/60">
                     <span className="font-bold text-ink/75">{unavailablePaymentNames.join(", ")}</span>{" — "}
                     {lang === "uz" ? "vaqtincha mavjud emas" : lang === "ru" ? "временно недоступны" : "temporarily unavailable"}
                   </div>
                 ) : null}
               </div>
 
-              <div className="flex items-center gap-2.5 rounded-[18px] bg-paper2/60 px-3.5 py-2.5 text-[11.5px] font-semibold text-ink/65"><IconLock size={14} className="shrink-0 text-moss" /><span>{t("securePaymentGuarantee")}</span></div>
+              <div className="flex items-center gap-2.5 rounded-[18px] bg-paper2/60 px-3.5 py-2.5 text-[12px] font-semibold text-ink/65"><IconLock size={14} className="shrink-0 text-moss" /><span>{t("securePaymentGuarantee")}</span></div>
             </>
           )}
 
           {!showConfirm ? (
             <>
               <div className="rounded-[24px] border border-ink/18 bg-card p-4 space-y-2.5">
-                <p className="text-[10.5px] font-extrabold uppercase tracking-[0.2em] text-ink/65">{t("cartSummary")}</p>
-                <div className="flex justify-between text-[12.5px] font-medium text-ink/60"><span>{t("subtotal")} ({totalItemsCount} {t("itemsWord")})</span><span>{formatPrice(subtotal, lang)}</span></div>
-                {discount > 0 && <div className="flex justify-between text-[12.5px] font-bold text-amberdeep"><span>{t("discount")} ({appliedPromo})</span><span>-{formatPrice(discount, lang)}</span></div>}
-                {certAppliedEstimate > 0 && <div className="flex justify-between text-[12.5px] font-bold text-amberdeep"><span className="flex items-center gap-1"><IconGift size={13} /> {lang === "uz" ? "Sertifikat" : lang === "ru" ? "Сертификат" : "Certificate"} ({certApproved?.code})</span><span>-{formatPrice(certAppliedEstimate, lang)}</span></div>}
-                <div className="flex justify-between text-[12.5px] font-medium text-ink/60"><span>{t("deliveryFee")}</span><span className="font-semibold text-moss">{deliveryFee === 0 ? t("deliveryFree") : formatPrice(deliveryFee, lang)}</span></div>
-                <div className="flex items-baseline justify-between border-t border-ink/18 pt-3"><span className="font-display text-[14.5px] font-bold text-ink">{t("cartTotal")}</span><span className="font-display text-[22px] font-bold text-ink">{formatPrice(grandTotal, lang)}</span></div>
+                <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-ink/65">{t("cartSummary")}</p>
+                <div className="flex justify-between text-[13px] font-medium text-ink/60"><span>{t("subtotal")} ({totalItemsCount} {t("itemsWord")})</span><span>{formatPrice(subtotal, lang)}</span></div>
+                {discount > 0 && <div className="flex justify-between text-[13px] font-bold text-amberdeep"><span>{t("discount")} ({appliedPromo})</span><span>-{formatPrice(discount, lang)}</span></div>}
+                {certAppliedEstimate > 0 && <div className="flex justify-between text-[13px] font-bold text-amberdeep"><span className="flex items-center gap-1"><IconGift size={13} /> {lang === "uz" ? "Sertifikat" : lang === "ru" ? "Сертификат" : "Certificate"} ({certApproved?.code})</span><span>-{formatPrice(certAppliedEstimate, lang)}</span></div>}
+                <div className="flex justify-between text-[13px] font-medium text-ink/60"><span>{t("deliveryFee")}</span><span className="font-semibold text-moss">{deliveryFee === 0 ? t("deliveryFree") : formatPrice(deliveryFee, lang)}</span></div>
+                <div className="flex items-baseline justify-between border-t border-ink/18 pt-3"><span className="font-display text-[15px] font-bold text-ink">{t("cartTotal")}</span><span className="font-display text-[22px] font-bold text-ink">{formatPrice(grandTotal, lang)}</span></div>
               </div>
 
-              <button onClick={() => { if (!validateDelivery()) { haptic("light"); return; } haptic("medium"); setOrderError(null); setRequiresTelegram(false); setShowConfirm(true); }} disabled={isSubmitting} className="btn-shine animate-glowpulse press flex h-14 w-full items-center justify-center gap-2.5 rounded-[22px] bg-gradient-to-r from-[#10a35f] via-[#10a35f] to-[#10a35f] bg-[length:200%_200%] text-[14.5px] font-bold text-white shadow-lift disabled:opacity-50 animate-gradient-shift">
+              <button onClick={() => { if (!validateDelivery()) { haptic("light"); return; } haptic("medium"); setOrderError(null); setRequiresTelegram(false); setShowConfirm(true); }} disabled={isSubmitting} className="btn-shine animate-glowpulse press flex h-14 w-full items-center justify-center gap-2.5 rounded-[22px] bg-gradient-to-r from-[#10a35f] via-[#10a35f] to-[#10a35f] bg-[length:200%_200%] text-[15px] font-bold text-white shadow-lift disabled:opacity-50 animate-gradient-shift">
                 <span className="flex items-center gap-2"><IconCheck size={18} />
                 {t("stepConfirmation")} · {formatPrice(grandTotal, lang)}</span>
               </button>
@@ -1243,11 +1243,11 @@ export function CheckoutSheet({
                 <PaymentBrandLogo method={paymentMethod} />
                 <div className="min-w-0 flex-1">
                   <p className="font-display text-[13px] font-bold text-ink">{paymentTitles[paymentMethod]}</p>
-                  <p className="truncate text-[10.5px] font-medium text-ink/60">{paymentDescriptions[paymentMethod]}</p>
+                  <p className="truncate text-[11px] font-medium text-ink/60">{paymentDescriptions[paymentMethod]}</p>
                 </div>
                 <button
                   onClick={() => { haptic("light"); setOrderError(null); setRequiresTelegram(false); setShowConfirm(false); }}
-                  className="press shrink-0 rounded-full bg-paper2 px-3 py-2 text-[10.5px] font-bold text-moss"
+                  className="press shrink-0 rounded-full bg-paper2 px-3 py-2 text-[11px] font-bold text-moss"
                 >
                   {lang === "uz" ? "O'zgartirish" : lang === "ru" ? "Изменить" : "Change"}
                 </button>
@@ -1255,38 +1255,38 @@ export function CheckoutSheet({
 
               {/* Confirmation review: verify before placing order */}
               <div className="animate-pop space-y-3 rounded-[22px] border border-moss/28 bg-sagetint/45 p-4">
-                <p className="flex items-center gap-2 text-[10.5px] font-extrabold uppercase tracking-[0.2em] text-pine">
+                <p className="flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.2em] text-pine">
                   <IconCheck size={12} />
                   {t("stepConfirmation")}
                 </p>
 
                 {/* Customer info */}
                 <div className="space-y-2.5 rounded-[16px] bg-card p-3.5">
-                  <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 text-[11.5px]"><span className="text-ink/65">{t("fullName")}</span><span className="max-w-[190px] text-right font-semibold text-ink">{recipientName || t("errName")}</span></div>
-                  <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 text-[11.5px]"><span className="text-ink/65">{t("phoneNumber")}</span><span className="text-right font-semibold text-ink">{recipientPhone}</span></div>
+                  <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 text-[12px]"><span className="text-ink/65">{t("fullName")}</span><span className="max-w-[190px] text-right font-semibold text-ink">{recipientName || t("errName")}</span></div>
+                  <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 text-[12px]"><span className="text-ink/65">{t("phoneNumber")}</span><span className="text-right font-semibold text-ink">{recipientPhone}</span></div>
                   {deliveryMethod !== "pickup" && (
                     <div className="border-y border-ink/8 py-2.5">
-                      <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-ink/50">{t("streetAddress")}</p>
-                      <p className="mt-1 break-words text-[11.5px] font-semibold leading-relaxed text-ink">{regionName}, {selectedDistrict}</p>
-                      <p className="break-words text-[11.5px] font-medium leading-relaxed text-ink/75">{[streetAddress, apartment].filter(Boolean).join(", ")}</p>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink/50">{t("streetAddress")}</p>
+                      <p className="mt-1 break-words text-[12px] font-semibold leading-relaxed text-ink">{regionName}, {selectedDistrict}</p>
+                      <p className="break-words text-[12px] font-medium leading-relaxed text-ink/75">{[streetAddress, apartment].filter(Boolean).join(", ")}</p>
                     </div>
                   )}
-                  <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] items-start gap-3 text-[11.5px]"><span className="text-ink/65">{t("deliveryMethodLabel")}</span><span className="text-right font-semibold leading-snug text-ink">{deliveryMethod === "pickup" ? t("methodPickup") : deliveryMethod === "bts_express" ? t("methodBtsExpress") : t("methodCourierUzb")}</span></div>
-                  <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 text-[11.5px]"><span className="text-ink/65">{t("deliveryFee")}</span><span className="text-right font-semibold text-moss">{deliveryFee === 0 ? t("deliveryFree") : formatPrice(deliveryFee, lang)}</span></div>
-                  {appliedPromo && <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 text-[11.5px]"><span className="text-ink/65">{t("discount")}</span><span className="text-right font-semibold text-amberdeep">-{formatPrice(discount, lang)} ({appliedPromo})</span></div>}
-                  {certAppliedEstimate > 0 && <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 text-[11.5px]"><span className="flex items-center gap-1 text-ink/65"><IconGift size={12} /> {lang === "uz" ? "Sertifikat" : lang === "ru" ? "Сертификат" : "Certificate"}</span><span className="text-right font-semibold text-amberdeep">-{formatPrice(certAppliedEstimate, lang)}</span></div>}
+                  <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] items-start gap-3 text-[12px]"><span className="text-ink/65">{t("deliveryMethodLabel")}</span><span className="text-right font-semibold leading-snug text-ink">{deliveryMethod === "pickup" ? t("methodPickup") : deliveryMethod === "bts_express" ? t("methodBtsExpress") : t("methodCourierUzb")}</span></div>
+                  <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 text-[12px]"><span className="text-ink/65">{t("deliveryFee")}</span><span className="text-right font-semibold text-moss">{deliveryFee === 0 ? t("deliveryFree") : formatPrice(deliveryFee, lang)}</span></div>
+                  {appliedPromo && <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 text-[12px]"><span className="text-ink/65">{t("discount")}</span><span className="text-right font-semibold text-amberdeep">-{formatPrice(discount, lang)} ({appliedPromo})</span></div>}
+                  {certAppliedEstimate > 0 && <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 text-[12px]"><span className="flex items-center gap-1 text-ink/65"><IconGift size={12} /> {lang === "uz" ? "Sertifikat" : lang === "ru" ? "Сертификат" : "Certificate"}</span><span className="text-right font-semibold text-amberdeep">-{formatPrice(certAppliedEstimate, lang)}</span></div>}
                   <div className="flex items-baseline justify-between border-t border-ink/14 pt-2.5"><span className="text-[13px] font-bold text-ink">{t("cartTotal")}</span><span className="font-display text-[20px] font-bold text-ink">{formatPrice(grandTotal, lang)}</span></div>
                 </div>
 
                 {/* Items summary */}
                 <div className="rounded-[16px] bg-card p-3">
-                  <p className="mb-2 text-[10.5px] font-extrabold uppercase tracking-wider text-ink/65">{t("itemsList")} ({totalItemsCount})</p>
+                  <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wider text-ink/65">{t("itemsList")} ({totalItemsCount})</p>
                   <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
                     {cartEntries.map(([id, qty]) => {
                       const p = productById.get(id);
                       if (!p) return null;
                       return (
-                        <div key={id} className="flex items-center justify-between text-[11.5px]">
+                        <div key={id} className="flex items-center justify-between text-[12px]">
                           <span className="flex items-center gap-2 text-ink/80"><span className="text-[12px]">{p.name}</span><span className="text-ink/65">×{qty}</span></span>
                           <span className="font-semibold text-ink">{formatPrice(p.price * qty, lang)}</span>
                         </div>
@@ -1304,7 +1304,7 @@ export function CheckoutSheet({
                       href={CONFIG.BOT_LINK}
                       target="_blank"
                       rel="noreferrer"
-                      className="press mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-[14px] bg-[#229ED9] text-[12.5px] font-bold text-white"
+                      className="press mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-[14px] bg-[#229ED9] text-[13px] font-bold text-white"
                     >
                       <IconSend size={15} /> {lang === "uz" ? "Telegram'da ochish" : lang === "ru" ? "Открыть в Telegram" : "Open in Telegram"}
                     </a>
@@ -1321,7 +1321,7 @@ export function CheckoutSheet({
                   </a>
                 </div>
               ) : browserCheckoutReady ? (
-                <button onClick={() => void handlePlaceOrder()} disabled={isSubmitting} className="press flex h-14 w-full items-center justify-center gap-2.5 rounded-[22px] bg-moss text-[14.5px] font-bold text-white shadow-lift disabled:opacity-50">
+                <button onClick={() => void handlePlaceOrder()} disabled={isSubmitting} className="press flex h-14 w-full items-center justify-center gap-2.5 rounded-[22px] bg-moss text-[15px] font-bold text-white shadow-lift disabled:opacity-50">
                   <span className="flex items-center gap-2">{isSubmitting ? <><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/60 border-t-white" />{t("processingOrder")}</> : <><IconCheck size={18} /><span>{t("placeOrder")} · {formatPrice(grandTotal, lang)}</span></>}</span>
                 </button>
               ) : browserCheckoutChecking ? (
@@ -1377,7 +1377,7 @@ export function OrderDetailModal({ order, onClose, onRepeatOrder, onOpenInvoice 
       <Sheet open={!!order && !showTracking} onClose={onClose} title={`${t("orderWord")} #${order.id}`}>
         <div className="space-y-4 pt-1">
           <div className="rounded-[24px] border border-ink/18 bg-card p-4">
-            <p className="text-[10.5px] font-extrabold uppercase tracking-[0.2em] text-ink/65">{t("orderTimeline")}</p>
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-ink/65">{t("orderTimeline")}</p>
             {order.status === "canceled" ? (
               <div className="mt-3 rounded-[16px] border border-[#B3402E]/20 bg-[#B3402E]/[0.07] px-3.5 py-3 text-[12px] font-bold text-[#B3402E]">
                 {t("statusCanceled")}
@@ -1399,36 +1399,36 @@ export function OrderDetailModal({ order, onClose, onRepeatOrder, onOpenInvoice 
 
           {order.courier && (order.status === "shipped" || order.status === "preparing") && (
             <div className="rounded-[24px] border border-amber/20 bg-amber/[0.08] p-4">
-              <div className="flex items-center justify-between"><p className="flex items-center gap-1.5 text-[10.5px] font-extrabold uppercase tracking-[0.2em] text-amberdeep"><span className="h-2 w-2 animate-pulse rounded-full bg-amber" />{t("courierTrackingLive")}</p><span className="rounded-full bg-amber/20 px-2.5 py-1 text-[10px] font-bold text-amberdeep">{order.courier.eta}</span></div>
-              <div className="mt-3 flex items-center gap-3"><div className="h-11 w-11 shrink-0 rounded-full bg-amber text-white flex items-center justify-center font-display font-bold">{order.courier.name[0]}</div><div className="min-w-0 flex-1"><p className="font-display text-[14px] font-bold text-ink">{order.courier.name} · {order.courier.vehicle}</p><p className="text-[11px] font-medium text-ink/70">{order.courier.rating}</p></div><button onClick={() => { haptic("light"); setShowTracking(true); }} className="press flex h-10 items-center gap-1.5 rounded-full bg-amber px-3.5 text-[11.5px] font-bold text-white"><IconSearch size={14} />{t("courierTracking")}</button></div>
+              <div className="flex items-center justify-between"><p className="flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-[0.2em] text-amberdeep"><span className="h-2 w-2 animate-pulse rounded-full bg-amber" />{t("courierTrackingLive")}</p><span className="rounded-full bg-amber/20 px-2.5 py-1 text-[10px] font-bold text-amberdeep">{order.courier.eta}</span></div>
+              <div className="mt-3 flex items-center gap-3"><div className="h-11 w-11 shrink-0 rounded-full bg-amber text-white flex items-center justify-center font-display font-bold">{order.courier.name[0]}</div><div className="min-w-0 flex-1"><p className="font-display text-[14px] font-bold text-ink">{order.courier.name} · {order.courier.vehicle}</p><p className="text-[11px] font-medium text-ink/70">{order.courier.rating}</p></div><button onClick={() => { haptic("light"); setShowTracking(true); }} className="press flex h-10 items-center gap-1.5 rounded-full bg-amber px-3.5 text-[12px] font-bold text-white"><IconSearch size={14} />{t("courierTracking")}</button></div>
               <div className="mt-3 flex items-center gap-2"><div className="flex-1"><div className="flex justify-between text-[10px] font-bold uppercase tracking-wide text-ink/65"><span>{t("courierFrom")}: DELIS</span><span>{t("courierTo")}: {order.deliveryZone}</span></div><div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-amber/10"><div className="h-full rounded-full bg-moss transition-all duration-700" style={{ width: `${order.courier.progress}%` }} /></div></div></div>
             </div>
           )}
 
-          <div className="rounded-[24px] border border-ink/18 bg-card p-4 space-y-2.5"><p className="text-[10.5px] font-extrabold uppercase tracking-[0.2em] text-ink/65">{t("stepDelivery")}</p><div className="flex items-start gap-2.5"><span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-sagetint text-pine"><IconTruck size={14} /></span><div className="min-w-0 flex-1"><p className="text-[13px] font-bold text-ink">{order.deliveryAddress}</p><p className="text-[11.5px] font-medium text-moss">{order.deliveryTime}</p><p className="mt-1 text-[12px] font-semibold text-ink/75">{order.recipientName} · {order.recipientPhone}</p>{order.courierNote && <p className="mt-1 text-[11px] italic text-ink/70">“{order.courierNote}”</p>}</div></div></div>
+          <div className="rounded-[24px] border border-ink/18 bg-card p-4 space-y-2.5"><p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-ink/65">{t("stepDelivery")}</p><div className="flex items-start gap-2.5"><span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-sagetint text-pine"><IconTruck size={14} /></span><div className="min-w-0 flex-1"><p className="text-[13px] font-bold text-ink">{order.deliveryAddress}</p><p className="text-[12px] font-medium text-moss">{order.deliveryTime}</p><p className="mt-1 text-[12px] font-semibold text-ink/75">{order.recipientName} · {order.recipientPhone}</p>{order.courierNote && <p className="mt-1 text-[11px] italic text-ink/70">“{order.courierNote}”</p>}</div></div></div>
 
-          <div className="rounded-[24px] border border-ink/18 bg-card p-4"><p className="text-[10.5px] font-extrabold uppercase tracking-[0.2em] text-ink/65">{t("itemsList")} ({order.count})</p><div className="mt-3 divide-y divide-ink/6">{order.items.map((it) => (<div key={it.id} className="flex items-center gap-3 py-2.5"><div className="h-11 w-11 shrink-0 overflow-hidden rounded-[12px] bg-paper2"><img src={it.img} alt={it.name} className="h-full w-full object-cover" /></div><div className="min-w-0 flex-1"><p className="truncate text-[13px] font-bold text-ink">{it.name}</p><p className="text-[11px] font-medium text-ink/70">{formatPrice(it.price, lang)} × {it.qty}</p></div><p className="shrink-0 font-display text-[13px] font-bold text-ink">{formatPrice(it.price * it.qty, lang)}</p></div>))}</div></div>
+          <div className="rounded-[24px] border border-ink/18 bg-card p-4"><p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-ink/65">{t("itemsList")} ({order.count})</p><div className="mt-3 divide-y divide-ink/6">{order.items.map((it) => (<div key={it.id} className="flex items-center gap-3 py-2.5"><div className="h-11 w-11 shrink-0 overflow-hidden rounded-[12px] bg-paper2"><img src={it.img} alt={it.name} className="h-full w-full object-cover" /></div><div className="min-w-0 flex-1"><p className="truncate text-[13px] font-bold text-ink">{it.name}</p><p className="text-[11px] font-medium text-ink/70">{formatPrice(it.price, lang)} × {it.qty}</p></div><p className="shrink-0 font-display text-[13px] font-bold text-ink">{formatPrice(it.price * it.qty, lang)}</p></div>))}</div></div>
 
-          <div className="rounded-[24px] border border-ink/18 bg-card p-4 space-y-2"><div className="flex justify-between text-[12.5px] font-medium text-ink/60"><span>{t("subtotal")}</span><span>{formatPrice(order.subtotal, lang)}</span></div>{order.discount > 0 && <div className="flex justify-between text-[12.5px] font-bold text-amberdeep"><span>{t("discount")} ({order.promoCode})</span><span>-{formatPrice(order.discount, lang)}</span></div>}<div className="flex justify-between text-[12.5px] font-medium text-ink/60"><span>{t("deliveryFee")}</span><span className="font-semibold text-moss">{order.deliveryFee === 0 ? t("deliveryFree") : formatPrice(order.deliveryFee, lang)}</span></div><div className="flex items-baseline justify-between border-t border-ink/18 pt-3"><span className="font-display text-[14px] font-bold text-ink">{t("cartTotal")}</span><span className="font-display text-[20px] font-bold text-ink">{formatPrice(order.total, lang)}</span></div></div>
+          <div className="rounded-[24px] border border-ink/18 bg-card p-4 space-y-2"><div className="flex justify-between text-[13px] font-medium text-ink/60"><span>{t("subtotal")}</span><span>{formatPrice(order.subtotal, lang)}</span></div>{order.discount > 0 && <div className="flex justify-between text-[13px] font-bold text-amberdeep"><span>{t("discount")} ({order.promoCode})</span><span>-{formatPrice(order.discount, lang)}</span></div>}<div className="flex justify-between text-[13px] font-medium text-ink/60"><span>{t("deliveryFee")}</span><span className="font-semibold text-moss">{order.deliveryFee === 0 ? t("deliveryFree") : formatPrice(order.deliveryFee, lang)}</span></div><div className="flex items-baseline justify-between border-t border-ink/18 pt-3"><span className="font-display text-[14px] font-bold text-ink">{t("cartTotal")}</span><span className="font-display text-[20px] font-bold text-ink">{formatPrice(order.total, lang)}</span></div></div>
 
           <div className="space-y-2.5">
-            <button onClick={() => { haptic("medium"); onRepeatOrder(order); onClose(); }} className="press flex h-13 w-full items-center justify-center gap-2 rounded-[20px] bg-amber text-[13.5px] font-bold text-white"><IconBag size={16} />{t("repeatOrder")}</button>
+            <button onClick={() => { haptic("medium"); onRepeatOrder(order); onClose(); }} className="press flex h-13 w-full items-center justify-center gap-2 rounded-[20px] bg-amber text-[14px] font-bold text-white"><IconBag size={16} />{t("repeatOrder")}</button>
             {/* B2B invoice */}
             <div className="flex gap-2">
               <button
                 onClick={() => { haptic("light"); onOpenInvoice?.(order); }}
-                className="press flex h-12 flex-1 items-center justify-center gap-2 rounded-[20px] border border-ink/18 bg-card text-[12.5px] font-bold text-ink"
+                className="press flex h-12 flex-1 items-center justify-center gap-2 rounded-[20px] border border-ink/18 bg-card text-[13px] font-bold text-ink"
               >
                 <IconReceipt size={16} /> {t("invoiceGet")}
               </button>
               <button
                 onClick={() => { haptic("light"); setShowReceipt(true); }}
-                className="press flex h-12 flex-1 items-center justify-center gap-2 rounded-[20px] border border-ink/18 bg-card text-[12.5px] font-bold text-ink"
+                className="press flex h-12 flex-1 items-center justify-center gap-2 rounded-[20px] border border-ink/18 bg-card text-[13px] font-bold text-ink"
               >
                 <IconCalculator size={16} /> {lang === "uz" ? "Fiskal chek" : lang === "ru" ? "Фискальный чек" : "Fiscal receipt"}
               </button>
             </div>
-            <div className="flex gap-2"><button onClick={copyOrderId} className="press flex h-12 flex-1 items-center justify-center gap-1.5 rounded-[20px] bg-paper2 text-[12.5px] font-bold text-ink"><IconCopy size={14} />{copied ? t("copied") : `#${order.id}`}</button><a href={managerTg} target="_blank" rel="noreferrer" className="press flex h-12 flex-1 items-center justify-center gap-1.5 rounded-[20px] bg-paper2 text-[12.5px] font-bold text-ink"><IconSend size={14} />{t("contactSupport")}</a></div>
+            <div className="flex gap-2"><button onClick={copyOrderId} className="press flex h-12 flex-1 items-center justify-center gap-1.5 rounded-[20px] bg-paper2 text-[13px] font-bold text-ink"><IconCopy size={14} />{copied ? t("copied") : `#${order.id}`}</button><a href={managerTg} target="_blank" rel="noreferrer" className="press flex h-12 flex-1 items-center justify-center gap-1.5 rounded-[20px] bg-paper2 text-[13px] font-bold text-ink"><IconSend size={14} />{t("contactSupport")}</a></div>
           </div>
         </div>
       </Sheet>
@@ -1518,7 +1518,7 @@ function FiscalReceiptSheet({ order, onClose }: { order: Order; onClose: () => v
           <p className="text-center text-[11px]">{L("Xarid uchun rahmat! 💚", "Спасибо за покупку! 💚", "Thanks for shopping! 💚")}</p>
         </div>
 
-        <button onClick={print} className="btn-shine press flex h-12 w-full items-center justify-center gap-2 rounded-[18px] bg-amber text-[13.5px] font-bold text-white shadow-lift">
+        <button onClick={print} className="btn-shine press flex h-12 w-full items-center justify-center gap-2 rounded-[18px] bg-amber text-[14px] font-bold text-white shadow-lift">
           <IconPrinter size={17} /> {L("Chop etish / PDF", "Печать / PDF", "Print / PDF")}
         </button>
         <button onClick={onClose} className="press h-11 w-full rounded-[18px] bg-paper2 text-[13px] font-bold text-ink/70">
@@ -1577,7 +1577,7 @@ function CourierTrackingSheet({ courier, order, open, onClose }: { courier: Cour
         <div className="rounded-[22px] border border-ink/18 bg-card p-4">
           <div className="flex items-center gap-3.5">
             <div className="relative"><div className="h-14 w-14 rounded-full bg-amber text-white flex items-center justify-center font-display text-[20px] font-bold">{courier.name[0]}</div><span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-moss text-white"><IconCheck size={10} strokeWidth={2.8} /></span></div>
-            <div className="flex-1"><p className="font-display text-[16px] font-bold text-ink">{courier.name}</p><p className="text-[11.5px] font-medium text-ink/70">{courier.rating} · {courier.vehicle}</p><p className="mt-1 inline-flex items-center gap-1 rounded-full bg-sagetint px-2 py-0.5 text-[10px] font-bold text-pine">{statusLabel}</p></div>
+            <div className="flex-1"><p className="font-display text-[16px] font-bold text-ink">{courier.name}</p><p className="text-[12px] font-medium text-ink/70">{courier.rating} · {courier.vehicle}</p><p className="mt-1 inline-flex items-center gap-1 rounded-full bg-sagetint px-2 py-0.5 text-[10px] font-bold text-pine">{statusLabel}</p></div>
             <div className="flex flex-col gap-2"><a href={`tel:${courier.phone}`} className="press flex h-11 w-11 items-center justify-center rounded-full bg-amber text-white"><IconPhone size={18} /></a><a href={`https://t.me/${courier.phone}`} target="_blank" rel="noreferrer" className="press flex h-11 w-11 items-center justify-center rounded-full bg-paper2 text-ink"><IconSend size={18} /></a></div>
           </div>
 
@@ -1587,7 +1587,7 @@ function CourierTrackingSheet({ courier, order, open, onClose }: { courier: Cour
             <div className="rounded-[16px] bg-paper2 p-3 text-center"><p className="text-[10px] font-bold uppercase tracking-wide text-ink/65">{t("courierTo")}</p><p className="mt-1 text-[12px] font-bold text-ink truncate">{order.deliveryZone?.slice(0, 12)}</p></div>
           </div>
 
-          <div className="mt-4"><div className="flex justify-between text-[10.5px] font-bold uppercase tracking-wide text-ink/65"><span>{order.courier?.progress}%</span><span>100%</span></div><div className="mt-1.5 h-2 overflow-hidden rounded-full bg-amber/10"><div className="h-full rounded-full bg-moss transition-all duration-1000" style={{ width: `${progress}%` }} /></div><p className="mt-2 flex items-center gap-1.5 text-[12px] font-semibold text-moss"><IconClock size={13} />{statusLabel} — {t("courierEta")}: {courier.eta}</p></div>
+          <div className="mt-4"><div className="flex justify-between text-[11px] font-bold uppercase tracking-wide text-ink/65"><span>{order.courier?.progress}%</span><span>100%</span></div><div className="mt-1.5 h-2 overflow-hidden rounded-full bg-amber/10"><div className="h-full rounded-full bg-moss transition-all duration-1000" style={{ width: `${progress}%` }} /></div><p className="mt-2 flex items-center gap-1.5 text-[12px] font-semibold text-moss"><IconClock size={13} />{statusLabel} — {t("courierEta")}: {courier.eta}</p></div>
 
           <div className="mt-4 flex gap-2.5"><a href={`tel:${courier.phone}`} className="press flex h-12 flex-1 items-center justify-center gap-2 rounded-[16px] bg-amber text-[13px] font-bold text-white"><IconPhone size={16} />{t("courierCall")}</a><button onClick={onClose} className="press flex h-12 flex-1 items-center justify-center gap-2 rounded-[16px] bg-paper2 text-[13px] font-bold text-ink"><IconClose size={16} />{t("done")}</button></div>
         </div>

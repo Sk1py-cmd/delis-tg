@@ -105,7 +105,7 @@ export function ManagerChatSheet({ open, onClose }: { open: boolean; onClose: ()
         )}
 
         <div className="mt-2 flex gap-2">
-          <input value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => event.key === "Enter" && void send(input)} maxLength={1000} placeholder={L("Xabar yozing…", "Напишите сообщение…", "Type a message…")} className="flex-1 rounded-[18px] border border-ink/15 bg-card px-4 py-3 text-[13.5px] font-medium text-ink outline-none placeholder:text-ink/75 focus:border-moss" />
+          <input value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => event.key === "Enter" && void send(input)} maxLength={1000} placeholder={L("Xabar yozing…", "Напишите сообщение…", "Type a message…")} className="flex-1 rounded-[18px] border border-ink/15 bg-card px-4 py-3 text-[14px] font-medium text-ink outline-none placeholder:text-ink/75 focus:border-moss" />
           <button onClick={() => void send(input)} disabled={!input.trim() || sending} className="press flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amber text-white shadow-lift disabled:opacity-35" aria-label="Send"><IconSend size={17} /></button>
         </div>
 

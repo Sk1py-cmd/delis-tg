@@ -66,7 +66,7 @@ function StatusBadge({ status }: { status: Order["status"] }) {
   const s = statusStyle[status];
   const Icon = s.icon;
   return (
-    <span className={`flex items-center gap-1.5 rounded-full ${s.bg} px-3 py-1.5 text-[9.5px] font-extrabold uppercase tracking-[0.14em] ${s.text}`}>
+    <span className={`flex items-center gap-1.5 rounded-full ${s.bg} px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] ${s.text}`}>
       <Icon size={12} />
       {t(statusKey[status])}
     </span>
@@ -137,7 +137,7 @@ export function CartSheet({
         <div className="animate-pop pt-8 text-center">
           <SuccessMark />
           <h4 className="mt-5 font-display text-[20px] font-bold tracking-tight text-ink">{t("orderDone")}</h4>
-          <p className="mt-2 text-[13.5px] font-medium text-ink/75">{t("orderDoneSub")}</p>
+          <p className="mt-2 text-[14px] font-medium text-ink/75">{t("orderDoneSub")}</p>
           {orderId && (
             <p className="mx-auto mt-4 w-fit rounded-full bg-amber/6 px-4 py-2 font-display text-[12px] font-bold tracking-[0.14em] text-ink/70">
               #{orderId}
@@ -156,7 +156,7 @@ export function CartSheet({
             <IconBag size={28} />
           </div>
           <h4 className="mt-5 font-display text-[18px] font-bold tracking-tight text-ink">{t("cartEmpty")}</h4>
-          <p className="mt-2 text-[13.5px] font-medium text-ink/70">{t("cartEmptySub")}</p>
+          <p className="mt-2 text-[14px] font-medium text-ink/70">{t("cartEmptySub")}</p>
           <button
             onClick={goFeatured}
             className="press mt-7 w-full rounded-[18px] bg-amber py-4 text-[14px] font-bold text-white"
@@ -202,7 +202,7 @@ export function CartSheet({
                       </button>
                     </div>
                   </div>
-                  <p className="shrink-0 font-display text-[13.5px] font-bold text-ink">
+                  <p className="shrink-0 font-display text-[14px] font-bold text-ink">
                     {formatPrice(p.price * qty, lang)}
                   </p>
                 </div>
@@ -210,13 +210,13 @@ export function CartSheet({
             })}
           </div>
           <div className="mt-6">
-            <p className="flex items-center gap-2 text-[11.5px] font-bold text-moss">
+            <p className="flex items-center gap-2 text-[12px] font-bold text-moss">
               <IconSparkle size={13} className="text-amber" />
               {t("cartDelivery")}
             </p>
             <div className="mt-4 flex items-baseline justify-between">
               <span className="text-[14px] font-semibold text-ink/75">{t("cartTotal")}</span>
-              <span className="font-display text-[23px] font-bold tracking-tight text-ink">
+              <span className="font-display text-[22px] font-bold tracking-tight text-ink">
                 {formatPrice(total, lang)}
               </span>
             </div>
@@ -270,7 +270,7 @@ export function OrdersSheet({
             <IconChart size={20} />
           </span>
           <span className="flex-1">
-            <span className="block text-[13.5px] font-bold text-ink">
+            <span className="block text-[14px] font-bold text-ink">
               {lang === "ru" ? "Экспорт в Excel" : lang === "en" ? "Export to Excel" : "Excel'ga eksport"}
             </span>
             <span className="mt-0.5 block text-[11px] font-semibold text-pine/70">
@@ -289,7 +289,7 @@ export function OrdersSheet({
         >
           <span className="motion-icon-tile flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-moss text-white"><IconRepeat size={20} /></span>
           <span className="flex-1">
-            <span className="block text-[13.5px] font-bold text-ink">{t("reorderLast")}</span>
+            <span className="block text-[14px] font-bold text-ink">{t("reorderLast")}</span>
             <span className="mt-0.5 block text-[11px] font-semibold text-pine/70">{t("reorderSub")} · #{orders[0].id}</span>
           </span>
           <span className="font-display text-[13px] font-bold text-pine">{formatPrice(orders[0].total, lang)}</span>
@@ -387,14 +387,14 @@ export function OrdersSheet({
                     </div>
                   )}
                 </div>
-                <span className="truncate text-[11.5px] font-semibold text-ink/60">
+                <span className="truncate text-[12px] font-semibold text-ink/60">
                   {o.items.map((it) => it.name).filter(Boolean).join(" · ")}
                 </span>
               </div>
 
               <div className="mt-4 flex items-center justify-between border-t border-ink/6 pt-3.5">
                 <span className="text-[12px] font-semibold text-ink/70">{t("cartTotal")}</span>
-                <span className="font-display text-[15.5px] font-bold text-ink">{formatPrice(o.total, lang)}</span>
+                <span className="font-display text-[16px] font-bold text-ink">{formatPrice(o.total, lang)}</span>
               </div>
             </div>
           ))}
@@ -405,7 +405,7 @@ export function OrdersSheet({
                 haptic("light");
                 onExport();
               }}
-              className="press flex h-12 w-full items-center justify-center gap-2 rounded-[18px] bg-paper2 text-[12.5px] font-bold text-ink/70 hover:text-ink"
+              className="press flex h-12 w-full items-center justify-center gap-2 rounded-[18px] bg-paper2 text-[13px] font-bold text-ink/70 hover:text-ink"
             >
               <IconCopy size={14} />
               {t("exportOrders")}
@@ -464,7 +464,7 @@ export function LoyaltyModal({
         >
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-[10.5px] font-extrabold uppercase tracking-[0.2em] text-white/70">
+              <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-white/70">
                 {t("starsBalance")}
               </p>
               <p className="mt-1 font-display text-[32px] font-bold leading-none text-white flex items-center gap-2">
@@ -499,7 +499,7 @@ export function LoyaltyModal({
 
         {/* Tier Benefits */}
         <div className="rounded-[24px] border border-ink/18 bg-card p-4 space-y-3">
-          <p className="text-[10.5px] font-extrabold uppercase tracking-[0.2em] text-ink/65">
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-ink/65">
             {t("tierBenefits")} ({tierInfo.name[lang]})
           </p>
 
@@ -522,8 +522,8 @@ export function LoyaltyModal({
               <IconGift size={22} />
             </span>
             <div>
-              <p className="font-display text-[13.5px] font-bold text-ink">{L("Do'stlarni taklif qiling", "Приглашайте друзей", "Invite friends")}</p>
-              <p className="flex items-center gap-1 text-[11.5px] font-medium text-ink/70">{L("Har bir do'stingizning birinchi xaridi uchun +500", "+500 за первую покупку каждого друга", "+500 for each friend's first purchase")} <IconStarsOrbit size={13} /></p>
+              <p className="font-display text-[14px] font-bold text-ink">{L("Do'stlarni taklif qiling", "Приглашайте друзей", "Invite friends")}</p>
+              <p className="flex items-center gap-1 text-[12px] font-medium text-ink/70">{L("Har bir do'stingizning birinchi xaridi uchun +500", "+500 за первую покупку каждого друга", "+500 for each friend's first purchase")} <IconStarsOrbit size={13} /></p>
             </div>
           </div>
           <button
@@ -627,10 +627,10 @@ export function ProfileSheet({
             <p className="truncate font-display text-[17px] font-bold tracking-tight text-ink">{name}</p>
             {user?.username && <p className="text-[12px] font-semibold text-ink/70">@{user.username}</p>}
             <div className="mt-1 flex items-center gap-1.5">
-              <span className="inline-block rounded-full bg-sagetint px-2.5 py-0.5 text-[9.5px] font-extrabold uppercase tracking-[0.12em] text-pine">
+              <span className="inline-block rounded-full bg-sagetint px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-pine">
                 {t("retail")}
               </span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-amber/15 px-2.5 py-0.5 text-[9.5px] font-extrabold uppercase tracking-[0.1em] text-amberdeep">
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber/15 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.1em] text-amberdeep">
                 <IconTierSignal size={12} filled />
                 {tierInfo.name[lang].split(" ")[0]}
               </span>
@@ -654,7 +654,7 @@ export function ProfileSheet({
               <p className="font-display text-[14px] font-black text-white">
                 {stars} DELIS Stars · {tierInfo.name[lang]}
               </p>
-              <p className="text-[11.5px] font-semibold text-[#60ff9b]">
+              <p className="text-[12px] font-semibold text-[#60ff9b]">
                 {t("cashbackInfo")}: {tierInfo.cashbackPercent}% · {formatPrice(stars * starValueUzs, lang)}
               </p>
             </div>
@@ -672,8 +672,8 @@ export function ProfileSheet({
                 <IconGift size={18} />
               </span>
               <div className="min-w-0">
-                <p className="font-display text-[13.5px] font-black text-ink">{t("welcomeTitle")}</p>
-                <p className="text-[10.5px] font-semibold leading-snug text-ink/70">{t("welcomeSub")}</p>
+                <p className="font-display text-[14px] font-black text-ink">{t("welcomeTitle")}</p>
+                <p className="text-[11px] font-semibold leading-snug text-ink/70">{t("welcomeSub")}</p>
               </div>
             </div>
             <button
@@ -699,7 +699,7 @@ export function ProfileSheet({
 
         {/* Language selector */}
         <div className="mt-6">
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.22em] text-ink/65">{t("langLabel")}</p>
+          <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-ink/65">{t("langLabel")}</p>
           <div className="mt-2.5">
             <LangPill />
           </div>
@@ -721,7 +721,7 @@ export function ProfileSheet({
             </span>
             <span className="flex-1">
               <span className="block text-[14px] font-bold text-ink">{t("wishlistTitle")}</span>
-              <span className="mt-0.5 block text-[11.5px] font-semibold text-ink/70">{favoritesCount} {t("products")}</span>
+              <span className="mt-0.5 block text-[12px] font-semibold text-ink/70">{favoritesCount} {t("products")}</span>
             </span>
             <IconChevron size={16} className="text-ink/75" />
           </button>
@@ -740,7 +740,7 @@ export function ProfileSheet({
             </span>
             <span className="flex-1">
               <span className="block text-[14px] font-bold text-ink">{t("addressesTitle")}</span>
-              <span className="mt-0.5 block text-[11.5px] font-semibold text-ink/70">{addressesCount} · {t("addressAdd")}</span>
+              <span className="mt-0.5 block text-[12px] font-semibold text-ink/70">{addressesCount} · {t("addressAdd")}</span>
             </span>
             <IconChevron size={16} className="text-ink/75" />
           </button>
@@ -752,7 +752,7 @@ export function ProfileSheet({
               className="press flex w-full items-center gap-3.5 py-4 text-left"
             >
               <span className="motion-icon-tile flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-amber/15 text-amberdeep"><IconRibbon size={21} /></span>
-              <span className="flex-1"><span className="block text-[14px] font-bold text-ink">{t("giftTitle")}</span><span className="mt-0.5 block text-[11.5px] font-semibold text-ink/70">{t("giftSub")}</span></span>
+              <span className="flex-1"><span className="block text-[14px] font-bold text-ink">{t("giftTitle")}</span><span className="mt-0.5 block text-[12px] font-semibold text-ink/70">{t("giftSub")}</span></span>
               <IconChevron size={16} className="text-ink/75" />
             </button>
           )}
@@ -763,7 +763,7 @@ export function ProfileSheet({
               <span className="motion-icon-tile flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-amber/15 text-amberdeep"><IconCalendar size={21} /></span>
               <div className="flex-1">
                 <p className="text-[14px] font-bold text-ink">{L("Tug'ilgan kun", "День рождения", "Birthday")}</p>
-                <p className="mt-0.5 text-[11.5px] font-semibold text-ink/70">
+                <p className="mt-0.5 text-[12px] font-semibold text-ink/70">
                   {birthday
                     ? L(`Sana: ${birthday} — sovg'a kuting! 🎁`, `Дата: ${birthday} — ждите подарок! 🎁`, `Date: ${birthday} — your gift is coming! 🎁`)
                     : L("Belgilang — 10% sovg'a oling", "Укажите — получите подарок 10%", "Add your date and receive a 10% gift")}
@@ -808,7 +808,7 @@ export function ProfileSheet({
             <span className="motion-icon-tile flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-amber/15 text-amberdeep"><IconGift size={21} /></span>
             <span className="flex-1">
               <span className="block text-[14px] font-bold text-ink">{lang === "ru" ? "Сертификат" : "Sertifikat"}</span>
-              <span className="mt-0.5 block text-[11.5px] font-semibold text-ink/70">
+              <span className="mt-0.5 block text-[12px] font-semibold text-ink/70">
                 {lang === "ru" ? "Подарите другу — 100/200/500 тыс." : "Do'stga sovg'a — 100/200/500 ming"}
               </span>
             </span>
@@ -827,7 +827,7 @@ export function ProfileSheet({
             <span className="motion-icon-tile flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-pine/12 text-pine"><IconBox size={21} /></span>
             <span className="flex-1">
               <span className="block text-[14px] font-bold text-ink">{t("subTitle")}</span>
-              <span className="mt-0.5 block text-[11.5px] font-semibold text-ink/70">
+              <span className="mt-0.5 block text-[12px] font-semibold text-ink/70">
                 {lang === "ru" ? "Управление подписками" : "Obunalarni boshqarish"}
               </span>
             </span>
@@ -848,7 +848,7 @@ export function ProfileSheet({
             </span>
             <span className="flex-1">
               <span className="block text-[14px] font-bold text-ink">{t("compareTitle")}</span>
-              <span className="mt-0.5 block text-[11.5px] font-semibold text-ink/70">{t("compareSub")}</span>
+              <span className="mt-0.5 block text-[12px] font-semibold text-ink/70">{t("compareSub")}</span>
             </span>
             <IconChevron size={16} className="text-ink/75" />
           </button>
@@ -867,7 +867,7 @@ export function ProfileSheet({
             </span>
             <span className="flex-1">
               <span className="block text-[14px] font-bold text-ink">{t("scannerTitle")}</span>
-              <span className="mt-0.5 block text-[11.5px] font-semibold text-ink/70">{t("scannerSub")}</span>
+              <span className="mt-0.5 block text-[12px] font-semibold text-ink/70">{t("scannerSub")}</span>
             </span>
             <IconChevron size={16} className="text-ink/75" />
           </button>
@@ -886,7 +886,7 @@ export function ProfileSheet({
             </span>
             <span className="flex-1">
               <span className="block text-[14px] font-bold text-ink">{t("returnsTitle")}</span>
-              <span className="mt-0.5 block text-[11.5px] font-semibold text-ink/70">{t("returnsNew")}</span>
+              <span className="mt-0.5 block text-[12px] font-semibold text-ink/70">{t("returnsNew")}</span>
             </span>
             <IconChevron size={16} className="text-ink/75" />
           </button>
@@ -905,7 +905,7 @@ export function ProfileSheet({
             </span>
             <span className="flex-1">
               <span className="block text-[14px] font-bold text-ink">{t("b2bTitle")}</span>
-              <span className="mt-0.5 block text-[11.5px] font-semibold text-ink/70">{t("b2bSub")}</span>
+              <span className="mt-0.5 block text-[12px] font-semibold text-ink/70">{t("b2bSub")}</span>
             </span>
             <IconChevron size={16} className="text-ink/75" />
           </button>
@@ -924,7 +924,7 @@ export function ProfileSheet({
             </span>
             <span className="flex-1">
               <span className="block text-[14px] font-bold text-ink">{t("refHubTitle")}</span>
-              <span className="mt-0.5 flex items-center gap-1 text-[11.5px] font-semibold text-amberdeep">{L("Taklif uchun +500", "+500 за приглашение", "+500 per referral")} <IconStarsOrbit size={13} /></span>
+              <span className="mt-0.5 flex items-center gap-1 text-[12px] font-semibold text-amberdeep">{L("Taklif uchun +500", "+500 за приглашение", "+500 per referral")} <IconStarsOrbit size={13} /></span>
             </span>
             <IconChevron size={16} className="text-ink/75" />
           </button>
@@ -943,7 +943,7 @@ export function ProfileSheet({
             </span>
             <span className="flex-1">
               <span className="block text-[14px] font-bold text-ink">{t("legalTitle")}</span>
-              <span className="mt-0.5 block text-[11.5px] font-semibold text-ink2">Oferta · Maxfiylik · Kafolat</span>
+              <span className="mt-0.5 block text-[12px] font-semibold text-ink2">Oferta · Maxfiylik · Kafolat</span>
             </span>
             <IconChevron size={16} className="text-ink/75" />
           </button>
@@ -962,7 +962,7 @@ export function ProfileSheet({
             </span>
             <span className="flex-1">
               <span className="block text-[14px] font-bold text-ink">{t("adminTitle")}</span>
-              <span className="mt-0.5 block text-[11.5px] font-semibold text-moss">Zavod boshqaruvi · Maxfiy kirish</span>
+              <span className="mt-0.5 block text-[12px] font-semibold text-moss">Zavod boshqaruvi · Maxfiy kirish</span>
             </span>
             <IconChevron size={16} className="text-ink/75" />
           </button>
@@ -974,7 +974,7 @@ export function ProfileSheet({
             </span>
             <span className="flex-1">
               <span className="block text-[14px] font-bold text-ink">{t("bizRow")}</span>
-              <span className="mt-0.5 block text-[11.5px] font-semibold text-ink2">{t("bizSub")}</span>
+              <span className="mt-0.5 block text-[12px] font-semibold text-ink2">{t("bizSub")}</span>
             </span>
             <IconChevron size={16} className="text-ink/75" />
           </button>
@@ -986,7 +986,7 @@ export function ProfileSheet({
             </span>
             <span className="flex-1">
               <span className="block text-[14px] font-bold text-ink">{t("notifRow")}</span>
-              <span className="mt-0.5 block text-[11.5px] font-semibold text-ink/70">{t("notifSub")}</span>
+              <span className="mt-0.5 block text-[12px] font-semibold text-ink/70">{t("notifSub")}</span>
             </span>
             <button
               onClick={() => {
@@ -1017,7 +1017,7 @@ export function ProfileSheet({
             </span>
             <span className="flex-1">
               <span className="block text-[14px] font-bold text-ink">{t("supportRow")}</span>
-              <span className="mt-0.5 block text-[11.5px] font-semibold text-ink/70">{t("supportSub")}</span>
+              <span className="mt-0.5 block text-[12px] font-semibold text-ink/70">{t("supportSub")}</span>
             </span>
             <IconChevron size={16} className="text-ink/75" />
           </a>
@@ -1075,7 +1075,7 @@ export function PartnerSheet({ open, onClose }: { open: boolean; onClose: () => 
       {sent ? (
         <div className="animate-pop pt-8 text-center">
           <SuccessMark />
-          <p className="mx-auto mt-5 max-w-[260px] text-[14.5px] font-semibold leading-relaxed text-ink">
+          <p className="mx-auto mt-5 max-w-[260px] text-[15px] font-semibold leading-relaxed text-ink">
             {t("fSuccess")}
           </p>
           <button

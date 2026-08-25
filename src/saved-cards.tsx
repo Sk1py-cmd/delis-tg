@@ -52,10 +52,10 @@ export function SavedCards({ cards, onSelect, onDelete }: { cards: SavedCard[]; 
               <div className="flex items-center gap-1.5">
                 <span className="font-display text-[13px] font-bold text-ink truncate">···· {c.last4}</span>
                 {c.savedAt && Date.now() - c.savedAt < 86400000 && (
-                  <span className="rounded-full bg-amber/15 px-1.5 py-0.5 text-[8px] font-extrabold uppercase text-amberdeep">NEW</span>
+                  <span className="rounded-full bg-amber/15 px-1.5 py-0.5 text-[9px] font-extrabold uppercase text-amberdeep">NEW</span>
                 )}
               </div>
-              <p className="text-[11.5px] font-medium text-ink/70">{c.holder} · {c.expMonth}/{c.expYear}</p>
+              <p className="text-[12px] font-medium text-ink/70">{c.holder} · {c.expMonth}/{c.expYear}</p>
             </div>
             <button
               onClick={(e) => { e.stopPropagation(); haptic("light"); onDelete(c.id); }}

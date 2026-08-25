@@ -87,8 +87,8 @@ export function initTelegram() {
     }).Telegram?.WebApp;
     tg?.ready?.();
     tg?.expand?.();
-    tg?.setHeaderColor?.("#00143b");
-    tg?.setBackgroundColor?.("#00143b");
+    // Header/background color is set by App's theme effect (light/dark aware);
+    // setting a stale color here caused a navy flash on launch.
   } catch {
     /* not in Telegram — ignore */
   }

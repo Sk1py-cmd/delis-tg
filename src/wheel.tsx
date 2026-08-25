@@ -80,7 +80,7 @@ export function WheelOfFortune({
           </button>
         </div>
 
-        {claimed && won == null && <p className="text-center text-[12.5px] font-bold text-ink/65">{L("Bugungi mukofot allaqachon olindi.", "Сегодняшняя награда уже получена.", "Today's reward has already been claimed.")}</p>}
+        {claimed && won == null && <p className="text-center text-[13px] font-bold text-ink/65">{L("Bugungi mukofot allaqachon olindi.", "Сегодняшняя награда уже получена.", "Today's reward has already been claimed.")}</p>}
         {error && <p className="text-center text-[12px] font-bold text-[#B3402E]">{L("Server bilan aloqa yo'q. Keyinroq urinib ko'ring.", "Нет связи с сервером. Попробуйте позже.", "Server unavailable. Try again later.")}</p>}
         {won != null && (
           <div className="animate-pop rounded-[24px] bg-gradient-to-br from-amber/20 to-amber/10 p-6 text-center">

@@ -75,7 +75,7 @@ export function ToolsSection({
     { icon: IconBox, title: t("bundlesTitle"), sub: t("bundlesSub"), onClick: onBundles, bg: "bg-amber/12 text-amberdeep" },
   ];
   return (
-    <section className="render-deferred px-4 pt-10 min-[390px]:px-5">
+    <section className="render-deferred px-4 pt-12 min-[390px]:px-5">
       <SectionHead title={lang === "ru" ? "Инструменты" : lang === "en" ? "Tools" : "Vositalar"} sub={lang === "ru" ? "Все сервисы, которые вам помогают" : lang === "en" ? "All the services that help you" : "Sizga yordam beradigan barcha xizmatlar"} />
       <div className="no-scrollbar mt-5 flex gap-3 overflow-x-auto pb-1 snap-x-m">
         {tools.map((tool, i) => (
@@ -227,7 +227,7 @@ export function DailyDeal({ onAdd, onOpen }: { onAdd: (p: Product) => void; onOp
         <div className="relative p-5">
           {/* Header */}
           <div className="flex items-center justify-between gap-2">
-            <span className="flex items-center gap-1.5 rounded-full bg-amber px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.16em] text-white shadow-sm">
+            <span className="flex items-center gap-1.5 rounded-full bg-amber px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-white shadow-sm">
               <IconFire size={14} /> {cfg.title || L("Kun taklifi", "Товар дня", "Daily deal")}
             </span>
             <span className="flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1.5 font-mono text-[11px] font-bold text-white/90 backdrop-blur-sm">
@@ -246,7 +246,7 @@ export function DailyDeal({ onAdd, onOpen }: { onAdd: (p: Product) => void; onOp
             <div className="min-w-0 flex-1">
               <p className="truncate font-display text-[15px] font-bold text-white">{product.name}</p>
               <div className="mt-2 flex items-end gap-2">
-                <span className="font-display text-[19px] font-extrabold text-amber">{formatPrice(dealPrice, lang)}</span>
+                <span className="font-display text-[18px] font-extrabold text-amber">{formatPrice(dealPrice, lang)}</span>
                 <span className="pb-0.5 text-[12px] font-semibold text-white/45 line-through">{formatPrice(product.price, lang)}</span>
                 <span className="mb-0.5 ml-auto rounded-full bg-amber/25 px-2 py-0.5 text-[10px] font-extrabold text-amber">−{cfg.discount}%</span>
               </div>
@@ -256,7 +256,7 @@ export function DailyDeal({ onAdd, onOpen }: { onAdd: (p: Product) => void; onOp
           {/* CTA */}
           <button
             onClick={() => { haptic("success"); onAdd(product); }}
-            className="btn-shine animate-glowpulse press mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-[18px] bg-gradient-to-r from-[#638872] via-[#638872] to-[#638872] bg-[length:200%_200%] text-[13.5px] font-extrabold text-white shadow-soft transition-transform active:scale-[0.98] animate-gradient-shift"
+            className="btn-shine animate-glowpulse press mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-[18px] bg-gradient-to-r from-[#638872] via-[#638872] to-[#638872] bg-[length:200%_200%] text-[14px] font-extrabold text-white shadow-soft transition-transform active:scale-[0.98] animate-gradient-shift"
           >
             <IconCart size={18} /> {L("Hoziroq olish", "Забрать по цене дня", "Grab today's price")}
           </button>
@@ -273,7 +273,7 @@ export function Ticker() {
     <div key={key} className="flex shrink-0 items-center">
       {items.map((x, i) => (
         <span key={i} className="flex items-center">
-          <span className="px-4 text-[10.5px] min-[390px]:px-5 font-extrabold uppercase tracking-[0.24em] text-ink/70">
+          <span className="px-4 text-[11px] min-[390px]:px-5 font-extrabold uppercase tracking-[0.24em] text-ink/70">
             {x}
           </span>
           <IconSparkle size={9} className="text-amber" />
@@ -398,7 +398,7 @@ export function Hero({
               </span>
             </Reveal>
             <Reveal delay={320}>
-              <span className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[9.5px] font-extrabold uppercase tracking-[0.16em] ${seasonBadge.color} text-white shadow-sm`}>
+              <span className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] ${seasonBadge.color} text-white shadow-sm`}>
                 <IconSparkle size={10} /> {seasonBadge[lang]}
               </span>
             </Reveal>
@@ -406,7 +406,7 @@ export function Hero({
 
           <div className="cinematic-hero__content absolute inset-x-0 bottom-0 p-5 min-[390px]:p-6">
             <Reveal delay={150}>
-              <p className="flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.22em] text-amber">
+              <p className="flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.2em] text-amber">
                 {hasProduct && sold > 0 && <IconFire size={14} />} {eyebrow}
               </p>
             </Reveal>
@@ -419,7 +419,7 @@ export function Hero({
               )}
             </h2>
             <Reveal delay={420}>
-              <p className="mt-3 line-clamp-2 max-w-[250px] text-[13.5px] font-medium leading-snug text-white/80">
+              <p className="mt-3 line-clamp-2 max-w-[250px] text-[14px] font-medium leading-snug text-white/80">
                 {subtitle}
               </p>
             </Reveal>
@@ -449,7 +449,7 @@ export function Hero({
                   <IconCar size={17} />
                   {lang === "ru" ? "Для авто" : lang === "en" ? "For auto" : "Avto uchun"}
                 </button>
-                <span className="ml-auto rounded-full border border-white/30 bg-black/20 px-3 py-2.5 text-[11.5px] font-bold text-white/95 backdrop-blur-sm">
+                <span className="ml-auto rounded-full border border-white/30 bg-black/20 px-3 py-2.5 text-[12px] font-bold text-white/95 backdrop-blur-sm">
                   {formatPrice(price, lang)}
                 </span>
               </div>
@@ -493,7 +493,7 @@ export function StoreBenefits() {
   ];
 
   return (
-    <section className="render-deferred px-4 pt-10 min-[390px]:px-5">
+    <section className="render-deferred px-4 pt-12 min-[390px]:px-5">
       <SectionHead
         title={lang === "ru" ? "Почему DELIS" : lang === "en" ? "Why DELIS" : "Nega DELIS"}
         sub={lang === "ru" ? "Всё нужное для чистоты — без лишней сложности" : lang === "en" ? "Everything for clean, without the extra fuss" : "Tozalik uchun kerakli hamma narsa — ortiqcha murakkabliksiz"}
@@ -503,7 +503,7 @@ export function StoreBenefits() {
           <div key={item.title} className="motion-surface animate-ios-pop rounded-[22px] border border-ink/8 bg-card p-3.5 shadow-soft" style={{ animationDelay: `${index * 70}ms` }}>
             <span className={`motion-icon-tile flex h-10 w-10 items-center justify-center rounded-[14px] ${item.tone}`}><item.icon size={19} /></span>
             <p className="mt-3 text-[12px] font-bold leading-snug text-ink">{item.title}</p>
-            <p className="mt-1 text-[10.5px] font-medium leading-snug text-ink/65">{item.text}</p>
+            <p className="mt-1 text-[11px] font-medium leading-snug text-ink/65">{item.text}</p>
           </div>
         ))}
       </div>
@@ -528,7 +528,7 @@ export function Categories({ onPick }: { onPick: (c: Cat) => void }) {
     },
   ];
   return (
-    <section id="categories" className="render-deferred scroll-mt-16 px-4 pt-10 min-[390px]:px-5">
+    <section id="categories" className="render-deferred scroll-mt-16 px-4 pt-12 min-[390px]:px-5">
       <SectionHead title={t("catTitle")} sub={t("catSub")} />
       <div className="mt-6 space-y-4">
         {cats.map((c, i) => {
@@ -552,7 +552,7 @@ export function Categories({ onPick }: { onPick: (c: Cat) => void }) {
                 <div className={`absolute inset-0 ${c.overlay}`} />
                 <div className="cinematic-category__sweep pointer-events-none absolute inset-0" aria-hidden />
                 <span
-                  className={`absolute left-5 top-5 rounded-full border px-3.5 py-1.5 text-[10.5px] font-extrabold uppercase tracking-[0.14em] backdrop-blur-md ${c.chip}`}
+                  className={`absolute left-5 top-5 rounded-full border px-3.5 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.14em] backdrop-blur-md ${c.chip}`}
                 >
                   {CAT_COUNTS[c.id]} {t("products")}
                 </span>

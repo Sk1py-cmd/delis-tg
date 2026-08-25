@@ -88,7 +88,7 @@ export function DelisLoader({ onComplete }: { onComplete: () => void }) {
         <BrandLockup className="delis-loader-brand h-auto w-[272px] max-w-[78vw] drop-shadow-[0_3px_12px_rgba(255,255,255,0.38)]" />
 
         <div className="mt-auto mb-[12vh] w-40 rounded-full border border-white/40 bg-white/30 px-4 py-2.5 backdrop-blur-sm">
-          <p key={step} className="animate-rise truncate text-[10.5px] font-bold text-[#30253e]/75">
+          <p key={step} className="animate-rise truncate text-[11px] font-bold text-[#30253e]/75">
             {(content.splash.steps[step] || content.splash.steps[content.splash.steps.length - 1])[lang]}
           </p>
           <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/55">
@@ -174,7 +174,7 @@ export function QuickAccessSheet({
             </span>
             <span className="flex-1">
               <span className="block text-[14px] font-bold text-ink">{item.title}</span>
-              <span className="mt-0.5 block text-[11.5px] font-medium text-ink/70">{item.sub}</span>
+              <span className="mt-0.5 block text-[12px] font-medium text-ink/70">{item.sub}</span>
             </span>
             <IconChevron size={15} className="text-ink/75" />
           </button>
@@ -191,7 +191,7 @@ export function QuickAccessSheet({
           </span>
           <span className="flex-1">
             <span className="block text-[14px] font-bold text-ink">{t("quickSupport")}</span>
-            <span className="mt-0.5 block text-[11.5px] font-medium text-ink/70">{t("quickSupportSub")}</span>
+            <span className="mt-0.5 block text-[12px] font-medium text-ink/70">{t("quickSupportSub")}</span>
           </span>
           <IconChevron size={15} className="text-ink/75" />
         </a>
@@ -257,7 +257,7 @@ export function HeroSlider({
           <h1 className="mt-3 font-display text-[30px] font-bold leading-[1.06] tracking-tight text-white">
             {slides[i].title}
           </h1>
-          <p className="mt-2 text-[13.5px] font-semibold text-white/80">{slides[i].sub}</p>
+          <p className="mt-2 text-[14px] font-semibold text-white/80">{slides[i].sub}</p>
         </div>
         {slides.length > 1 && (
           <div className="mt-4 flex items-center gap-1.5">
@@ -313,7 +313,7 @@ export function FaqScreen() {
   return (
     <section className="px-4 pt-2 pb-4 min-[390px]:px-5">
       <Reveal>
-        <p className="text-[10.5px] font-extrabold uppercase tracking-[0.22em] text-moss">{t("supportRow")}</p>
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-moss">{t("supportRow")}</p>
         <h1 className="mt-1 font-display text-[28px] font-bold leading-tight tracking-tight text-ink">{t("faqTitle")}</h1>
       </Reveal>
 
@@ -353,7 +353,7 @@ export function FaqScreen() {
                 <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[12px] font-display font-bold transition-colors ${open ? "bg-amber text-white" : "bg-paper2 text-ink/60"}`}>
                   {i + 1}
                 </span>
-                <span className="flex-1 text-[13.5px] font-bold leading-snug text-ink">{it.q}</span>
+                <span className="flex-1 text-[14px] font-bold leading-snug text-ink">{it.q}</span>
                 <IconChevron size={14} className={`text-ink/65 transition-transform duration-400 ${open ? "rotate-90" : ""}`} />
               </button>
               <div className="grid overflow-hidden transition-[grid-template-rows,opacity] duration-400 ease-[cubic-bezier(0.22,1,0.36,1)]" style={{ gridTemplateRows: open ? "1fr" : "0fr", opacity: open ? 1 : 0 }}>
@@ -377,7 +377,7 @@ export function FaqScreen() {
         <IconSend size={16} />
         {t("quickSupport")}
       </a>
-      <p className="mt-2.5 text-center text-[11.5px] font-medium text-ink/70">{t("quickSupportSub")}</p>
+      <p className="mt-2.5 text-center text-[12px] font-medium text-ink/70">{t("quickSupportSub")}</p>
     </section>
   );
 }
@@ -474,7 +474,7 @@ export function AboutScreen() {
                 </span>
                 <div className="pt-1">
                   <h3 className="text-[14px] font-bold text-ink">{it.t}</h3>
-                  <p className="mt-0.5 text-[12.5px] font-medium text-ink2">{it.d}</p>
+                  <p className="mt-0.5 text-[13px] font-medium text-ink2">{it.d}</p>
                 </div>
               </div>
             </Reveal>
@@ -501,7 +501,7 @@ export function AboutScreen() {
                 </span>
                 <div>
                   <h3 className="text-[14px] font-bold text-ink">{t(s.t as never)}</h3>
-                  <p className="mt-1 text-[12.5px] font-medium leading-snug text-ink2">{t(s.d as never)}</p>
+                  <p className="mt-1 text-[13px] font-medium leading-snug text-ink2">{t(s.d as never)}</p>
                 </div>
               </div>
             </Reveal>
@@ -517,7 +517,7 @@ export function AboutScreen() {
           ].map((s, i) => (
             <div key={i} className="rounded-[18px] border border-ink/18 bg-card p-3.5 text-center shadow-sm">
               <p className="font-display text-[22px] font-bold text-amber">{s.v}</p>
-              <p className="mt-1 text-[10.5px] font-semibold leading-tight text-ink2">{s.l}</p>
+              <p className="mt-1 text-[11px] font-semibold leading-tight text-ink2">{s.l}</p>
             </div>
           ))}
         </Reveal>
@@ -592,7 +592,7 @@ export function ProductionScreen() {
                 </span>
                 <div>
                   <h3 className="text-[14px] font-bold text-ink">{typeof s.t === "string" ? s.t : t(s.t as never)}</h3>
-                  <p className="mt-1 text-[12.5px] font-medium leading-snug text-ink2">{typeof s.d === "string" ? s.d : t(s.d as never)}</p>
+                  <p className="mt-1 text-[13px] font-medium leading-snug text-ink2">{typeof s.d === "string" ? s.d : t(s.d as never)}</p>
                 </div>
               </div>
             </Reveal>
@@ -604,7 +604,7 @@ export function ProductionScreen() {
           {stats.map((s, i) => (
             <div key={i} className="rounded-[18px] border border-ink/18 bg-card p-3.5 text-center shadow-sm">
               <p className="font-display text-[22px] font-bold text-amber">{s.v}</p>
-              <p className="mt-1 text-[10.5px] font-semibold leading-tight text-ink2">{s.l}</p>
+              <p className="mt-1 text-[11px] font-semibold leading-tight text-ink2">{s.l}</p>
             </div>
           ))}
         </Reveal>
@@ -620,7 +620,7 @@ export function ProductionScreen() {
             <Reveal key={c} delay={i * 70}>
               <div className="flex items-center gap-2.5 rounded-[18px] border border-moss/15 bg-sagetint/60 p-3.5">
                 <IconCheck size={15} strokeWidth={2.4} className="shrink-0 text-moss" />
-                <span className="text-[12.5px] font-bold text-pine">{c}</span>
+                <span className="text-[13px] font-bold text-pine">{c}</span>
               </div>
             </Reveal>
           ))}
@@ -628,7 +628,7 @@ export function ProductionScreen() {
 
         {/* Batch code trust */}
         <Reveal delay={160} className="mt-6 rounded-[22px] border border-ink/18 bg-card p-4 shadow-sm">
-          <p className="flex items-center gap-2.5 text-[12.5px] font-bold text-ink">
+          <p className="flex items-center gap-2.5 text-[13px] font-bold text-ink">
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber/15 text-amberdeep">
               <IconQrScan size={17} />
             </span>
@@ -833,7 +833,7 @@ export function CareersScreen() {
                   <s.icon size={17} />
                 </span>
                 <h3 className="mt-2.5 text-[12px] font-bold leading-tight text-ink">{t(s.t as never)}</h3>
-                <p className="mt-1 text-[10.5px] font-medium leading-snug text-ink2">{t(s.d as never)}</p>
+                <p className="mt-1 text-[11px] font-medium leading-snug text-ink2">{t(s.d as never)}</p>
               </div>
             </Reveal>
           ))}
@@ -862,8 +862,8 @@ export function CareersScreen() {
                   <span className={`flex h-10 w-10 items-center justify-center rounded-[14px] ${active ? "bg-pine text-white" : "bg-sagetint text-pine"}`}>
                     <Icon size={18} />
                   </span>
-                  <h3 className="mt-2.5 text-[12.5px] font-bold leading-tight text-ink">{pos.t}</h3>
-                  <p className="mt-1 text-[10.5px] font-medium leading-snug text-ink2">{pos.s}</p>
+                  <h3 className="mt-2.5 text-[13px] font-bold leading-tight text-ink">{pos.t}</h3>
+                  <p className="mt-1 text-[11px] font-medium leading-snug text-ink2">{pos.s}</p>
                   <span className={`mt-2 rounded-full px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.1em] ${pos.exp ? "bg-amber/15 text-amberdeep" : "bg-moss/12 text-pine"}`}>
                     {pos.exp ? FL.expYes : FL.expNo}
                   </span>
@@ -878,7 +878,7 @@ export function CareersScreen() {
           <div className="overflow-hidden rounded-[24px] border border-ink/18 bg-card shadow-sm">
             <div className="bg-pinedeep px-5 py-4 text-white">
               <h3 className="font-display text-[17px] font-bold">{FL.form}</h3>
-              <p className="mt-0.5 text-[11.5px] font-medium text-white/60">{t("careersCtaSub")}</p>
+              <p className="mt-0.5 text-[12px] font-medium text-white/60">{t("careersCtaSub")}</p>
             </div>
             {sent ? (
               <div className="p-5 text-center">
@@ -886,20 +886,20 @@ export function CareersScreen() {
                   <IconCheck size={30} strokeWidth={2.2} />
                 </span>
                 <h4 className="mt-3 text-[15px] font-bold text-ink">{FL.okTitle}</h4>
-                <p className="mt-1.5 text-[12.5px] font-medium leading-relaxed text-ink2">{FL.okSub}</p>
+                <p className="mt-1.5 text-[13px] font-medium leading-relaxed text-ink2">{FL.okSub}</p>
                 <a
                   href={tgLink}
                   target="_blank"
                   rel="noreferrer"
                   onClick={() => haptic("medium")}
-                  className="press mt-5 flex items-center justify-center gap-2 rounded-[16px] bg-[#229ED9] py-3.5 text-[13.5px] font-bold text-white"
+                  className="press mt-5 flex items-center justify-center gap-2 rounded-[16px] bg-[#229ED9] py-3.5 text-[14px] font-bold text-white"
                 >
                   <IconSend size={15} />
                   {FL.tg}
                 </a>
                 <button
                   onClick={reset}
-                  className="press mt-2.5 w-full rounded-[16px] border border-ink/15 py-3 text-[12.5px] font-bold text-ink2"
+                  className="press mt-2.5 w-full rounded-[16px] border border-ink/15 py-3 text-[13px] font-bold text-ink2"
                 >
                   {FL.again}
                 </button>
@@ -910,21 +910,21 @@ export function CareersScreen() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder={FL.namePh}
-                  className="w-full rounded-[16px] border border-ink/15 bg-paper px-4 py-3.5 text-[13.5px] font-semibold text-ink outline-none placeholder:text-ink/75 focus:border-moss"
+                  className="w-full rounded-[16px] border border-ink/15 bg-paper px-4 py-3.5 text-[14px] font-semibold text-ink outline-none placeholder:text-ink/75 focus:border-moss"
                 />
                 <input
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder={FL.phonePh}
                   inputMode="tel"
-                  className="w-full rounded-[16px] border border-ink/15 bg-paper px-4 py-3.5 text-[13.5px] font-semibold text-ink outline-none placeholder:text-ink/75 focus:border-moss"
+                  className="w-full rounded-[16px] border border-ink/15 bg-paper px-4 py-3.5 text-[14px] font-semibold text-ink outline-none placeholder:text-ink/75 focus:border-moss"
                 />
                 <textarea
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   placeholder={FL.notePh}
                   rows={2}
-                  className="w-full resize-none rounded-[16px] border border-ink/15 bg-paper px-4 py-3.5 text-[13.5px] font-semibold text-ink outline-none placeholder:text-ink/75 focus:border-moss"
+                  className="w-full resize-none rounded-[16px] border border-ink/15 bg-paper px-4 py-3.5 text-[14px] font-semibold text-ink outline-none placeholder:text-ink/75 focus:border-moss"
                 />
                 <button
                   onClick={submit}
@@ -950,7 +950,7 @@ export function CareersScreen() {
                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-amber font-display text-[11px] font-extrabold text-white">
                   {i + 1}
                 </span>
-                <h3 className="mt-2 text-[11.5px] font-bold leading-tight text-ink">{s.t}</h3>
+                <h3 className="mt-2 text-[12px] font-bold leading-tight text-ink">{s.t}</h3>
                 <p className="mt-1 text-[10px] font-medium leading-snug text-ink2">{s.d}</p>
               </div>
             </Reveal>
@@ -969,7 +969,7 @@ export function CareersScreen() {
             <IconSend size={16} />
             {t("careersCta")}
           </a>
-          <p className="mt-2.5 text-center text-[11.5px] font-medium text-ink/70">{t("careersCtaSub")}</p>
+          <p className="mt-2.5 text-center text-[12px] font-medium text-ink/70">{t("careersCtaSub")}</p>
         </Reveal>
       </div>
     </section>
@@ -1111,8 +1111,8 @@ export function DeliveryScreen() {
                   <IconPin size={18} />
                 </span>
                 <div className="flex-1">
-                  <h3 className="text-[13.5px] font-bold text-ink">{z.t}</h3>
-                  <p className="mt-0.5 flex items-center gap-1 text-[11.5px] font-semibold text-ink/70">
+                  <h3 className="text-[14px] font-bold text-ink">{z.t}</h3>
+                  <p className="mt-0.5 flex items-center gap-1 text-[12px] font-semibold text-ink/70">
                     <IconClock size={11} /> {z.d}
                   </p>
                 </div>
@@ -1140,7 +1140,7 @@ export function DeliveryScreen() {
                 </span>
                 <div>
                   <h3 className="text-[14px] font-bold text-ink">{s.t}</h3>
-                  <p className="mt-1 text-[12.5px] font-medium leading-snug text-ink2">{s.d}</p>
+                  <p className="mt-1 text-[13px] font-medium leading-snug text-ink2">{s.d}</p>
                 </div>
               </div>
             </Reveal>
@@ -1170,8 +1170,8 @@ export function DeliveryScreen() {
             <IconQrScan size={19} />
           </span>
           <div className="flex-1">
-            <h3 className="text-[13.5px] font-bold text-pine">{L.track}</h3>
-            <p className="mt-0.5 text-[11.5px] font-medium text-ink2">{L.trackS}</p>
+            <h3 className="text-[14px] font-bold text-pine">{L.track}</h3>
+            <p className="mt-0.5 text-[12px] font-medium text-ink2">{L.trackS}</p>
           </div>
           <IconChevron size={15} className="text-pine/40" />
         </Reveal>
@@ -1326,8 +1326,8 @@ export function ReturnsScreen() {
                 <span className="flex h-9 w-9 items-center justify-center rounded-full bg-sagetint text-pine">
                   {i === 0 ? <IconBox size={16} /> : i === 1 ? <IconClock size={16} /> : <IconReceipt size={16} />}
                 </span>
-                <h3 className="mt-2.5 text-[11.5px] font-bold leading-tight text-ink">{r.t}</h3>
-                <p className="mt-1 text-[10.5px] font-medium leading-snug text-ink2">{r.d}</p>
+                <h3 className="mt-2.5 text-[12px] font-bold leading-tight text-ink">{r.t}</h3>
+                <p className="mt-1 text-[11px] font-medium leading-snug text-ink2">{r.d}</p>
               </div>
             </Reveal>
           ))}
@@ -1374,7 +1374,7 @@ export function ReturnsScreen() {
                 </span>
                 <div>
                   <h3 className="text-[14px] font-bold text-ink">{s.t}</h3>
-                  <p className="mt-1 text-[12.5px] font-medium leading-snug text-ink2">{s.d}</p>
+                  <p className="mt-1 text-[13px] font-medium leading-snug text-ink2">{s.d}</p>
                 </div>
               </div>
             </Reveal>
@@ -1393,7 +1393,7 @@ export function ReturnsScreen() {
             <IconSend size={16} />
             {L.cta}
           </a>
-          <p className="mt-2.5 text-center text-[11.5px] font-medium text-ink/70">{L.ctaS}</p>
+          <p className="mt-2.5 text-center text-[12px] font-medium text-ink/70">{L.ctaS}</p>
         </Reveal>
       </div>
     </section>
@@ -1425,7 +1425,7 @@ export function BlogScreen({ onOpen }: { onOpen: () => void }) {
   return (
     <section className="px-4 pt-2 pb-4 min-[390px]:px-5">
       <Reveal>
-        <p className="text-[10.5px] font-extrabold uppercase tracking-[0.22em] text-moss">{t("newsSub")}</p>
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-moss">{t("newsSub")}</p>
         <h1 className="mt-1 font-display text-[28px] font-bold leading-tight tracking-tight text-ink">{t("blogTitle")}</h1>
       </Reveal>
 
@@ -1448,10 +1448,10 @@ export function BlogScreen({ onOpen }: { onOpen: () => void }) {
               )}
             </div>
             <div className="flex flex-1 flex-col justify-center pr-3">
-              <span className={`inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.12em] ${a.kind === "video" ? "bg-amber text-white" : "border border-ink/18 text-ink/75"}`}>
+              <span className={`inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.14em] ${a.kind === "video" ? "bg-amber text-white" : "border border-ink/18 text-ink/75"}`}>
                 {a.kind === "video" ? t("tagVideo") : t("tagArticle")}
               </span>
-              <h3 className="mt-1.5 text-[13.5px] font-bold leading-snug text-ink">{ARTICLE_TITLES[a.id]?.[lang]}</h3>
+              <h3 className="mt-1.5 text-[14px] font-bold leading-snug text-ink">{ARTICLE_TITLES[a.id]?.[lang]}</h3>
               <p className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-ink/70">
                 <IconClock size={11} /> {a.mins} {t("blogMin")} · {t("blogReadMore")}
               </p>

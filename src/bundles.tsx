@@ -17,7 +17,7 @@ type Bundle = {
   color: string;
 };
 
-const BUNDLES: Bundle[] = [
+const BUNDLES: Bundle[] = ([
   {
     id: "car-shine",
     title: "bundleCarTitle",
@@ -42,10 +42,11 @@ const BUNDLES: Bundle[] = [
     discount: 10,
     color: "from-[#f6e6bd] to-[#f4f2eb]",
   },
-];
+] as Bundle[]).filter((b) => b.ids.some((id) => PRODUCTS.some((p) => p.id === id)));
 
 export function BundleSection({ onOpen }: { onOpen: () => void }) {
   const { t } = useI18n();
+  if (BUNDLES.length === 0) return null;
   return (
     <section className="px-5 pt-14">
       <div className="flex items-end justify-between">
@@ -103,6 +104,9 @@ export function BundleSheet({ open, onClose, onAdd }: { open: boolean; onClose: 
     <Sheet open={open} onClose={onClose} title={t("bundlesTitle")}>
       <div className="space-y-3 pt-1">
         <p className="text-[13px] font-medium text-ink2">{t("bundlesSub")}</p>
+        {BUNDLES.length === 0 && (
+          <p className="pt-2 text-[13px] font-medium text-ink2">Каталог пополняется…</p>
+        )}
         {BUNDLES.map((bundle) => {
           const products = bundle.ids.map((id) => PRODUCTS.find((p) => p.id === id)).filter((p): p is Product => Boolean(p));
           const retail = products.reduce((sum, p) => sum + p.price, 0);

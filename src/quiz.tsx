@@ -101,21 +101,16 @@ export function SmartQuiz({ onAdd }: { onAdd: (product: any, qty?: number) => vo
 
   const handleBuyBundle = () => {
     haptic("success");
-    const key = `${answers[0]}-${answers[1]}`;
-    const productIds = BUNDLES[key] || BUNDLES["home-clean"];
-    
-    productIds.forEach((id) => {
-      const product = PRODUCTS.find((p) => p.id === id);
-      if (product) onAdd(product, 1);
-    });
+    getBundleProducts().forEach((product) => onAdd(product, 1));
   };
 
   const getBundleProducts = () => {
     const key = `${answers[0]}-${answers[1]}`;
     const productIds = BUNDLES[key] || BUNDLES["home-clean"];
-    return productIds
+    const resolved = productIds
       .map((id) => PRODUCTS.find((p) => p.id === id))
       .filter((p): p is any => Boolean(p));
+    return resolved.length ? resolved : PRODUCTS.slice(0, 3);
   };
 
   const bundleProducts = getBundleProducts();

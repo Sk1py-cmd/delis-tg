@@ -88,7 +88,8 @@ export function Featured({
   products?: Product[];
 }) {
   const { t, lang } = useI18n();
-  const signature = products.find((p) => p.signature) || PRODUCTS.find((p) => p.signature)!;
+  const signature = products.find((p) => p.signature) || products[0] || PRODUCTS[0];
+  if (!signature) return null;
   const row = products.filter((p) => {
     if (p.signature) return false;
     if (filter === "wishlist") return favorites.includes(p.id);

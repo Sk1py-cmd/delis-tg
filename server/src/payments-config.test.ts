@@ -67,7 +67,7 @@ before(async () => {
   app = mod.app;
   mod.ensureDb();
   const { seedOnStart } = await import("./seed-runner.js");
-  seedOnStart();
+  seedOnStart(true);
 });
 
 describe("payment credentials — ENV or admin panel", () => {

@@ -4,6 +4,12 @@
 import { getDb } from "./db.js";
 
 const products = [
+  { id: "luxe-softener", cat: "home", price: 50000, name_uz: "DELIS Luxe — Mato yumshatgichi", name_ru: "DELIS Luxe — Кондиционер для белья", name_en: "DELIS Luxe — Fabric Conditioner", volume: "1.4 L", badge: "new", stock: 100, rating: 5, reviews: 0, img: "images/prod-softener.jpg", features_uz: "Matoni yumshatadi,Uzoq hid,Ranglarga xavfsiz", features_ru: "Смягчает ткань,Стойкий аромат,Для белого и цветного", features_en: "Softens fabric,Long-lasting scent,Colour-safe" },
+  { id: "luxe-gel", cat: "home", price: 70000, name_uz: "DELIS Luxe — Kir yuvish geli", name_ru: "DELIS Luxe — Гель для стирки", name_en: "DELIS Luxe — Laundry Gel", volume: "2 L", badge: "new", stock: 100, rating: 5, reviews: 0, img: "images/prod-gel.jpg", features_uz: "Dog'larni ketkazadi,Rangni asraydi,Orxideya ifori", features_ru: "Удаляет пятна,Защита цвета,Аромат орхидеи", features_en: "Stain removal,Colour protection,Orchid scent" },
+];
+
+/** Legacy demo catalog — only inserted in tests via seedOnStart(true). */
+const TEST_CATALOG_PRODUCTS = [
   { id: "wax", cat: "car", price: 128000, name_uz: "Graphite Wax", name_ru: "Graphite Wax", name_en: "Graphite Wax", volume: "250 ml", badge: null, stock: 168, rating: 4.95, reviews: 148, img: "images/prod-wax.jpg", features_uz: "T1 karnauba mum,UV himoya,Yuqori hidrofob", features_ru: "Карнауба T1,UV защита,Гидрофоб", features_en: "T1 Carnauba,UV protection,Hydrophobic" },
   { id: "glass", cat: "home", price: 48000, name_uz: "Glass №4", name_ru: "Glass №4", name_en: "Glass №4", volume: "500 ml", badge: "best", stock: 320, rating: 4.92, reviews: 214, img: "images/prod-glass.jpg", features_uz: "Spirtsiz,Antistatik", features_ru: "Без спирта,Антистатик", features_en: "Alcohol-free,Anti-static" },
   { id: "floor", cat: "home", price: 62000, name_uz: "Velvet Floor", name_ru: "Velvet Floor", name_en: "Velvet Floor", volume: "1 L", badge: "new", stock: 96, rating: 4.88, reviews: 89, img: "images/prod-floor.jpg", features_uz: "Biologik parchalanadi,Bolalarga xavfsiz", features_ru: "Биоразлагаемый,Для детей", features_en: "Biodegradable,Child-safe" },
@@ -32,7 +38,7 @@ function upgradeDefaultProductMedia(db: ReturnType<typeof getDb>) {
   for (const [id, oldImage, newImage] of upgrades) update.run(newImage, id, oldImage);
 }
 
-export function seedOnStart() {
+export function seedOnStart(includeTestCatalog = false) {
   const db = getDb();
   const count: any = db.prepare("SELECT COUNT(*) as c FROM products").get();
   if (count?.c > 0) {
@@ -43,12 +49,13 @@ export function seedOnStart() {
   // Seeded promo codes are examples. Production starts with them disabled
   // unless the owner explicitly opts in after reviewing the economics.
   const enableSeededPromos = process.env.ENABLE_SEEDED_PROMOS === "true" || process.env.DELIS_DB_PATH === ":memory:";
+  const rows = includeTestCatalog ? [...products, ...TEST_CATALOG_PRODUCTS] : products;
   const ip = db.prepare(`INSERT OR IGNORE INTO products (id, cat, price, name_uz, name_ru, name_en, volume, badge, stock, rating, reviews, img, features_uz, features_ru, features_en) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`);
   const ipr = db.prepare(`INSERT OR IGNORE INTO promo_codes (code, type, value, min_spend, active, title_uz, title_ru, title_en) VALUES (?,?,?,?,?,?,?,?)`);
   const txn = db.transaction(() => {
-    for (const p of products) ip.run(p.id, p.cat, p.price, p.name_uz, p.name_ru, p.name_en, p.volume, p.badge, p.stock, p.rating, p.reviews, p.img, p.features_uz, p.features_ru, p.features_en);
+    for (const p of rows) ip.run(p.id, p.cat, p.price, p.name_uz, p.name_ru, p.name_en, p.volume, p.badge, p.stock, p.rating, p.reviews, p.img, p.features_uz, p.features_ru, p.features_en);
     for (const pr of promos) ipr.run(pr.code, pr.type, pr.value, pr.min_spend, enableSeededPromos ? pr.active : 0, pr.title_uz, pr.title_ru, pr.title_en);
   });
   txn();
-  console.log(`✅ Seeded ${products.length} products and ${promos.length} promo codes.`);
+  console.log(`✅ Seeded ${rows.length} products and ${promos.length} promo codes.`);
 }

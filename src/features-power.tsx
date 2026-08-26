@@ -36,7 +36,7 @@ export function GiftBuilderSheet({
 }) {
   const { t, lang } = useI18n();
   const [selectedBoxId, setSelectedBoxId] = useState<string>(GIFT_BOX_STYLES[0].id);
-  const [selectedProductIds, setSelectedProductIds] = useState<string[]>(["wax", "glass"]);
+  const [selectedProductIds, setSelectedProductIds] = useState<string[]>(() => PRODUCTS.slice(0, 2).map((p) => p.id));
   const [greetingMsg, setGreetingMsg] = useState("");
   const [senderName, setSenderName] = useState("");
   const [added, setAdded] = useState(false);
@@ -316,10 +316,11 @@ export function ProductComparisonSheet({
   const { t, lang } = useI18n();
 
   // Compare 2 or 3 selected products
-  const [selectedIds, setSelectedIds] = useState<string[]>([
-    initialProduct?.id || "wax",
-    initialProduct?.id === "glass" ? "kitchen" : "glass",
-  ]);
+  const [selectedIds, setSelectedIds] = useState<string[]>(() => {
+    const first = initialProduct?.id || PRODUCTS[0]?.id || "";
+    const second = PRODUCTS.find((p) => p.id !== first)?.id;
+    return [first, ...(second ? [second] : [])].filter(Boolean);
+  });
 
   const comparedProducts = useMemo(
     () => selectedIds.map((id) => PRODUCTS.find((p) => p.id === id)!).filter(Boolean),

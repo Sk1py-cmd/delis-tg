@@ -2,7 +2,6 @@
  * DELIS — Работа с локальной SQLite-базой: путь, подключение, периодический checkpoint.
  */
 import { createRequire } from "module";
-import { DatabaseSync } from "node:sqlite";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import { mkdirSync } from "fs";
@@ -10,9 +9,13 @@ import { mkdirSync } from "fs";
 const require = createRequire(import.meta.url);
 
 class NodeSqliteDatabase {
-  private db: InstanceType<typeof DatabaseSync>;
+  private db: any;
 
   constructor(path: string) {
+    // Lazy-load only as a fallback. A top-level `import "node:sqlite"`
+    // crashes Node < 22.5 (Render / Docker node:20) at module load —
+    // before better-sqlite3 can even be tried.
+    const { DatabaseSync } = require("node:sqlite");
     this.db = new DatabaseSync(path);
   }
 

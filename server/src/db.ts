@@ -138,6 +138,44 @@ export function checkpointDb() {
   } catch { /* ignore */ }
 }
 
+/** Matches snapshot files produced by snapshotDb() — used for pruning. */
+const SNAPSHOT_FILE_RE = /^delis-\d{4}-\d{2}-\d{2}_\d{2}-\d{2}\.db$/;
+
+/**
+ * Local backup fallback for hosts without Supabase (persistent-volume setups
+ * such as the docker-compose ./server/data mount). Writes an online SQLite
+ * snapshot (safe while the DB is in use) and prunes old files, keeping the
+ * newest `keep` snapshots. Returns the written path or null on failure.
+ */
+export async function snapshotDb(
+  database: ReturnType<typeof getDb>,
+  backupDir: string,
+  keep = 48,
+  stampOverride?: string,
+): Promise<string | null> {
+  const { mkdirSync, readdirSync, unlinkSync } = await import("node:fs");
+  const { join: joinPath } = await import("node:path");
+  try {
+    mkdirSync(backupDir, { recursive: true });
+    const now = new Date();
+    const pad = (n: number) => String(n).padStart(2, "0");
+    const stamp = stampOverride ||
+      `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}`;
+    const dest = joinPath(backupDir, `delis-${stamp}.db`);
+    await database.backup(dest);
+    const files = readdirSync(backupDir)
+      .filter((f) => SNAPSHOT_FILE_RE.test(f))
+      .sort();
+    for (const f of files.slice(0, Math.max(0, files.length - keep))) {
+      try { unlinkSync(joinPath(backupDir, f)); } catch { /* already gone */ }
+    }
+    return dest;
+  } catch (e) {
+    console.error("[backup] local snapshot failed:", e);
+    return null;
+  }
+}
+
 function migrate(db: any) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (

@@ -71,7 +71,7 @@ before(async () => {
   const { getDb } = await import("./db.js");
   db = getDb();
   const { seedOnStart } = await import("./seed-runner.js");
-  seedOnStart(); // 8 products + 4 promos
+  seedOnStart(true); // 8 products + 4 promos
 });
 
 describe("DELIS API — money paths", () => {
@@ -225,7 +225,7 @@ describe("DELIS API — money paths", () => {
     db.prepare("UPDATE products SET img = ? WHERE id = 'cloud'").run("images/prod-floor.jpg");
     db.prepare("UPDATE products SET img = ? WHERE id = 'interior'").run("https://cdn.example/custom-interior.jpg");
     const { seedOnStart } = await import("./seed-runner.js");
-    seedOnStart();
+    seedOnStart(true);
     assert.equal((db.prepare("SELECT img FROM products WHERE id = 'cloud'").get() as any).img, "images/prod-cloud.jpg");
     assert.equal((db.prepare("SELECT img FROM products WHERE id = 'interior'").get() as any).img, "https://cdn.example/custom-interior.jpg");
     db.prepare("UPDATE products SET img = ? WHERE id = 'interior'").run("images/prod-interior.jpg");

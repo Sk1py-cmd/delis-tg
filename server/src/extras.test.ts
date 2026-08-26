@@ -54,7 +54,7 @@ before(async () => {
   app = mod.app;
   mod.ensureDb();
   const { seedOnStart } = await import("./seed-runner.js");
-  seedOnStart(); // products only — qr_batches intentionally NOT seeded in prod
+  seedOnStart(true); // products only — qr_batches intentionally NOT seeded in prod
 });
 
 /* ─────────────── QR BATCH REGISTRY ─────────────── */

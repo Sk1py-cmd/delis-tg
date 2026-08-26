@@ -44,20 +44,28 @@ export function CalculatorSheet({ open, onClose, onAdd }: { open: boolean; onClo
   const [freq, setFreq] = useState(0);
   const [addedAll, setAddedAll] = useState(false);
 
-  const product = PRODUCTS.find((p) => p.id === COVERAGE[surface].productId)!;
+  const product = PRODUCTS.find((p) => p.id === COVERAGE[surface].productId);
+  if (!product) {
+    return (
+      <Sheet open={open} onClose={onClose} title={t("calcTitle")}>
+        <p className="pt-2 text-[13px] font-medium text-ink2">Каталог пополняется — калькулятор появится с новыми товарами.</p>
+      </Sheet>
+    );
+  }
   const areaNum = parseFloat(area) || 0;
   const weeklyL = areaNum * COVERAGE[surface].perUnit;
   const monthlyL = weeklyL * FREQ_MULT[freq] * 4.3;
   const packsNeeded = Math.max(1, Math.ceil(monthlyL / parseFloat(product.volume)));
   const coveredM2 = areaNum > 0 ? Math.round((parseFloat(product.volume) / (COVERAGE[surface].perUnit * FREQ_MULT[freq] * 4.3)) * areaNum / Math.max(1, packsNeeded)) : 0;
 
-  const surfaces: { id: Surface; label: string; icon: string }[] = [
+  const allSurfaces: { id: Surface; label: string; icon: string }[] = [
     { id: "floor", label: t("calcSurface1"), icon: "🪵" },
     { id: "tiles", label: t("calcSurface2"), icon: "🧱" },
     { id: "glass", label: t("calcSurface3"), icon: "🪟" },
     { id: "car", label: t("calcSurface4"), icon: "🚗" },
     { id: "salon", label: t("calcSurface5"), icon: "🛋" },
   ];
+  const surfaces = allSurfaces.filter((s) => PRODUCTS.some((p) => p.id === COVERAGE[s.id].productId));
   const freqs = [t("calcFreq1"), t("calcFreq2"), t("calcFreq3")];
 
   const addAll = () => {
@@ -205,7 +213,12 @@ export function QuizSheet({ open, onClose, onAdd }: { open: boolean; onClose: ()
   const [added, setAdded] = useState(false);
 
   const resultIds = useMemo(() => quizPick(answers), [answers]);
-  const resultProducts = resultIds.map((id) => PRODUCTS.find((p) => p.id === id)!).filter(Boolean);
+  const resultProducts = useMemo(() => {
+    const resolved = resultIds
+      .map((id) => PRODUCTS.find((p) => p.id === id))
+      .filter((p): p is Product => Boolean(p));
+    return resolved.length ? resolved : PRODUCTS.slice(0, 4);
+  }, [resultIds]);
 
   const answer = (id: string) => {
     haptic("medium");
@@ -310,11 +323,18 @@ export function SubscriptionSheet({
   onAdd: (p: Product, qty: number) => void;
 }) {
   const { t, lang } = useI18n();
-  const [productId, setProductId] = useState("floor");
+  const [productId, setProductId] = useState(PRODUCTS[0]?.id || "");
   const [qty, setQty] = useState(1);
   const [confirmed, setConfirmed] = useState(false);
 
-  const product = PRODUCTS.find((p) => p.id === productId)!;
+  const product = PRODUCTS.find((p) => p.id === productId);
+  if (!product) {
+    return (
+      <Sheet open={open} onClose={onClose} title={t("subTitle")}>
+        <p className="pt-2 text-[13px] font-medium text-ink2">Каталог пополняется — подписка появится с новыми товарами.</p>
+      </Sheet>
+    );
+  }
   const discountPct = 15;
   const monthly = product.price * qty;
   const monthlyDisc = monthly * (1 - discountPct / 100);

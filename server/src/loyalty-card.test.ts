@@ -35,7 +35,7 @@ before(async () => {
   app = mod.app;
   mod.ensureDb();
   db = (await import("./db.js")).getDb();
-  (await import("./seed-runner.js")).seedOnStart();
+  (await import("./seed-runner.js")).seedOnStart(true);
 });
 
 describe("secure DELIS loyalty card", () => {

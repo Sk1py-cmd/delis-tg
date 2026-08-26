@@ -39,7 +39,7 @@ before(async () => {
   app = module.app;
   module.ensureDb();
   const { seedOnStart } = await import("./seed-runner.js");
-  seedOnStart();
+  seedOnStart(true);
 });
 
 describe("launch hardening", () => {

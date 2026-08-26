@@ -44,7 +44,7 @@ before(async () => {
   const dbMod = await import("./db.js");
   db = dbMod.getDb();
   const { seedOnStart } = await import("./seed-runner.js");
-  seedOnStart();
+  seedOnStart(true);
 });
 
 describe("managed site settings, delivery and home content", () => {

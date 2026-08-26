@@ -109,9 +109,9 @@ describe("catalog data integrity", () => {
     }
   });
 
-  it("has both categories represented", () => {
-    expect(PRODUCTS.some((p) => p.cat === "home")).toBe(true);
-    expect(PRODUCTS.some((p) => p.cat === "car")).toBe(true);
+  it("catalog is non-empty and uses known categories", () => {
+    expect(PRODUCTS.length).toBeGreaterThanOrEqual(1);
+    expect(PRODUCTS.every((p) => p.cat === "home" || p.cat === "car")).toBe(true);
   });
 });
 

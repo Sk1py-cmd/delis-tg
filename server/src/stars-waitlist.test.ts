@@ -60,7 +60,7 @@ before(async () => {
   const { getDb } = await import("./db.js");
   db = getDb();
   const { seedOnStart } = await import("./seed-runner.js");
-  seedOnStart();
+  seedOnStart(true);
 });
 
 describe("Stars shop — server-side redemption", () => {

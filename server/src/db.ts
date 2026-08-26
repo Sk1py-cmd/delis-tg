@@ -52,19 +52,23 @@ class NodeSqliteDatabase {
       return args.map(sanitizeParam);
     };
 
+    const callStmt = (method: "get" | "all" | "run", args: any[]) => {
+      const params = unwrapParams(args);
+      if (Array.isArray(params)) {
+        return (stmt as any)[method](...params);
+      }
+      return (stmt as any)[method](params);
+    };
+
     return {
       get(...args: any[]) {
-        const params = unwrapParams(args);
-        const res = (stmt as any).get(...params);
-        return res ?? undefined;
+        return callStmt("get", args) ?? undefined;
       },
       all(...args: any[]) {
-        const params = unwrapParams(args);
-        return (stmt as any).all(...params);
+        return callStmt("all", args);
       },
       run(...args: any[]) {
-        const params = unwrapParams(args);
-        const res = (stmt as any).run(...params);
+        const res = callStmt("run", args);
         return {
           changes: Number(res.changes),
           lastInsertRowid: Number(res.lastInsertRowid),
@@ -131,7 +135,7 @@ export function checkpointDb() {
   } catch { /* ignore */ }
 }
 
-function migrate(db: Database.Database) {
+function migrate(db: any) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       tg_id        INTEGER PRIMARY KEY,

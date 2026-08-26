@@ -27,6 +27,10 @@ const promos = [
   { code: "UZB2026",  type: "fixed",    value: 20000, min_spend: 100000, active: 1, title_uz: "20 000 so'm",      title_ru: "20 000 сум",    title_en: "20,000 UZS off" },
 ];
 
+const LEGACY_DEMO_IDS = [
+  "wax", "glass", "floor", "shampoo", "cloud", "interior", "kitchen", "wheel"
+];
+
 function upgradeDefaultProductMedia(db: ReturnType<typeof getDb>) {
   const upgrades = [
     ["cloud", "images/prod-floor.jpg", "images/prod-cloud.jpg"],
@@ -40,22 +44,39 @@ function upgradeDefaultProductMedia(db: ReturnType<typeof getDb>) {
 
 export function seedOnStart(includeTestCatalog = false) {
   const db = getDb();
-  const count: any = db.prepare("SELECT COUNT(*) as c FROM products").get();
-  if (count?.c > 0) {
-    upgradeDefaultProductMedia(db);
-    console.log("📦 DB already seeded — defaults checked.");
-    return;
-  }
-  // Seeded promo codes are examples. Production starts with them disabled
-  // unless the owner explicitly opts in after reviewing the economics.
-  const enableSeededPromos = process.env.ENABLE_SEEDED_PROMOS === "true" || process.env.DELIS_DB_PATH === ":memory:";
-  const rows = includeTestCatalog ? [...products, ...TEST_CATALOG_PRODUCTS] : products;
+
+  // Always ensure production real products are present in the DB
   const ip = db.prepare(`INSERT OR IGNORE INTO products (id, cat, price, cost_price, name_uz, name_ru, name_en, volume, badge, stock, rating, reviews, img, features_uz, features_ru, features_en) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`);
-  const ipr = db.prepare(`INSERT OR IGNORE INTO promo_codes (code, type, value, min_spend, active, title_uz, title_ru, title_en) VALUES (?,?,?,?,?,?,?,?)`);
-  const txn = db.transaction(() => {
-    for (const p of rows) ip.run(p.id, p.cat, p.price, Number(p.cost || 0), p.name_uz, p.name_ru, p.name_en, p.volume, p.badge, p.stock, p.rating, p.reviews, p.img, p.features_uz, p.features_ru, p.features_en);
-    for (const pr of promos) ipr.run(pr.code, pr.type, pr.value, pr.min_spend, enableSeededPromos ? pr.active : 0, pr.title_uz, pr.title_ru, pr.title_en);
-  });
-  txn();
-  console.log(`✅ Seeded ${rows.length} products and ${promos.length} promo codes.`);
+  const activateStmt = db.prepare("UPDATE products SET active = 1 WHERE id = ?");
+
+  for (const p of products) {
+    ip.run(p.id, p.cat, p.price, Number(p.cost || 0), p.name_uz, p.name_ru, p.name_en, p.volume, p.badge, p.stock, p.rating, p.reviews, p.img, p.features_uz, p.features_ru, p.features_en);
+    activateStmt.run(p.id);
+  }
+
+  if (includeTestCatalog) {
+    for (const p of TEST_CATALOG_PRODUCTS) {
+      ip.run(p.id, p.cat, p.price, Number(p.cost || 0), p.name_uz, p.name_ru, p.name_en, p.volume, p.badge, p.stock, p.rating, p.reviews, p.img, p.features_uz, p.features_ru, p.features_en);
+      activateStmt.run(p.id);
+    }
+  } else {
+    // Live / production startup: migrate existing databases by deactivating legacy demo items
+    const deactivateStmt = db.prepare("UPDATE products SET active = 0 WHERE id = ?");
+    for (const id of LEGACY_DEMO_IDS) {
+      deactivateStmt.run(id);
+    }
+  }
+
+  const promoCount: any = db.prepare("SELECT COUNT(*) as c FROM promo_codes").get();
+  if (!promoCount || promoCount.c === 0) {
+    const enableSeededPromos = process.env.ENABLE_SEEDED_PROMOS === "true" || process.env.DELIS_DB_PATH === ":memory:";
+    const ipr = db.prepare(`INSERT OR IGNORE INTO promo_codes (code, type, value, min_spend, active, title_uz, title_ru, title_en) VALUES (?,?,?,?,?,?,?,?)`);
+    const txn = db.transaction(() => {
+      for (const pr of promos) ipr.run(pr.code, pr.type, pr.value, pr.min_spend, enableSeededPromos ? pr.active : 0, pr.title_uz, pr.title_ru, pr.title_en);
+    });
+    txn();
+  }
+
+  upgradeDefaultProductMedia(db);
+  console.log(`📦 Seed / migration check completed (active real products synced, legacy demo items deactivated).`);
 }

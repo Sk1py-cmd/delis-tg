@@ -36,6 +36,11 @@ class NodeSqliteDatabase {
     this.db.close();
   }
 
+  async backup(destPath: string) {
+    const escaped = destPath.replace(/'/g, "''");
+    this.db.exec(`VACUUM INTO '${escaped}'`);
+  }
+
   prepare(sql: string) {
     const stmt = this.db.prepare(sql);
 

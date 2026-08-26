@@ -10,14 +10,14 @@ const db = getDb();
 
 const products = [
   {
-    id: "luxe-softener", cat: "home", price: 50000, name_uz: "DELIS Luxe — Mato yumshatgichi", name_ru: "DELIS Luxe — Кондиционер для белья", name_en: "DELIS Luxe — Fabric Conditioner",
+    id: "luxe-softener", cat: "home", price: 50000, cost: 32500, name_uz: "DELIS Luxe — Mato yumshatgichi", name_ru: "DELIS Luxe — Кондиционер для белья", name_en: "DELIS Luxe — Fabric Conditioner",
     volume: "1.4 L", badge: "new", stock: 100, rating: 5, reviews: 0, img: "images/prod-softener.jpg",
     features_uz: "Matoni yumshatadi va dazmollashni osonlashtiradi,Uzoq saqlanuvchi yoqimli hid,Oq va rangli kiyimlar uchun mos",
     features_ru: "Смягчает ткань и облегчает глажение,Стойкий приятный аромат,Подходит для белого и цветного белья",
     features_en: "Softens fabric and eases ironing,Long-lasting pleasant scent,Suitable for white and coloured fabrics",
   },
   {
-    id: "luxe-gel", cat: "home", price: 70000, name_uz: "DELIS Luxe — Kir yuvish geli", name_ru: "DELIS Luxe — Гель для стирки", name_en: "DELIS Luxe — Laundry Gel",
+    id: "luxe-gel", cat: "home", price: 70000, cost: 45500, name_uz: "DELIS Luxe — Kir yuvish geli", name_ru: "DELIS Luxe — Гель для стирки", name_en: "DELIS Luxe — Laundry Gel",
     volume: "2 L", badge: "new", stock: 100, rating: 5, reviews: 0, img: "images/prod-gel.jpg",
     features_uz: "Kuchli dog'larni samarali ketkazadi,Ranglarni asraydigan oqartirish,Ekzotik orxideya ifori",
     features_ru: "Эффективно удаляет стойкие пятна,Отбеливает не вредя цвету,Стойкий аромат экзотической орхидеи",
@@ -34,8 +34,8 @@ const promoCodes = [
 
 // Seed products
 const insertProduct = db.prepare(`
-  INSERT OR IGNORE INTO products (id, cat, price, name_uz, name_ru, name_en, volume, badge, stock, rating, reviews, img, features_uz, features_ru, features_en)
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  INSERT OR IGNORE INTO products (id, cat, price, cost_price, name_uz, name_ru, name_en, volume, badge, stock, rating, reviews, img, features_uz, features_ru, features_en)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `);
 
 const insertPromo = db.prepare(`
@@ -47,7 +47,7 @@ const enableSeededPromos = process.env.ENABLE_SEEDED_PROMOS === "true";
 
 const txn = db.transaction(() => {
   for (const p of products) {
-    insertProduct.run(p.id, p.cat, p.price, p.name_uz, p.name_ru, p.name_en, p.volume, p.badge, p.stock, p.rating, p.reviews, p.img, p.features_uz, p.features_ru, p.features_en);
+    insertProduct.run(p.id, p.cat, p.price, Number(p.cost || 0), p.name_uz, p.name_ru, p.name_en, p.volume, p.badge, p.stock, p.rating, p.reviews, p.img, p.features_uz, p.features_ru, p.features_en);
   }
   for (const pr of promoCodes) {
     insertPromo.run(pr.code, pr.type, pr.value, pr.min_spend, enableSeededPromos ? pr.active : 0, pr.title_uz, pr.title_ru, pr.title_en);

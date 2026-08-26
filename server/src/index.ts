@@ -11,7 +11,7 @@ import cors from "@fastify/cors";
 import rateLimit from "@fastify/rate-limit";
 import fastifyStatic from "@fastify/static";
 import { z } from "zod";
-import { getDb, getDbPath, checkpointDb } from "./db.js";
+import { getDb, getDbPath, checkpointDb, snapshotDb } from "./db.js";
 import { verifyInitData, extractUserId } from "./auth.js";
 import { issueBrowserSession, verifyBrowserSession } from "./browser-session.js";
 import { seedOnStart } from "./seed-runner.js";
@@ -2482,14 +2482,14 @@ app.get("/v1/admin/readiness", async (req, reply) => {
   add("browser_secret", process.env.BROWSER_SESSION_SECRET ? "ok" : "fail", process.env.BROWSER_SESSION_SECRET ? "Dedicated browser session secret configured" : "BROWSER_SESSION_SECRET must be set explicitly");
   const publicApiUrl = String(process.env.PUBLIC_API_URL || "").replace(/\/$/, "");
   add("public_api_url", /^https:\/\/[^/]+/.test(publicApiUrl) ? "ok" : "fail", publicApiUrl || "PUBLIC_API_URL is missing or is not HTTPS");
-  add("backups", supabaseConfigured() ? "ok" : "fail", supabaseConfigured() ? "Supabase backup configured" : "SUPABASE_URL / SUPABASE_SERVICE_KEY missing");
+  add("backups", supabaseConfigured() ? "ok" : "warn", supabaseConfigured() ? "Supabase backup configured" : "Local DB snapshots active (backups/ next to the DB) — add Supabase for off-site storage");
   const costs = db.prepare(`SELECT COUNT(*) AS total, SUM(CASE WHEN cost_price > 0 THEN 1 ELSE 0 END) AS ready FROM products WHERE active = 1`).get() as any;
   const coverage = Number(costs.total || 0) ? Math.round(Number(costs.ready || 0) / Number(costs.total) * 100) : 100;
   add("costs", coverage === 100 ? "ok" : "fail", `Product cost coverage: ${coverage}%`);
   const payments = paymentAvailability();
   add("payments", payments.payme || payments.click || payments.stars ? "ok" : "warn", `payme=${payments.payme}, click=${payments.click}, stars=${payments.stars}, cash=${payments.cash}`);
   const activePromos = Number((db.prepare("SELECT COUNT(*) AS n FROM promo_codes WHERE active = 1").get() as any)?.n || 0);
-  add("promos", "warn", `${activePromos} active promo code(s); owner approval required before launch`);
+  add("promos", activePromos > 0 ? "ok" : "warn", activePromos > 0 ? `${activePromos} active promo code(s)` : "No active promo codes — owner approval required before launch");
   const failed = checks.filter((check) => check.level === "fail").length;
   reply.header("Cache-Control", "no-store");
   return { ready: failed === 0, failed, checks };
@@ -3450,6 +3450,30 @@ async function start() {
       } catch { /* ignore */ }
     });
     console.log("[supabase] DB auto-backup every 30s →", "delis-data/delis.db");
+  } else if (getDbPath() !== ":memory:") {
+    /* Local fallback for persistent-volume hosts (docker-compose ./server/data,
+       VPS). Hourly online snapshots + boot snapshot; pruned to the newest 48
+       by default. For off-site redundancy configure Supabase. */
+    const backupDir = join(dirname(getDbPath()), "backups");
+    const backupEveryMs = 60 * 60 * 1000;
+    let lastSnapshot = 0; // first tick snapshots immediately (boot snapshot)
+    const localBackupTimer = setInterval(() => {
+      try {
+        checkpointDb();
+        if (Date.now() - lastSnapshot >= backupEveryMs) {
+          lastSnapshot = Date.now();
+          void snapshotDb(getDb(), backupDir, Number(process.env.BACKUP_LOCAL_KEEP || 48));
+        }
+      } catch { /* ignore */ }
+    }, 30_000);
+    process.on("exit", () => {
+      if (localBackupTimer) clearInterval(localBackupTimer);
+      try {
+        checkpointDb();
+        void snapshotDb(getDb(), backupDir, Number(process.env.BACKUP_LOCAL_KEEP || 48));
+      } catch { /* ignore */ }
+    });
+    console.log("[backup] local snapshots (boot + hourly) →", backupDir);
   }
 
   // Seed on first run

@@ -1,30 +1,122 @@
 /**
  * DELIS — Работа с локальной SQLite-базой: путь, подключение, периодический checkpoint.
  */
-import Database from "better-sqlite3";
+import { createRequire } from "module";
+import { DatabaseSync } from "node:sqlite";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import { mkdirSync } from "fs";
 
+const require = createRequire(import.meta.url);
+
+class NodeSqliteDatabase {
+  private db: InstanceType<typeof DatabaseSync>;
+
+  constructor(path: string) {
+    this.db = new DatabaseSync(path);
+  }
+
+  pragma(pragmaStr: string) {
+    if (pragmaStr.includes("=") || pragmaStr.includes("wal_checkpoint")) {
+      this.db.exec(`PRAGMA ${pragmaStr}`);
+      return [];
+    }
+    return this.prepare(`PRAGMA ${pragmaStr}`).all();
+  }
+
+  exec(sql: string) {
+    this.db.exec(sql);
+    return this;
+  }
+
+  close() {
+    this.db.close();
+  }
+
+  prepare(sql: string) {
+    const stmt = this.db.prepare(sql);
+
+    const sanitizeParam = (v: any) => (v === undefined ? null : v);
+
+    const unwrapParams = (args: any[]) => {
+      if (args.length === 1 && Array.isArray(args[0])) {
+        return args[0].map(sanitizeParam);
+      }
+      if (args.length === 1 && args[0] && typeof args[0] === "object" && args[0].constructor === Object) {
+        const sanitized: Record<string, any> = {};
+        for (const [k, v] of Object.entries(args[0])) {
+          sanitized[k] = sanitizeParam(v);
+        }
+        return sanitized;
+      }
+      return args.map(sanitizeParam);
+    };
+
+    return {
+      get(...args: any[]) {
+        const params = unwrapParams(args);
+        const res = (stmt as any).get(...params);
+        return res ?? undefined;
+      },
+      all(...args: any[]) {
+        const params = unwrapParams(args);
+        return (stmt as any).all(...params);
+      },
+      run(...args: any[]) {
+        const params = unwrapParams(args);
+        const res = (stmt as any).run(...params);
+        return {
+          changes: Number(res.changes),
+          lastInsertRowid: Number(res.lastInsertRowid),
+        };
+      }
+    };
+  }
+
+  transaction(fn: Function) {
+    const self = this;
+    return (...args: any[]) => {
+      self.exec("BEGIN TRANSACTION");
+      try {
+        const res = fn(...args);
+        self.exec("COMMIT");
+        return res;
+      } catch (err) {
+        try { self.exec("ROLLBACK"); } catch { /* ignore */ }
+        throw err;
+      }
+    };
+  }
+}
+
+export function createDatabase(path: string): any {
+  try {
+    const BetterSqlite3 = require("better-sqlite3");
+    return new BetterSqlite3(path);
+  } catch {
+    return new NodeSqliteDatabase(path) as any;
+  }
+}
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = join(__dirname, "..", "data");
 /** Tests can point DELIS_DB_PATH at ":memory:" or a temp file. */
-const DB_PATH = process.env.DELIS_DB_PATH || join(DATA_DIR, "delis.db");
-
-// create data dir on first run (Render/Docker) — not needed for :memory:
-if (DB_PATH !== ":memory:") {
-  mkdirSync(DATA_DIR, { recursive: true });
-}
-
 export function getDbPath(): string {
-  return DB_PATH;
+  const path = process.env.DELIS_DB_PATH || join(DATA_DIR, "delis.db");
+  if (path !== ":memory:") {
+    mkdirSync(DATA_DIR, { recursive: true });
+  }
+  return path;
 }
 
-let db: Database.Database;
+let db: any;
+let currentDbPath: string | undefined;
 
-export function getDb(): Database.Database {
-  if (!db) {
-    db = new Database(DB_PATH);
+export function getDb(): any {
+  const path = getDbPath();
+  if (!db || currentDbPath !== path) {
+    currentDbPath = path;
+    db = createDatabase(path);
     db.pragma("journal_mode = WAL");
     db.pragma("foreign_keys = ON");
     migrate(db);

@@ -2,10 +2,10 @@
 import { after, it } from "node:test";
 import assert from "node:assert/strict";
 import { unlinkSync } from "node:fs";
-import Database from "better-sqlite3";
+import { createDatabase } from "./db.js";
 
 const path = `/tmp/delis-loyalty-migration-${process.pid}.db`;
-const legacy = new Database(path);
+const legacy = createDatabase(path);
 legacy.exec(`
   CREATE TABLE users (
     tg_id INTEGER PRIMARY KEY, username TEXT, first_name TEXT, last_name TEXT,

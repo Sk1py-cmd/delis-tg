@@ -19,6 +19,7 @@ process.env.DELIS_DISABLE_NOTIFY = "1";
 process.env.SEED_ON_START = "false";
 
 let app: Awaited<typeof import("./index.js")>["app"];
+let db: ReturnType<Awaited<typeof import("./index.js")>["ensureDb"]>;
 
 function makeInitData(user: { id: number; first_name?: string; username?: string }): string {
   const params = new URLSearchParams({
@@ -52,7 +53,7 @@ const orderPayload = (over: Record<string, unknown> = {}) => ({
 before(async () => {
   const mod = await import("./index.js");
   app = mod.app;
-  mod.ensureDb();
+  db = mod.ensureDb();
   const { seedOnStart } = await import("./seed-runner.js");
   seedOnStart(true); // products only — qr_batches intentionally NOT seeded in prod
 });
@@ -203,20 +204,175 @@ describe("B2B access codes", () => {
     assert.match(code, /^B2B-[A-Z0-9]{6}$/);
   });
 
-  it("verify works with auth, rejects strangers' bad codes", async () => {
+  it("admin updates the personal percent and verification returns it", async () => {
+    const updated = await app.inject({
+      method: "PATCH", url: `/v1/admin/b2b-codes/${code}`, headers: ADMIN(),
+      payload: { label: "Priority partner", percent: 17 },
+    });
+    assert.equal(updated.statusCode, 200);
+    assert.equal(updated.json().percent, 17);
+    assert.equal(updated.json().label, "Priority partner");
+
+    const clamped = await app.inject({
+      method: "PATCH", url: `/v1/admin/b2b-codes/${code}`, headers: ADMIN(), payload: { percent: 999 },
+    });
+    assert.equal(clamped.statusCode, 200);
+    assert.equal(clamped.json().percent, 70);
+
+    const restore = await app.inject({
+      method: "PATCH", url: `/v1/admin/b2b-codes/${code}`, headers: ADMIN(), payload: { percent: 17 },
+    });
+    assert.equal(restore.statusCode, 200);
+  });
+
+  it("verify works with auth, returns the percent, and rejects bad codes", async () => {
     const ok = await app.inject({ method: "POST", url: "/v1/b2b/verify", headers: { ...authOf(777200), ...JSON_POST }, payload: { code } });
     assert.equal(ok.statusCode, 200);
     assert.equal(ok.json().ok, true);
+    assert.equal(ok.json().percent, 17);
     const bad = await app.inject({ method: "POST", url: "/v1/b2b/verify", headers: { ...authOf(777200), ...JSON_POST }, payload: { code: "WRONG-000" } });
     assert.equal(bad.statusCode, 404);
     const noAuth = await app.inject({ method: "POST", url: "/v1/b2b/verify", headers: JSON_POST, payload: { code } });
     assert.equal(noAuth.statusCode, 401);
   });
 
+  it("checkout applies the server-side B2B percent and persists its audit fields", async () => {
+    const res = await app.inject({
+      method: "POST", url: "/v1/orders", headers: { ...authOf(777201), ...JSON_POST },
+      payload: orderPayload({ b2bCode: code }),
+    });
+    assert.equal(res.statusCode, 200);
+    assert.equal(res.json().discount, Math.floor(res.json().subtotal * 0.17));
+    assert.equal(res.json().total, res.json().subtotal - res.json().discount);
+  });
+
+  it("rejects an unknown B2B code at checkout", async () => {
+    const res = await app.inject({
+      method: "POST", url: "/v1/orders", headers: { ...authOf(777202), ...JSON_POST },
+      payload: orderPayload({ b2bCode: "B2B-MISSING" }),
+    });
+    assert.equal(res.statusCode, 400);
+    assert.equal(res.json().error, "invalid_b2b_code");
+  });
+
   it("deleted codes stop verifying", async () => {
     await app.inject({ method: "DELETE", url: `/v1/admin/b2b-codes/${code}`, headers: authOf(ADMIN_ID) });
     const res = await app.inject({ method: "POST", url: "/v1/b2b/verify", headers: { ...authOf(777200), ...JSON_POST }, payload: { code } });
     assert.equal(res.statusCode, 404);
+  });
+});
+
+/* ─────────────── PRODUCT GALLERY ─────────────── */
+
+describe("Product gallery", () => {
+  const id = "gallery-test-product";
+  const photos = ["https://example.com/cover.jpg", "images/second.jpg", "images/third.jpg"];
+
+  it("creates a product with ordered photos and uses the first as cover", async () => {
+    const res = await app.inject({
+      method: "POST", url: "/v1/admin/products", headers: ADMIN(),
+      payload: { id, cat: "home", price: 12345, name: "Gallery test", volume: "1 L", stock: 5, gallery: photos },
+    });
+    assert.equal(res.statusCode, 200);
+    assert.equal(res.json().img, photos[0]);
+    assert.deepEqual(res.json().gallery, photos);
+
+    const catalog = await app.inject({ method: "GET", url: "/v1/products?lang=ru" });
+    const product = catalog.json().find((item: any) => item.id === id);
+    assert.equal(product.img, photos[0]);
+    assert.deepEqual(product.gallery, photos);
+  });
+
+  it("reorders the gallery and synchronizes the cover", async () => {
+    const reordered = [photos[2], photos[0]];
+    const update = await app.inject({
+      method: "POST", url: `/v1/admin/products/${id}/update`, headers: ADMIN(), payload: { gallery: reordered },
+    });
+    assert.equal(update.statusCode, 200);
+    const catalog = await app.inject({ method: "GET", url: "/v1/products?lang=ru" });
+    const product = catalog.json().find((item: any) => item.id === id);
+    assert.equal(product.img, reordered[0]);
+    assert.deepEqual(product.gallery, reordered);
+  });
+
+  it("rejects gallery upload for a missing product", async () => {
+    const res = await app.inject({
+      method: "POST", url: "/v1/admin/products/no-such-product/gallery-image", headers: ADMIN(),
+      payload: { dataUrl: "data:image/png;base64,aGVsbG8=" },
+    });
+    assert.equal(res.statusCode, 404);
+    assert.equal(res.json().error, "product_not_found");
+  });
+});
+
+/* ─────────────── ORDER STATUS TRANSITIONS ─────────────── */
+
+describe("Order status transitions are idempotent", () => {
+  const productId = "status-flow-product";
+  const customerId = 777250;
+
+  before(async () => {
+    const created = await app.inject({
+      method: "POST", url: "/v1/admin/products", headers: ADMIN(),
+      payload: { id: productId, cat: "home", price: 100000, name: "Status test", stock: 10 },
+    });
+    assert.equal(created.statusCode, 200);
+  });
+
+  it("rejects skipped transitions and restocks a canceled order only once", async () => {
+    const order = await app.inject({
+      method: "POST", url: "/v1/orders", headers: { ...authOf(customerId), ...JSON_POST },
+      payload: orderPayload({ items: [{ id: productId, qty: 2 }] }),
+    });
+    assert.equal(order.statusCode, 200);
+    const orderId = order.json().order_id;
+    assert.equal((db.prepare("SELECT stock FROM products WHERE id = ?").get(productId) as any).stock, 8);
+
+    const { transitionOrderStatus } = await import("./bot.js");
+    const skipped = await transitionOrderStatus(db, orderId, "delivered");
+    assert.equal(skipped.ok, false);
+    assert.equal(skipped.error, "invalid_status_transition");
+    assert.deepEqual(skipped.allowed, ["preparing", "canceled"]);
+
+    const canceled = await transitionOrderStatus(db, orderId, "canceled");
+    assert.equal(canceled.ok, true);
+    assert.equal((db.prepare("SELECT stock FROM products WHERE id = ?").get(productId) as any).stock, 10);
+
+    const duplicate = await transitionOrderStatus(db, orderId, "canceled");
+    assert.equal(duplicate.ok, true);
+    assert.equal(duplicate.unchanged, true);
+    assert.equal((db.prepare("SELECT stock FROM products WHERE id = ?").get(productId) as any).stock, 10);
+
+    const resurrection = await transitionOrderStatus(db, orderId, "preparing");
+    assert.equal(resurrection.ok, false);
+    assert.equal(resurrection.error, "invalid_status_transition");
+  });
+
+  it("follows the forward flow and awards cashback only once", async () => {
+    const order = await app.inject({
+      method: "POST", url: "/v1/orders", headers: { ...authOf(customerId), ...JSON_POST },
+      payload: orderPayload({ items: [{ id: productId, qty: 1 }] }),
+    });
+    assert.equal(order.statusCode, 200);
+    const orderId = order.json().order_id;
+    const expectedStars = order.json().expectedStars;
+    const starsBefore = Number((db.prepare("SELECT stars FROM users WHERE tg_id = ?").get(customerId) as any).stars);
+    const { transitionOrderStatus } = await import("./bot.js");
+
+    assert.equal((await transitionOrderStatus(db, orderId, "preparing")).ok, true);
+    assert.equal((await transitionOrderStatus(db, orderId, "shipped")).ok, true);
+    assert.equal((await transitionOrderStatus(db, orderId, "delivered")).ok, true);
+    const starsAfter = Number((db.prepare("SELECT stars FROM users WHERE tg_id = ?").get(customerId) as any).stars);
+    assert.equal(starsAfter - starsBefore, expectedStars);
+    assert.equal((db.prepare("SELECT stars_awarded FROM orders WHERE id = ?").get(orderId) as any).stars_awarded, 1);
+
+    const duplicate = await transitionOrderStatus(db, orderId, "delivered");
+    assert.equal(duplicate.unchanged, true);
+    assert.equal(Number((db.prepare("SELECT stars FROM users WHERE tg_id = ?").get(customerId) as any).stars), starsAfter);
+    const events = db.prepare(
+      "SELECT COUNT(*) AS count FROM loyalty_events WHERE tg_id = ? AND source = 'order' AND reference_id = ?",
+    ).get(customerId, orderId) as any;
+    assert.equal(events.count, expectedStars > 0 ? 1 : 0);
   });
 });
 

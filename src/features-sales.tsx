@@ -440,6 +440,7 @@ export function B2bSheet({ open, onClose, onApply }: { open: boolean; onClose: (
   const [error, setError] = useState(false);
   const [checking, setChecking] = useState(false);
   const [partnerLabel, setPartnerLabel] = useState<string | null>(null);
+  const [partnerPercent, setPartnerPercent] = useState(0);
   const [tiers, setTiers] = useState<{ minQty: number; percent: number }[] | null>(null);
 
   // Live wholesale ladder (admin-editable on the server); local mirror as fallback
@@ -466,6 +467,7 @@ export function B2bSheet({ open, onClose, onApply }: { open: boolean; onClose: (
       if (res.ok) {
         setLoggedIn(true);
         setPartnerLabel(res.label || null);
+        setPartnerPercent(res.percent ?? 0);
         haptic("success");
       } else {
         setError(true);
@@ -533,6 +535,11 @@ export function B2bSheet({ open, onClose, onApply }: { open: boolean; onClose: (
             <div>
               <p className="font-display text-[14px] font-bold text-ink">{t("b2bWelcome")}</p>
               <p className="text-[12px] font-medium text-pine/70">DELIS · {lang === "en" ? "Namangan" : lang === "ru" ? "Наманган" : "Namangan"}{partnerLabel ? ` · ${partnerLabel}` : ""}</p>
+              {partnerPercent > 0 && (
+                <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-moss/15 px-2.5 py-1 text-[11px] font-bold text-pine">
+                  {lang === "uz" ? "Shaxsiy chegirma" : lang === "ru" ? "Персональная скидка" : "Personal discount"} −{partnerPercent}%
+                </p>
+              )}
             </div>
           </div>
 

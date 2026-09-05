@@ -135,6 +135,67 @@ export function fulfillOrder(db: Database.Database, orderId: string): { earnedSt
   return { earnedStars: earned };
 }
 
+/** Order status flow (forward-only + cancel). Mirrors the admin API. */
+export const ORDER_STATUS_TRANSITIONS: Record<string, string[]> = {
+  new: ["preparing", "canceled"],
+  preparing: ["shipped", "canceled"],
+  shipped: ["delivered", "canceled"],
+  delivered: [],
+  canceled: [],
+};
+
+/**
+ * Authoritative order status transition — shared by the admin HTTP endpoint
+ * and the Telegram quick-status buttons so both paths behave identically:
+ * restock on cancel, cashback/referral on delivered, customer notification.
+ */
+export async function transitionOrderStatus(
+  db: Database.Database,
+  orderId: string,
+  status: string,
+): Promise<{ ok: boolean; error?: string; unchanged?: boolean; from?: string; allowed?: string[] }> {
+  const order: any = db.prepare("SELECT * FROM orders WHERE id = ?").get(orderId);
+  if (!order) return { ok: false, error: "not_found" };
+  const currentStatus = String(order.status);
+  if (currentStatus === status) return { ok: true, unchanged: true };
+  const allowed = ORDER_STATUS_TRANSITIONS[currentStatus] || [];
+  if (!allowed.includes(status)) {
+    return { ok: false, error: "invalid_status_transition", from: currentStatus, allowed };
+  }
+
+  let restockedProducts: string[] = [];
+  db.transaction(() => {
+    db.prepare("UPDATE orders SET status = ?, updated_at = datetime('now') WHERE id = ?").run(status, orderId);
+    if (status === "canceled" && order.status !== "canceled") {
+      const items = db.prepare(
+        "SELECT product_id, qty FROM order_items WHERE order_id = ? AND stock_taken = 1",
+      ).all(orderId) as any[];
+      for (const it of items) {
+        db.prepare("UPDATE products SET stock = stock + ? WHERE id = ?").run(it.qty, it.product_id);
+        restockedProducts.push(it.product_id);
+      }
+      db.prepare("UPDATE order_items SET stock_taken = 0 WHERE order_id = ?").run(orderId);
+      if (order.promo_code) {
+        db.prepare(`
+          UPDATE promo_codes
+          SET active = 1, redeemed_at = NULL, redeemed_order_id = NULL
+          WHERE code = ? AND single_use = 1
+        `).run(order.promo_code);
+      }
+    }
+  })();
+  for (const pid of restockedProducts) {
+    notifyWaitlist(db, pid).catch((e) => console.error("notifyWaitlist failed:", e));
+  }
+  if (status === "delivered") {
+    fulfillOrder(db, orderId);
+  }
+  if (order.tg_id) {
+    await notifyOrderStatus(db, order.tg_id, orderId, status);
+  }
+  return { ok: true, from: currentStatus };
+}
+
 /* ── Shared: notify a customer about order status (used by API + bot) ── */
 
 export async function notifyOrderStatus(
@@ -187,6 +248,25 @@ export async function notifyOrderStatus(
  * the client's WebApp.sendData silently fails, e.g. app not opened from a
  * keyboard button). Includes an "Accept" button wired to order_accept_*.
  */
+/** Quick status buttons for the admin's new-order message — one tap moves the
+ *  order through the allowed transitions without opening the panel. */
+const STATUS_BUTTON_LABEL: Record<string, string> = {
+  preparing: "📦 В работу / Tayyorlash",
+  shipped: "🚚 Отправлен / Yo'lda",
+  delivered: "✅ Доставлен / Yetkazildi",
+  canceled: "❌ Отменить / Bekor",
+};
+
+function orderStatusKeyboard(orderId: string, status: string, phone?: string): InlineKeyboard {
+  const kb = new InlineKeyboard();
+  const next = ORDER_STATUS_TRANSITIONS[status] || [];
+  for (const s of next) kb.text(STATUS_BUTTON_LABEL[s] || s, `order_status_${orderId}_${s}`);
+  if (next.length) kb.row();
+  if (phone) kb.url("📞 Qo'ng'iroq", `tel:${String(phone).replace(/[^\d+]/g, "")}`);
+  kb.webApp("📋 Batafsil / Открыть", `${APP_URL}?tab=admin`);
+  return kb;
+}
+
 export async function notifyAdminNewOrder(db: Database.Database, orderId: string): Promise<boolean> {
   if (process.env.DELIS_DISABLE_NOTIFY === "1") return false; // tests / maintenance
   const api = getBotApi();
@@ -220,17 +300,14 @@ export async function notifyAdminNewOrder(db: Database.Database, orderId: string
       `📋 <b>Tarkib / Состав:</b>\n${lines || "  —"}\n\n` +
       `💰 <b>Jami / Итого:</b> ${formatPrice(Number(order.total) || 0)}` +
       `${Number(order.discount) > 0 ? ` (−${formatPrice(Number(order.discount))}${order.promo_code ? ` · ${esc(order.promo_code)}` : ""})` : ""}\n` +
+      `${order.b2b_code ? `🤝 B2B: ${esc(order.b2b_code)} (−${Number(order.b2b_percent) || 0}%)\n` : ""}` +
       `🚚 ${order.delivery_method === "pickup" ? "Olib ketish / Самовывоз" : "Yetkazish / Доставка"}${order.delivery_zone ? ` · ${esc(order.delivery_zone)}` : ""}\n` +
       `${order.delivery_address ? `📍 ${esc(order.delivery_address)}\n` : ""}` +
       `${order.delivery_time ? `🕒 ${esc(order.delivery_time)}\n` : ""}` +
       `💳 ${PAY[order.payment_method] || esc(order.payment_method)}\n` +
       `📅 ${esc(order.created_at)}`;
 
-    const kb = new InlineKeyboard().text("✅ Vazifaga olish / В работу", `order_accept_${orderId}`).row();
-    if (order.recipient_phone) {
-      kb.url("📞 Qo'ng'iroq", `tel:${String(order.recipient_phone).replace(/[^\d+]/g, "")}`);
-    }
-    kb.webApp("📋 Batafsil / Открыть", `${APP_URL}?tab=admin`);
+    const kb = orderStatusKeyboard(orderId, String(order.status || "new"), order.recipient_phone || undefined);
     db.prepare("UPDATE orders SET admin_notify_attempts = COALESCE(admin_notify_attempts, 0) + 1 WHERE id = ?").run(orderId);
     await api.sendMessage(ADMIN_CHAT_ID, text, { parse_mode: "HTML", reply_markup: kb });
     db.prepare("UPDATE orders SET admin_notified_at = datetime('now') WHERE id = ?").run(orderId);
@@ -617,34 +694,63 @@ export function startBot(db: Database.Database) {
     await ctx.reply(`✅ ${"Yuborildi / Отправлено"}: ${sent}/${rows.length}`);
   });
 
-  /* ────── "В работу" — admin takes the order into preparing ────── */
+  /* ────── Quick status buttons — admin moves the order straight from the
+     notification (restock / cashback / customer notify handled centrally). ── */
+
+  bot.callbackQuery(/^order_status_(.+)_(new|preparing|shipped|delivered|canceled)$/, async (ctx) => {
+    const orderId = ctx.match![1];
+    const status = ctx.match![2];
+    try {
+      // Only the configured admin may drive the order status flow.
+      if (ctx.from?.id !== ADMIN_CHAT_ID) {
+        await ctx.answerCallbackQuery({ text: "⛔ Faqat admin / Только для админа" });
+        return;
+      }
+      const result = await transitionOrderStatus(db, orderId, status);
+      if (!result.ok) {
+        const msg =
+          result.error === "not_found"
+            ? "Buyurtma topilmadi / Заказ не найден"
+            : result.error === "invalid_status_transition"
+              ? "Bu o'tish mumkin emas / Этот переход запрещён"
+              : "Xatolik / Ошибка";
+        await ctx.answerCallbackQuery({ text: msg });
+        return;
+      }
+      await ctx.answerCallbackQuery({
+        text: result.unchanged
+          ? "Status o'zgarmadi / Статус не изменился"
+          : `✅ ${status.toUpperCase()} · mijozga xabar yuborildi / клиент уведомлён`,
+      });
+      // Update the inline buttons to the new set of allowed transitions so the
+      // admin can keep advancing the order (or cancel) without leaving the chat.
+      try {
+        await ctx.editMessageReplyMarkup({
+          reply_markup: orderStatusKeyboard(orderId, status),
+        });
+      } catch { /* message may be too old / edited elsewhere — ignore */ }
+    } catch (e) {
+      console.error("order_status error:", e);
+      await ctx.answerCallbackQuery({ text: "Xatolik / Ошибка" });
+    }
+  });
+
+  /* ────── "В работу" (legacy accept button) — same as quick "preparing" ────── */
 
   bot.callbackQuery(/^order_accept_(.+)$/, async (ctx) => {
     const orderId = ctx.match![1];
     try {
-      const order: any = db.prepare("SELECT * FROM orders WHERE id = ?").get(orderId);
-      if (!order) {
-        await ctx.answerCallbackQuery({ text: "Buyurtma topilmadi / Заказ не найден" });
+      const result = await transitionOrderStatus(db, orderId, "preparing");
+      if (!result.ok) {
+        await ctx.answerCallbackQuery({
+          text: result.error === "not_found" ? "Buyurtma topilmadi / Заказ не найден" : "Xatolik / Ошибка",
+        });
         return;
-      }
-      if (order.status !== "new") {
-        await ctx.answerCallbackQuery({ text: "Buyurtma allaqachon ishda / Заказ уже в работе" });
-        return;
-      }
-      db.prepare("UPDATE orders SET status = 'preparing', updated_at = datetime('now') WHERE id = ?").run(orderId);
-      // Notify the customer
-      if (Number(order.tg_id) > 0) {
-        const user: any = db.prepare("SELECT language FROM users WHERE tg_id = ?").get(order.tg_id);
-        const lang = (user?.language as "uz" | "ru" | "en") || "uz";
-        const MSG: Record<string, string> = {
-          uz: `📦 <b>Buyurtma #${orderId} zavodda tayyorlanmoqda!</b>`,
-          ru: `📦 <b>Заказ #${orderId} готовится на заводе!</b>`,
-          en: `📦 <b>Order #${orderId} is being prepared!</b>`,
-        };
-        await api.sendMessage(order.tg_id, MSG[lang] || MSG.uz, { parse_mode: "HTML" });
       }
       await ctx.answerCallbackQuery({ text: "✅ Vazifaga olindi / Взято в работу" });
-      await ctx.editMessageText(`${ctx.callbackQuery.message?.text || ""}\n\n✅ <b>${"Admin qabul qildi / Админ принял"} (preparing)</b>`, { parse_mode: "HTML" });
+      try {
+        await ctx.editMessageReplyMarkup({ reply_markup: orderStatusKeyboard(orderId, "preparing") });
+      } catch { /* ignore */ }
     } catch (e) {
       console.error("order_accept error:", e);
       await ctx.answerCallbackQuery({ text: "Xatolik / Ошибка" });

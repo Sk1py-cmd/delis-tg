@@ -34,6 +34,8 @@ export type ComputedTotals = {
   lines: { id: string; qty: number; price: number }[];
   subtotal: number;
   discount: number;
+  /** Part of `discount` granted by a B2B partner code (0 when none). */
+  b2bDiscount: number;
   freeship: boolean;
   deliveryFee: number;
   /** Part of the goods total covered by a gift certificate (0 when none). */
@@ -88,6 +90,9 @@ export function computeTotals(opts: {
   maxDeliveryFee?: number;
   /** Wholesale ladder from the DB (admin-editable). Defaults to WHOLESALE_TIERS. */
   wholesaleTiers?: readonly [number, number][];
+  /** Personal B2B partner discount percent — applied to the goods subtotal
+   *  on top of the ladder. Exclusive with a promo code (keeps margins safe). */
+  b2bPercent?: number;
   /** Face value of a pre-validated ACTIVE gift certificate (UZS). 0 = none. */
   certificateAmount?: number;
   /** Optional seller-safe cart threshold offer; never stacks with promo or wholesale. */
@@ -137,9 +142,18 @@ export function computeTotals(opts: {
     }
   }
 
+  /* Personal B2B partner discount — on top of the ladder, but never stacked
+     with a promo code (same exclusivity rule as the cart nudge). */
+  let b2bDiscount = 0;
+  const b2bPercent = Math.max(0, Math.min(70, Number(opts.b2bPercent || 0)));
+  if (!promoCode && b2bPercent > 0) {
+    b2bDiscount = Math.min(subtotal, Math.floor((subtotal * b2bPercent) / 100));
+    discount += b2bDiscount;
+  }
+
   /* A cart nudge is deliberately exclusive: it cannot reduce wholesale or
-     stack with a code. This keeps the offer profitable for the seller. */
-  if (!promoCode && opts.cartNudge && !lines.some((line) => line.qty >= tiers[0]?.[0])) {
+     stack with a code (promo or B2B). This keeps the offer profitable. */
+  if (!promoCode && b2bDiscount === 0 && opts.cartNudge && !lines.some((line) => line.qty >= tiers[0]?.[0])) {
     const offer = opts.cartNudge;
     if (subtotal >= offer.threshold) {
       discount = Math.min(Math.floor(subtotal * offer.percent / 100), offer.maxDiscount);
@@ -171,5 +185,5 @@ export function computeTotals(opts: {
 
   const promoBenefit = discount + deliveryCredit;
   const total = Math.max(0, goodsAfterPromo - certApplied) + deliveryFee;
-  return { ok: true, totals: { lines, subtotal, discount, freeship, deliveryFee, certApplied, promoBenefit, total } };
+  return { ok: true, totals: { lines, subtotal, discount, b2bDiscount, freeship, deliveryFee, certApplied, promoBenefit, total } };
 }

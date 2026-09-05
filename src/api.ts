@@ -544,6 +544,10 @@ export type ServerOrder = {
   order_id: string;
   subtotal: number;
   discount: number;
+  /** Part of `discount` granted by a B2B partner code (0 when none). */
+  b2bDiscount?: number;
+  /** The personal partner discount percent that was applied (0 when none). */
+  b2bPercent?: number;
   /** Amount covered by the gift certificate (0 when none was applied). */
   certApplied?: number;
   deliveryFee: number;
@@ -578,6 +582,8 @@ export async function createOrder(payload: {
   subtotal: number;
   discount: number;
   promoCode?: string;
+  /** B2B partner code — server validates it and applies the partner's personal discount. */
+  b2bCode?: string;
   /** Gift certificate to redeem with this order (server-validated). */
   certCode?: string;
   deliveryFee: number;
@@ -1119,20 +1125,24 @@ export async function adminPutWholesaleTiers(tiers: WholesaleTier[]): Promise<{ 
 
 /* ─────────── B2B access codes ─────────── */
 
-export async function verifyB2bCode(code: string): Promise<{ ok: boolean; label?: string }> {
+export async function verifyB2bCode(code: string): Promise<{ ok: boolean; label?: string; percent?: number }> {
   const r = await rawJson("/v1/b2b/verify", { method: "POST", body: JSON.stringify({ code }) });
-  return { ok: Boolean(r?.ok), label: r?.label };
+  return { ok: Boolean(r?.ok), label: r?.label, percent: Number(r?.percent || 0) };
 }
 
-export type B2bCodeRow = { code: string; label: string | null; active: number; created_at: string };
+export type B2bCodeRow = { code: string; label: string | null; percent: number; active: number; created_at: string };
 
 export async function fetchAdminB2bCodes(): Promise<B2bCodeRow[]> {
   const r = await apiFetch<{ codes: B2bCodeRow[] }>("/v1/admin/b2b-codes");
-  return r?.codes ?? [];
+  return (r?.codes ?? []).map((c) => ({ ...c, percent: Number(c.percent || 0) }));
 }
 
-export async function adminCreateB2bCode(code?: string, label?: string): Promise<{ ok: boolean; code?: string; error?: string }> {
-  return rawJson("/v1/admin/b2b-codes", { method: "POST", body: JSON.stringify({ code, label }) });
+export async function adminCreateB2bCode(code?: string, label?: string, percent?: number): Promise<{ ok: boolean; code?: string; error?: string }> {
+  return rawJson("/v1/admin/b2b-codes", { method: "POST", body: JSON.stringify({ code, label, percent }) });
+}
+
+export async function adminUpdateB2bCode(code: string, patch: { label?: string; percent?: number }): Promise<{ ok: boolean; error?: string }> {
+  return rawJson(`/v1/admin/b2b-codes/${encodeURIComponent(code)}`, { method: "PATCH", body: JSON.stringify(patch) });
 }
 
 export async function adminDeleteB2bCode(code: string): Promise<{ ok: boolean; error?: string }> {

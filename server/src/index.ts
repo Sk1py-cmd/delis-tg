@@ -283,6 +283,8 @@ const orderSchema = z.object({
   subtotal: z.number().int().min(0).max(100_000_000).optional(),
   discount: z.number().int().min(0).max(100_000_000).optional(),
   promoCode: z.string().max(40).optional(),
+  /** B2B partner code — validated server-side; grants the partner's personal discount. */
+  b2bCode: z.string().max(40).optional(),
   /** Gift certificate code — validated & redeemed server-side. */
   certCode: z.string().max(40).optional(),
   deliveryFee: z.number().int().min(0).max(100_000_000).optional(),
@@ -1504,6 +1506,16 @@ app.post("/v1/orders", {
       return reply.code(400).send({ error: "invalid_certificate" });
     }
   }
+  // B2B partner code → personal discount percent. Validated here; the pure
+  // pricing module applies it on top of the wholesale ladder (promo-exclusive).
+  let b2bPercent = 0;
+  const b2bCode = body.b2bCode?.toUpperCase().trim();
+  if (b2bCode) {
+    const b2b: any = db.prepare("SELECT code, percent FROM b2b_codes WHERE code = ? AND active = 1").get(b2bCode);
+    if (!b2b) return reply.code(400).send({ error: "invalid_b2b_code" });
+    b2bPercent = Math.max(0, Math.min(70, Number(b2b.percent || 0)));
+  }
+
   // ── Delivery fee: admin-editable tariffs (content_settings delivery_config) ──
   const deliveryConfig = getDeliveryConfig();
   // Map any localized zone name back to region id (client sends uz name like "Namangan viloyati")
@@ -1546,13 +1558,14 @@ app.post("/v1/orders", {
     deliveryFeeHint: serverDeliveryHint,
     freeShippingThreshold: deliveryConfig.freeShippingThreshold,
     wholesaleTiers,
+    b2bPercent,
     certificateAmount: cert ? Number(cert.amount) : 0,
     cartNudge: CART_NUDGE,
   });
   if (!priced.ok) {
     return reply.code(400).send(priced.err);
   }
-  const { lines, subtotal, discount, deliveryFee, certApplied, promoBenefit, total } = priced.totals;
+  const { lines, subtotal, discount, b2bDiscount, deliveryFee, certApplied, promoBenefit, total } = priced.totals;
 
   // Profit guard for Stars rewards. Until every exact COGS value is entered,
   // missing costs use the deliberately conservative fallback percentage. The
@@ -1612,8 +1625,9 @@ app.post("/v1/orders", {
     INSERT INTO orders (id, tg_id, subtotal, discount, promo_code, delivery_fee, total,
       delivery_method, delivery_zone, delivery_address, delivery_time,
       recipient_name, recipient_phone, payment_method, payment_status, status,
-      customer_username, customer_name, cert_code, cert_applied, promo_benefit)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'new', ?, ?, ?, ?, ?)
+      customer_username, customer_name, cert_code, cert_applied, promo_benefit,
+      b2b_code, b2b_percent)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'new', ?, ?, ?, ?, ?, ?, ?)
   `);
   const insertItem = db.prepare("INSERT INTO order_items (order_id, product_id, qty, price, cost_price, stock_taken) VALUES (?, ?, ?, ?, ?, ?)");
 
@@ -1638,6 +1652,7 @@ app.post("/v1/orders", {
       body.recipient.name, body.recipient.phone,
       body.payment.method, body.payment.method === "cash" ? "cod" : "pending",
       customerUsername, customerName, certCode || null, certApplied, promoBenefit,
+      b2bCode || null, b2bPercent,
     );
     for (const l of lines) {
       const product = prodStmt.get(l.id) as any;
@@ -1691,6 +1706,8 @@ app.post("/v1/orders", {
     order_id: id,
     subtotal,
     discount,
+    b2bDiscount,
+    b2bPercent,
     certApplied,
     deliveryFee,
     total,
@@ -3380,9 +3397,9 @@ app.post("/v1/b2b/verify", async (req, reply) => {
   if (!tgId) return reply.code(401).send({ error: "unauthorized" });
   const code = String((req.body as any)?.code || "").toUpperCase().trim();
   if (!code) return reply.code(400).send({ error: "invalid_code" });
-  const row: any = db.prepare("SELECT code, label FROM b2b_codes WHERE code = ? AND active = 1").get(code);
+  const row: any = db.prepare("SELECT code, label, percent FROM b2b_codes WHERE code = ? AND active = 1").get(code);
   if (!row) return reply.code(404).send({ ok: false, error: "not_found" });
-  return { ok: true, code: row.code, label: row.label };
+  return { ok: true, code: row.code, label: row.label, percent: Number(row.percent || 0) };
 });
 
 app.get("/v1/admin/b2b-codes", async (req, reply) => {
@@ -3395,13 +3412,29 @@ app.post("/v1/admin/b2b-codes", async (req, reply) => {
   const body = (req.body || {}) as any;
   const code = String(body.code || genHumanCode("B2B", 6)).toUpperCase().trim();
   if (code.length < 4 || code.length > 40) return reply.code(400).send({ error: "invalid_code" });
+  const percent = Math.max(0, Math.min(70, Number(body.percent || 0) || 0));
   const label = String(body.label || "").slice(0, 120) || null;
   try {
-    db.prepare("INSERT INTO b2b_codes (code, label) VALUES (?, ?)").run(code, label);
+    db.prepare("INSERT INTO b2b_codes (code, label, percent) VALUES (?, ?, ?)").run(code, label, percent);
   } catch {
     return reply.code(409).send({ error: "duplicate_code" });
   }
-  return { ok: true, code };
+  return { ok: true, code, percent };
+});
+
+/* Update a partner code's label and/or personal discount without recreating it. */
+app.patch("/v1/admin/b2b-codes/:code", async (req, reply) => {
+  if (!ensureAdmin(req, reply)) return;
+  const code = String((req.params as any).code || "").toUpperCase().trim();
+  const body = (req.body || {}) as any;
+  const current: any = db.prepare("SELECT code, label, percent FROM b2b_codes WHERE code = ?").get(code);
+  if (!current) return reply.code(404).send({ error: "not_found" });
+  const label = body.label !== undefined ? String(body.label || "").slice(0, 120) || null : current.label;
+  const percent = body.percent !== undefined
+    ? Math.max(0, Math.min(70, Number(body.percent) || 0))
+    : Number(current.percent || 0);
+  db.prepare("UPDATE b2b_codes SET label = ?, percent = ? WHERE code = ?").run(label, percent, code);
+  return { ok: true, code, label, percent };
 });
 
 app.delete("/v1/admin/b2b-codes/:code", async (req, reply) => {

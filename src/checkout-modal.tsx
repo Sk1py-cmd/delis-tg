@@ -23,7 +23,7 @@ import {
   type CourierInfo,
 } from "./data";
 import { formatPrice, haptic, openTelegramInvoice, sendDataToBot, requestTelegramContact, type TgUser } from "./kit";
-import { createStarsInvoice, createOrder, fetchPaymentAvailability, hasTelegramSession, isApiConfigured, prepareBrowserCheckoutSession, validatePromo, type PaymentAvailability } from "./api";
+import { createStarsInvoice, createOrder, fetchPaymentAvailability, hasTelegramSession, isApiConfigured, prepareBrowserCheckoutSession, validatePromo, verifyB2bCode, type PaymentAvailability } from "./api";
 import { CONFIG } from "./config";
 import { tgHref, useSiteSettings } from "./site-settings";
 import {
@@ -38,6 +38,7 @@ import {
   IconFactory,
   IconGift,
   IconHome,
+  IconKey,
   IconLock,
   IconMinus,
   IconPin,
@@ -223,6 +224,10 @@ export function CheckoutSheet({
   const [certInput, setCertInput] = useState("");
   const [certApproved, setCertApproved] = useState<{ code: string; amount: number } | null>(null);
   const [certError, setCertError] = useState<string | null>(null);
+  /** B2B partner code validated by the server; grants a personal wholesale discount. */
+  const [b2bInput, setB2bInput] = useState("");
+  const [b2bApproved, setB2bApproved] = useState<{ code: string; percent: number } | null>(null);
+  const [b2bError, setB2bError] = useState<string | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
 
   const currentRegion = useMemo(() => UZBEKISTAN_REGIONS.find((r) => r.id === selectedRegionId) || UZBEKISTAN_REGIONS[0], [selectedRegionId]);
@@ -297,6 +302,9 @@ export function CheckoutSheet({
         setCertApproved(null);
         setCertInput("");
         setCertError(null);
+        setB2bApproved(null);
+        setB2bInput("");
+        setB2bError(null);
         setShowConfirm(false);
         setOrderError(null);
         setRequiresTelegram(false);
@@ -359,11 +367,17 @@ export function CheckoutSheet({
     return 0;
   }, [effectivePromoObj, promoEligible, subtotal]);
 
+  /* B2B partner code → personal wholesale discount on the goods subtotal.
+     Exclusive with a promo code (mirrors the server, which never stacks them). */
+  const b2bPercent = b2bApproved?.percent ?? 0;
+  const b2bActive = Boolean(b2bApproved && !effectivePromo && b2bPercent > 0);
+  const b2bDiscount = b2bActive ? Math.min(subtotal, Math.floor((subtotal * b2bPercent) / 100)) : 0;
+
   /* Cart nudge: 3% off big carts (500k / max 10k). Deliberately exclusive — it
-     never stacks with a promo code or wholesale quantities (mirrors server). */
-  const cartNudgeActive = !effectivePromo && !hasWholesaleQuantity;
+     never stacks with a promo code, a B2B code or wholesale quantities. */
+  const cartNudgeActive = !effectivePromo && !hasWholesaleQuantity && !b2bActive;
   const nudgeDiscount = cartNudgeActive ? cartNudgeDiscount(subtotal, getCartNudge()) : 0;
-  const totalDiscount = discount + nudgeDiscount;
+  const totalDiscount = discount + b2bDiscount + nudgeDiscount;
   const nudgeThreshold = getCartNudge().threshold;
   const nudgeRemaining = cartNudgeActive ? Math.max(0, nudgeThreshold - subtotal) : 0;
 
@@ -453,6 +467,29 @@ export function CheckoutSheet({
     haptic("success");
   };
 
+  /** Server-validates a B2B partner code and shows its personal discount. */
+  const handleApplyB2b = async () => {
+    const code = b2bInput.trim().toUpperCase();
+    if (!code) return;
+    haptic("medium");
+    setB2bError(null);
+    if (!isApiConfigured()) {
+      setB2bError(lang === "ru" ? "B2B-код проверяется только онлайн" : lang === "en" ? "B2B code is verified online only" : "B2B kod faqat onlayn tekshiriladi");
+      haptic("error");
+      return;
+    }
+    const res = await verifyB2bCode(code);
+    if (res.ok) {
+      setB2bApproved({ code, percent: res.percent ?? 0 });
+      setB2bInput("");
+      haptic("success");
+    } else {
+      setB2bApproved(null);
+      setB2bError(lang === "ru" ? "Код не найден или недействителен" : lang === "en" ? "Code not found or invalid" : "Kod topilmadi yoki yaroqsiz");
+      haptic("error");
+    }
+  };
+
   /** Server-validates a gift certificate code (never trusts the amount typed). */
   const handleApplyCert = async () => {
     const code = certInput.trim().toUpperCase();
@@ -539,7 +576,7 @@ export function CheckoutSheet({
       recipient: { name: recipientName, phone: recipientPhone },
       payment: { method: paymentMethod },
       subtotal, discount, promoCode: promoOk ? (promoToSend || undefined) : undefined,
-      certCode: certApproved?.code, deliveryFee, total: grandTotal,
+      b2bCode: b2bApproved?.code, certCode: certApproved?.code, deliveryFee, total: grandTotal,
     });
     if (res.kind !== "ok") {
       // Keep both the checkout form and cart intact so the customer can retry.
@@ -551,6 +588,8 @@ export function CheckoutSheet({
       const paymentUnavailable = rejected && res.error === "payment_not_configured";
       const stockChanged = rejected && res.error === "insufficient_stock";
       const productUnavailable = rejected && (res.error === "unknown_product" || res.error === "inactive_product");
+      const b2bRejected = rejected && res.error === "invalid_b2b_code";
+      if (b2bRejected) setB2bApproved(null);
       setRequiresTelegram(telegramRequired);
       setOrderError(
         telegramRequired
@@ -583,6 +622,12 @@ export function CheckoutSheet({
                 : lang === "en"
                   ? "One of the items is no longer available on the server. Refresh the catalog and try again."
                   : "Mahsulotlardan biri serverda mavjud emas. Katalogga qaytib, yangilab qayta urinib ko'ring."
+            : b2bRejected
+              ? lang === "ru"
+                ? "B2B-код недействителен. Введите актуальный код партнёра."
+                : lang === "en"
+                  ? "The B2B code is invalid. Enter a current partner code."
+                  : "B2B kod yaroqsiz. Amaldagi hamkor kodini kiriting."
             : guarded
               ? lang === "ru"
                 ? "Эта награда не подходит к выбранной корзине. Уберите купон или измените состав заказа."
@@ -990,6 +1035,36 @@ export function CheckoutSheet({
                 {promoError && <p className="mt-1.5 text-[11px] font-semibold text-[#B3402E]">{promoError}</p>}
               </div>
 
+              {/* B2B partner code — server-validated; grants a personal wholesale discount */}
+              <div className="rounded-[22px] border border-ink/18 bg-card p-3.5">
+                <p className="flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-[0.2em] text-ink/65"><IconKey size={12} className="text-amber" />{lang === "uz" ? "B2B hamkor kodi" : lang === "ru" ? "B2B-код партнёра" : "B2B partner code"}</p>
+                {b2bApproved ? (
+                  <div className="mt-2.5 flex items-center justify-between rounded-[16px] bg-sagetint px-3.5 py-2.5">
+                    <div className="flex items-center gap-2">
+                      <IconCheck size={15} className="text-moss" />
+                      <div>
+                        <p className="font-mono text-[13px] font-bold text-pine">{b2bApproved.code}</p>
+                        <p className="text-[11px] font-semibold text-pine/70">
+                          {lang === "uz" ? "Shaxsiy chegirma" : lang === "ru" ? "Персональная скидка" : "Personal discount"} −{b2bApproved.percent}%
+                        </p>
+                      </div>
+                    </div>
+                    <button onClick={() => { haptic("light"); setB2bApproved(null); }} className="text-[12px] font-bold text-[#B3402E]">{t("promoRemove")}</button>
+                  </div>
+                ) : (
+                  <div className="mt-2 flex gap-2">
+                    <input
+                      value={b2bInput}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => { setB2bInput(e.target.value); setB2bError(null); }}
+                      placeholder={lang === "uz" ? "B2B-XXXXXX" : lang === "ru" ? "Код партнёра B2B-XXXXXX" : "Partner code B2B-XXXXXX"}
+                      className="min-w-0 flex-1 rounded-[16px] border border-ink/15 bg-paper px-3.5 py-2.5 text-[13px] font-semibold uppercase text-ink outline-none placeholder:normal-case placeholder:text-ink/75"
+                    />
+                    <button onClick={() => void handleApplyB2b()} className="press shrink-0 rounded-[16px] bg-amber px-4 py-2.5 text-[13px] font-bold text-white">{t("promoApply")}</button>
+                  </div>
+                )}
+                {b2bError && <p className="mt-1.5 text-[11px] font-semibold text-[#B3402E]">{b2bError}</p>}
+              </div>
+
               {/* Gift certificate — server-validated, single-use */}
               <div className="rounded-[22px] border border-amberdeep/25 bg-gradient-to-br from-amber/[0.07] to-transparent p-3.5">
                 <p className="flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-[0.2em] text-ink/65"><IconGift size={13} /> {lang === "uz" ? "Sovg'a sertifikati" : lang === "ru" ? "Подарочный сертификат" : "Gift certificate"}</p>
@@ -1054,6 +1129,7 @@ export function CheckoutSheet({
                   </div>
                 )}
                 {nudgeDiscount > 0 && <div className="flex justify-between rounded-[12px] bg-amber/[0.10] px-2.5 py-1.5 text-[13px] font-bold text-amberdeep"><span>{t("cartNudgeApplied")}</span><span>-{formatPrice(nudgeDiscount, lang)}</span></div>}
+                {b2bDiscount > 0 && <div className="flex justify-between rounded-[12px] bg-sage/10 px-2.5 py-1.5 text-[13px] font-bold text-pine"><span className="flex items-center gap-1"><IconKey size={13} /> B2B ({b2bApproved?.code})</span><span>-{formatPrice(b2bDiscount, lang)}</span></div>}
                 {discount > 0 && <div className="flex justify-between text-[13px] font-bold text-amberdeep"><span>{t("discount")} ({appliedPromo})</span><span>-{formatPrice(discount, lang)}</span></div>}
                 <div className="flex justify-between text-[13px] font-medium text-ink/60"><span>{t("deliveryFee")}</span><span className="font-semibold text-moss">{subtotal >= getFreeShippingThreshold() ? t("deliveryFree") : `${t("fromPrice")} ${formatPrice(getDeliveryConfig().defaultTariff.courier, lang)}`}</span></div>
                 <div className="flex items-baseline justify-between border-t border-ink/18 pt-3"><span className="font-display text-[14px] font-bold text-ink">{t("cartTotal")}</span><span className="font-display text-[20px] font-bold tracking-tight text-ink">{formatPrice(subtotal - totalDiscount, lang)}</span></div>
@@ -1226,6 +1302,7 @@ export function CheckoutSheet({
               <div className="rounded-[24px] border border-ink/18 bg-card p-4 space-y-2.5">
                 <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-ink/65">{t("cartSummary")}</p>
                 <div className="flex justify-between text-[13px] font-medium text-ink/60"><span>{t("subtotal")} ({totalItemsCount} {t("itemsWord")})</span><span>{formatPrice(subtotal, lang)}</span></div>
+                {b2bDiscount > 0 && <div className="flex justify-between text-[13px] font-bold text-pine"><span className="flex items-center gap-1"><IconKey size={13} /> B2B ({b2bApproved?.code})</span><span>-{formatPrice(b2bDiscount, lang)}</span></div>}
                 {discount > 0 && <div className="flex justify-between text-[13px] font-bold text-amberdeep"><span>{t("discount")} ({appliedPromo})</span><span>-{formatPrice(discount, lang)}</span></div>}
                 {certAppliedEstimate > 0 && <div className="flex justify-between text-[13px] font-bold text-amberdeep"><span className="flex items-center gap-1"><IconGift size={13} /> {lang === "uz" ? "Sertifikat" : lang === "ru" ? "Сертификат" : "Certificate"} ({certApproved?.code})</span><span>-{formatPrice(certAppliedEstimate, lang)}</span></div>}
                 <div className="flex justify-between text-[13px] font-medium text-ink/60"><span>{t("deliveryFee")}</span><span className="font-semibold text-moss">{deliveryFee === 0 ? t("deliveryFree") : formatPrice(deliveryFee, lang)}</span></div>
@@ -1273,6 +1350,7 @@ export function CheckoutSheet({
                   )}
                   <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] items-start gap-3 text-[12px]"><span className="text-ink/65">{t("deliveryMethodLabel")}</span><span className="text-right font-semibold leading-snug text-ink">{deliveryMethod === "pickup" ? t("methodPickup") : deliveryMethod === "bts_express" ? t("methodBtsExpress") : t("methodCourierUzb")}</span></div>
                   <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 text-[12px]"><span className="text-ink/65">{t("deliveryFee")}</span><span className="text-right font-semibold text-moss">{deliveryFee === 0 ? t("deliveryFree") : formatPrice(deliveryFee, lang)}</span></div>
+                  {b2bDiscount > 0 && <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 text-[12px]"><span className="flex items-center gap-1 text-ink/65"><IconKey size={12} /> B2B ({b2bApproved?.code})</span><span className="text-right font-semibold text-pine">-{formatPrice(b2bDiscount, lang)}</span></div>}
                   {appliedPromo && <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 text-[12px]"><span className="text-ink/65">{t("discount")}</span><span className="text-right font-semibold text-amberdeep">-{formatPrice(discount, lang)} ({appliedPromo})</span></div>}
                   {certAppliedEstimate > 0 && <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 text-[12px]"><span className="flex items-center gap-1 text-ink/65"><IconGift size={12} /> {lang === "uz" ? "Sertifikat" : lang === "ru" ? "Сертификат" : "Certificate"}</span><span className="text-right font-semibold text-amberdeep">-{formatPrice(certAppliedEstimate, lang)}</span></div>}
                   <div className="flex items-baseline justify-between border-t border-ink/14 pt-2.5"><span className="text-[13px] font-bold text-ink">{t("cartTotal")}</span><span className="font-display text-[20px] font-bold text-ink">{formatPrice(grandTotal, lang)}</span></div>

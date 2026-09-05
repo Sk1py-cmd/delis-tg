@@ -25,6 +25,7 @@ import {
   adminPutWholesaleTiers,
   fetchAdminB2bCodes,
   adminCreateB2bCode,
+  adminUpdateB2bCode,
   adminDeleteB2bCode,
   fetchAdminCertificates,
   adminIssueCertificate,
@@ -293,8 +294,10 @@ export function B2bAdminTab({ onToast }: { onToast: ToastFn }) {
   const [tiers, setTiers] = useState<WholesaleTier[] | null>(null);
   const [codes, setCodes] = useState<B2bCodeRow[] | null>(null);
   const [newLabel, setNewLabel] = useState("");
+  const [newPercent, setNewPercent] = useState("0");
   const [customCode, setCustomCode] = useState("");
   const [busy, setBusy] = useState(false);
+  const [savingCode, setSavingCode] = useState<string | null>(null);
 
   const refresh = () => {
     void fetchWholesaleTiers().then((rows) => setTiers(rows));
@@ -329,15 +332,32 @@ export function B2bAdminTab({ onToast }: { onToast: ToastFn }) {
     haptic("medium");
     const codeTrim = customCode.trim().toUpperCase();
     const payloadCode = codeTrim || undefined;
-    const res = await adminCreateB2bCode(payloadCode, newLabel.trim() || undefined);
+    const pct = Math.max(0, Math.min(70, parseInt(newPercent || "0", 10) || 0));
+    const res = await adminCreateB2bCode(payloadCode, newLabel.trim() || undefined, pct);
     if (res.ok && res.code) {
       haptic("success");
       onToast(`${L("Kod yaratildi", "Код создан", "Code created")}: ${res.code}`);
       setNewLabel("");
+      setNewPercent("0");
       setCustomCode("");
       refresh();
     } else {
       onToast(res.error === "duplicate_code" ? L("Bunday kod bor", "Такой код уже есть", "Code exists") : L("Xatolik", "Ошибка", "Error"));
+    }
+  };
+
+  const saveCodePercent = async (code: string, value: string) => {
+    const pct = Math.max(0, Math.min(70, parseInt(value || "0", 10) || 0));
+    setSavingCode(code);
+    const res = await adminUpdateB2bCode(code, { percent: pct });
+    setSavingCode(null);
+    if (res.ok) {
+      haptic("success");
+      setCodes((prev) => (prev ? prev.map((c) => (c.code === code ? { ...c, percent: pct } : c)) : prev));
+      onToast(L("Skidka saqlandi", "Скидка сохранена", "Discount saved"));
+    } else {
+      haptic("error");
+      onToast(L("Xatolik", "Ошибка", "Error"));
     }
   };
 
@@ -411,7 +431,7 @@ export function B2bAdminTab({ onToast }: { onToast: ToastFn }) {
           <p className="py-3 text-center text-[12px] italic text-ink2">{L("Kodlar yo'q — birinchisini yarating", "Кодов нет — создайте первый", "No codes — create the first")}</p>
         ) : (
           codes.map((c) => (
-            <div key={c.code} className="flex items-center justify-between rounded-[14px] border border-ink/12 bg-paper px-3 py-2.5">
+            <div key={c.code} className="flex items-center justify-between gap-2 rounded-[14px] border border-ink/12 bg-paper px-3 py-2.5">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
                   <p className="font-mono text-[12px] font-bold text-ink">{c.code}</p>
@@ -425,12 +445,27 @@ export function B2bAdminTab({ onToast }: { onToast: ToastFn }) {
                 {c.label && <p className="truncate text-[11px] font-semibold text-ink/60">{c.label}</p>}
                 <p className="text-[10px] font-medium text-ink/45">{new Date(c.created_at).toLocaleDateString(lang === "en" ? "en-GB" : "ru-RU")}</p>
               </div>
-              <button
-                onClick={() => void adminDeleteB2bCode(c.code).then((r) => { if (r.ok) { onToast(L("O'chirildi", "Удалён", "Deleted")); refresh(); } })}
-                className={btnDanger}
-              >
-                <IconTrash size={13} />
-              </button>
+              <div className="flex shrink-0 items-center gap-1">
+                <input
+                  key={c.code}
+                  type="number"
+                  min={0}
+                  max={70}
+                  defaultValue={c.percent || 0}
+                  onBlur={(e) => { if (Number(e.target.value) !== (c.percent || 0)) void saveCodePercent(c.code, e.target.value); }}
+                  onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
+                  className={inputCls + " !w-[64px] !py-1 text-center"}
+                  disabled={savingCode === c.code}
+                  title={L("Shaxsiy chegirma %", "Персональная скидка %", "Personal discount %")}
+                />
+                <span className="text-[11px] font-bold text-ink/50">%</span>
+                <button
+                  onClick={() => void adminDeleteB2bCode(c.code).then((r) => { if (r.ok) { onToast(L("O'chirildi", "Удалён", "Deleted")); refresh(); } })}
+                  className={btnDanger}
+                >
+                  <IconTrash size={13} />
+                </button>
+              </div>
             </div>
           ))
         )}
@@ -438,8 +473,21 @@ export function B2bAdminTab({ onToast }: { onToast: ToastFn }) {
           <input value={customCode} onChange={(e) => setCustomCode(e.target.value.toUpperCase())} placeholder={L("O'z kodi (bo'sh = avto B2B-XXXXXX)", "Свой код (пусто = авто B2B-XXXXXX)", "Custom code (empty = auto B2B-XXXXXX)")} className={inputCls + " uppercase placeholder:normal-case"} />
           <div className="flex gap-2">
             <input value={newLabel} onChange={(e) => setNewLabel(e.target.value)} placeholder={L("Hamkor nomi (ixtiyoriy)", "Название партнёра (необязательно)", "Partner name (optional)")} className={inputCls + " flex-1"} />
+            <input
+              type="number" min={0} max={70} value={newPercent}
+              onChange={(e) => setNewPercent(e.target.value)}
+              className={inputCls + " !w-[64px] text-center"}
+              title={L("Shaxsiy chegirma %", "Персональная скидка %", "Personal discount %")}
+            />
             <button onClick={() => void addCode()} className={btnDark}>+ {L("Kod", "Код", "Code")}</button>
           </div>
+          <p className="text-[10px] font-medium text-ink/45">
+            {L(
+              "Shaxsiy chegirma % — kod bilan buyurtmada tovar summasiga qo'shimcha chegirma (sifat nazoratida promo bilan birga ishlamaydi).",
+              "Персональная скидка % — дополнительная скидка на сумму товаров при заказе с этим кодом (не суммируется с промокодом).",
+              "Personal discount % — extra off the goods subtotal on orders with this code (not stacked with a promo).",
+            )}
+          </p>
         </div>
       </div>
     </div>

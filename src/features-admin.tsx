@@ -33,7 +33,7 @@ import { PaymentsAdminTab } from "./payments-admin";
 import { LoyaltyAdminTab } from "./loyalty-admin";
 import { BrandMark, BrandWordmark } from "./brand";
 import { AdminCard, AdminSectionLabel, AdminKpi, AdminBar, AdminStatusPill, AdminChip, AdminSearch, AdminBtn, AdminEmpty } from "./admin-ui";
-import { adminDeleteStory, adminSetStoryStatus, fetchAdminStories, fetchAdminOrders, adminSetOrderStatus, adminSetPaymentStatus, fetchAdminPromos, adminUpsertPromo, adminDeletePromo, adminUploadProductImage, fetchAdminStats, fetchOrdersCsv, downloadAdminBackup, isApiConfigured, type ApiStory, type AdminStats } from "./api";
+import { adminDeleteStory, adminSetStoryStatus, fetchAdminStories, fetchAdminOrders, adminSetOrderStatus, adminSetPaymentStatus, fetchAdminPromos, adminUpsertPromo, adminDeletePromo, adminUploadProductGalleryImage, fetchAdminStats, fetchOrdersCsv, downloadAdminBackup, isApiConfigured, type ApiStory, type AdminStats } from "./api";
 import { QrBatchesAdminTab, B2bAdminTab, CertsAdminTab } from "./features-admin-extra";
 import { PRODUCTS as PRODUCT_CATALOG } from "./data";
 import { loadAdminStories, saveAdminStories, type Story as AdminStory } from "./stories";
@@ -226,6 +226,7 @@ export function AdminPanelSheet({
   const [editVolumes, setEditVolumes] = useState<string[]>([]);
   const [editCostPrice, setEditCostPrice] = useState<string>("");
   const [editBadge, setEditBadge] = useState<"" | "new" | "best">("");
+  const [editGallery, setEditGallery] = useState<string[]>([]);
 
   // New product creation state
   const [showNewProduct, setShowNewProduct] = useState(false);
@@ -239,7 +240,7 @@ export function AdminPanelSheet({
   const [newProductBadge, setNewProductBadge] = useState<"" | "new" | "best">("");
   const [newProductStock, setNewProductStock] = useState("24");
   const [newProductDesc, setNewProductDesc] = useState("");
-  const [newProductImg, setNewProductImg] = useState("");
+  const [newProductGallery, setNewProductGallery] = useState<string[]>([]);
   const [uploadingPhotoId, setUploadingPhotoId] = useState<string | null>(null);
 
   // Inventory search
@@ -298,23 +299,47 @@ export function AdminPanelSheet({
   const [importText, setImportText] = useState("");
 
   const handleImportProducts = async () => {
-    // Expected format per line:  name;price;category(home|car);volume;stock;cost
+    // Expected format per line:
+    //   name;price;category(home|car);volume;stock;cost;photo
+    // photo (optional): up to several photos separated by "|" — the first one is
+    //   the cover, the rest form the gallery. Each photo can be an existing public
+    //   path ("images/prod-wax.jpg"), a bare filename ("prod-wax.jpg" — auto-prefixed
+    //   with images/), an absolute https:// URL, or a data:image/... URL.
+    //   Empty → default image per category.
+    const normalizeImg = (raw: string): string => {
+      let out = raw.trim();
+      if (!out) return "";
+      if (/^(https?:|data:image\/|blob:)/i.test(out)) return out;
+      out = out.replace(/^\/+/, ""); // "/images/x.jpg" → "images/x.jpg"
+      if (!out.startsWith("images/")) out = `images/${out}`; // "prod-wax.jpg" → "images/prod-wax.jpg"
+      return out;
+    };
     const lines = importText.split("\n").map((l) => l.trim()).filter(Boolean);
     let added = 0;
     let failed = 0;
     for (const line of lines) {
       const parts = line.split(";").map((s) => s.trim());
       if (parts.length < 2) continue;
-      const [name, priceStr, cat, volume, stockStr, costStr] = parts;
+      const [name, priceStr, cat, volume, stockStr, costStr, imgRaw] = parts;
       const price = parseInt(priceStr, 10);
       if (!name || isNaN(price) || price < 1000) continue;
+      const category = cat === "car" ? "car" : "home";
+      const photos = (imgRaw || "")
+        .split("|")
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .map(normalizeImg)
+        .filter(Boolean);
+      const img = photos[0] || (category === "car" ? "images/prod-wax.jpg" : "images/prod-floor.jpg");
+      const gallery = photos.length > 1 ? photos : undefined;
       const product: Product = {
         id: `custom-${Date.now()}-${added}`,
-        cat: cat === "car" ? "car" : "home",
+        cat: category,
         price,
         costPrice: costStr ? parseInt(costStr, 10) || undefined : undefined,
         name,
-        img: cat === "car" ? "images/prod-wax.jpg" : "images/prod-floor.jpg",
+        img,
+        gallery,
         desc: { uz: name, ru: name, en: name },
         spec: { uz: "Import", ru: "Импорт", en: "Imported" },
         volume: volume || "500 ml",
@@ -340,7 +365,7 @@ export function AdminPanelSheet({
     onToast(
       added > 0
         ? (lang === "ru" ? `✓ Импортировано товаров: ${added}` : lang === "en" ? `✓ Imported products: ${added}` : `✓ Import qilindi: ${added}`)
-        : (lang === "ru" ? "Формат: Название;Цена;home|car;Объём;Остаток;Себестоимость" : lang === "en" ? "Format: Name;Price;home|car;Volume;Stock;Cost" : "Format: Nomi;Narxi;home|car;Hajmi;Qoldiq;Sotib olish")
+        : (lang === "ru" ? "Формат: Название;Цена;home|car;Объём;Остаток;Себестоимость;Фото" : lang === "en" ? "Format: Name;Price;home|car;Volume;Stock;Cost;Photo" : "Format: Nomi;Narxi;home|car;Hajmi;Qoldiq;Sotib olish;Foto")
     );
     if (added > 0) { setImportText(""); setShowImport(false); }
   };
@@ -356,17 +381,20 @@ export function AdminPanelSheet({
     onReady(dataUrl);
   };
 
-  const handleReplacePhoto = (productId: string, file: File) => {
+  /* Upload one extra gallery photo (cover stays unchanged) and append it to the
+     in-progress edit list. Offline fallback keeps the data URL — it is re-uploaded
+     by the server when the admin saves the gallery (the update endpoint uploads
+     any data:image/... item). */
+  const handleEditAddPhoto = (productId: string, file: File) => {
     void handlePhotoPick(file, async (dataUrl) => {
       setUploadingPhotoId(productId);
       try {
-        const res = await adminUploadProductImage(productId, dataUrl);
+        const res = await adminUploadProductGalleryImage(productId, dataUrl);
         if (res?.ok) {
-          onUpdateProduct(productId, { img: res.img });
-          onToast(res.stored === "supabase" ? "✓ Foto CDN ga yuklandi" : "✓ Foto yangilandi");
+          setEditGallery((prev) => [...prev, res.img]);
+          onToast(res.stored === "supabase" ? "✓ Foto CDN ga yuklandi" : "✓ Foto qo'shildi");
         } else {
-          // Server unreachable — keep the photo locally so the UI still updates
-          onUpdateProduct(productId, { img: dataUrl });
+          setEditGallery((prev) => [...prev, dataUrl]);
           onToast("Server javob bermadi — foto lokal saqlandi");
         }
       } finally {
@@ -433,7 +461,8 @@ export function AdminPanelSheet({
       costPrice: newProductCost ? parseInt(newProductCost) : undefined,
       badge: newProductBadge || undefined,
       name,
-      img: newProductImg || (newProductCat === "home" ? "images/prod-floor.jpg" : "images/prod-wax.jpg"),
+      img: newProductGallery[0] || (newProductCat === "home" ? "images/prod-floor.jpg" : "images/prod-wax.jpg"),
+      gallery: newProductGallery.length > 1 ? newProductGallery : undefined,
       desc: { uz: newProductDesc || name, ru: newProductDesc || name, en: newProductDesc || name },
       spec: { uz: "Yangi mahsulot", ru: "Новый продукт", en: "New product" },
       volume: newProductVolume,
@@ -479,7 +508,7 @@ export function AdminPanelSheet({
     setNewProductBadge("");
     setNewProductStock("24");
     setNewProductDesc("");
-    setNewProductImg("");
+    setNewProductGallery([]);
   };
 
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -1004,26 +1033,43 @@ export function AdminPanelSheet({
                   </button>
                 ))}
               </div>
-              <label className="flex cursor-pointer items-center justify-center rounded-[12px] border border-dashed border-moss/40 bg-sagetint/40 px-3 py-2.5 text-center text-[12px] font-bold text-pine">
-                  <span className="inline-flex items-center gap-1.5"><IconSymbol symbol={newProductImg ? "✅" : "📷"} size={15} /> {newProductImg ? "Foto tanlandi" : "Foto yuklash"}</span>
-                  <input
-                    type="file"
-                    accept="image/png,image/jpeg,image/webp"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-                      void handlePhotoPick(file, (dataUrl) => setNewProductImg(dataUrl));
-                      e.target.value = "";
-                    }}
-                  />
-                </label>
-              {newProductImg && (
-                <div className="flex items-center gap-2 rounded-[12px] bg-paper2 p-2">
-                  <img src={newProductImg} alt="Preview" className="h-12 w-12 rounded-[10px] object-cover" />
-                  <span className="text-[11px] font-semibold text-ink2">Preview foto mahsulotda ko'rinadi</span>
+              <div>
+                <p className="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-ink/50">{lang === "ru" ? "Фото товара (несколько — листаются)" : lang === "en" ? "Product photos (several — swipeable)" : "Mahsulot fotolari (bir nechta — suriladi)"}</p>
+                <div className="flex flex-wrap gap-2">
+                  {newProductGallery.map((src, i) => (
+                    <div key={`${i}-${src.slice(-12)}`} className="relative">
+                      <img src={src} alt="" className="h-16 w-16 rounded-[12px] border border-ink/15 object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => { haptic("light"); setNewProductGallery(newProductGallery.filter((_, idx) => idx !== i)); }}
+                        className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#B3402E] text-white"
+                      >
+                        <IconClose size={11} />
+                      </button>
+                      {i === 0 && (
+                        <span className="absolute bottom-1 left-1 rounded-full bg-black/60 px-1.5 text-[8px] font-bold text-white">
+                          {lang === "ru" ? "Обложка" : lang === "en" ? "Cover" : "Muqova"}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                  <label className="flex h-16 w-16 cursor-pointer flex-col items-center justify-center gap-0.5 rounded-[12px] border border-dashed border-moss/40 bg-sagetint/40 text-pine">
+                    <IconPlus size={16} />
+                    <span className="text-[9px] font-bold">{lang === "ru" ? "Фото" : "Foto"}</span>
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        void handlePhotoPick(file, (dataUrl) => setNewProductGallery((prev) => [...prev, dataUrl]));
+                        e.target.value = "";
+                      }}
+                    />
+                  </label>
                 </div>
-              )}
+              </div>
               <textarea
                 value={newProductDesc}
                 onChange={(e) => setNewProductDesc(e.target.value)}
@@ -1757,12 +1803,15 @@ export function AdminPanelSheet({
               ) : (
                 <div className="space-y-2 rounded-[18px] border border-moss/25 bg-sagetint/30 p-3 animate-fadein">
                   <p className="text-[11px] font-bold text-pine">
-                    {lang === "ru" ? "Каждая строка: Название;Цена;home|car;Объём;Остаток;Себестоимость" : lang === "en" ? "Each line: Name;Price;home|car;Volume;Stock;Cost" : "Har bir qator: Nomi;Narxi;home|car;Hajmi;Qoldiq;Sotib olish"}
+                    {lang === "ru" ? "Каждая строка: Название;Цена;home|car;Объём;Остаток;Себестоимость;Фото" : lang === "en" ? "Each line: Name;Price;home|car;Volume;Stock;Cost;Photo" : "Har bir qator: Nomi;Narxi;home|car;Hajmi;Qoldiq;Sotib olish;Foto"}
+                  </p>
+                  <p className="text-[10px] font-semibold leading-relaxed text-pine/70">
+                    {lang === "ru" ? "Фото (необязательно): images/xxx.jpg · имя файла (prod-wax.jpg) · https://… · data:image/…. Несколько фото — через «|» (первое = обложка)." : lang === "en" ? "Photo (optional): images/xxx.jpg · a filename (prod-wax.jpg) · https://… · data:image/…. Several photos — separated by «|» (first = cover)." : "Foto (ixtiyoriy): images/xxx.jpg · fayl nomi (prod-wax.jpg) · https://… · data:image/…. Bir nechta foto — «|» bilan (birinchisi = muqova)."}
                   </p>
                   <textarea
                     value={importText}
                     onChange={(e) => setImportText(e.target.value)}
-                    placeholder={"Window Cleaner;55000;home;500 ml;24;40000\nCar Wax;128000;car;500 ml;12;90000"}
+                    placeholder={"Window Cleaner;55000;home;500 ml;24;40000;images/prod-glass.jpg\nCar Wax;128000;car;500 ml;12;90000;prod-wax.jpg|prod-wheel.jpg"}
                     rows={4}
                     className="w-full resize-none rounded-[12px] border border-ink/15 bg-paper px-3 py-2.5 font-mono text-[12px] font-semibold text-ink outline-none focus:border-moss"
                   />
@@ -2016,6 +2065,8 @@ export function AdminPanelSheet({
                                 volumes: editVolumes.length > 0 ? editVolumes.map((l) => ({ label: l, liters: parseFloat(l) * (l.includes("ml") ? 0.001 : 1) })) : undefined,
                                 costPrice: editCostPrice ? parseInt(editCostPrice) : undefined,
                                 badge: editBadge || undefined,
+                                img: editGallery[0] || p.img,
+                                gallery: editGallery.length ? editGallery : undefined,
                                 desc: { uz: editDesc, ru: editDesc, en: editDesc } as any,
                               });
                               if (!outcome.ok) {
@@ -2034,21 +2085,48 @@ export function AdminPanelSheet({
                           <span>Saqlash / Сохранить</span>
                         </button>
 
-                        <label className={`flex cursor-pointer items-center justify-center gap-2 rounded-[12px] border border-dashed border-moss/40 bg-sagetint/40 py-2.5 text-[12px] font-bold text-pine ${uploadingPhotoId === p.id ? "opacity-60 pointer-events-none" : ""}`}>
-                          <IconSymbol symbol={uploadingPhotoId === p.id ? "⏳" : "📷"} size={15} /> {uploadingPhotoId === p.id ? "Yuklanmoqda… / Загрузка…" : "Foto mahsulotni almashtirish"}
-                          <input
-                            type="file"
-                            accept="image/png,image/jpeg,image/webp"
-                            className="hidden"
-                            disabled={uploadingPhotoId === p.id}
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (!file) return;
-                              handleReplacePhoto(p.id, file);
-                              e.target.value = ""; // re-picking the same file must re-trigger
-                            }}
-                          />
-                        </label>
+                        <div>
+                          <p className="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-ink/50">
+                            {lang === "ru" ? "Фото (первое = обложка)" : lang === "en" ? "Photos (first = cover)" : "Fotolar (birinchisi = muqova)"}
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {editGallery.map((src, i) => (
+                              <div key={`${i}-${src.slice(-12)}`} className="relative">
+                                <img src={src} alt="" className="h-16 w-16 rounded-[12px] border border-ink/15 object-cover" />
+                                {editGallery.length > 1 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => { haptic("light"); setEditGallery(editGallery.filter((_, idx) => idx !== i)); }}
+                                    className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#B3402E] text-white"
+                                  >
+                                    <IconClose size={11} />
+                                  </button>
+                                )}
+                                {i === 0 && (
+                                  <span className="absolute bottom-1 left-1 rounded-full bg-black/60 px-1.5 text-[8px] font-bold text-white">
+                                    {lang === "ru" ? "Обложка" : lang === "en" ? "Cover" : "Muqova"}
+                                  </span>
+                                )}
+                              </div>
+                            ))}
+                            <label className={`flex h-16 w-16 cursor-pointer flex-col items-center justify-center gap-0.5 rounded-[12px] border border-dashed border-moss/40 bg-sagetint/40 text-pine ${uploadingPhotoId === p.id ? "opacity-60 pointer-events-none" : ""}`}>
+                              {uploadingPhotoId === p.id ? <IconClock size={16} /> : <IconPlus size={16} />}
+                              <span className="text-[9px] font-bold">{uploadingPhotoId === p.id ? "…" : lang === "ru" ? "Фото" : "Foto"}</span>
+                              <input
+                                type="file"
+                                accept="image/png,image/jpeg,image/webp"
+                                className="hidden"
+                                disabled={uploadingPhotoId === p.id}
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (!file) return;
+                                  handleEditAddPhoto(p.id, file);
+                                  e.target.value = ""; // re-picking the same file must re-trigger
+                                }}
+                              />
+                            </label>
+                          </div>
+                        </div>
                       </div>
                     ) : (
                       <div className="flex gap-2">
@@ -2080,6 +2158,7 @@ export function AdminPanelSheet({
                             setEditCostPrice(typeof p.costPrice === "number" && p.costPrice > 0 ? String(p.costPrice) : "");
                             setEditBadge(p.badge || "");
                             setEditCat(p.cat);
+                            setEditGallery(p.gallery && p.gallery.length ? [...p.gallery] : [p.img]);
                           }}
                         className="press flex h-9 flex-1 items-center justify-center gap-1.5 rounded-[14px] bg-paper2 text-[12px] font-bold text-ink2 hover:text-ink"
                       >

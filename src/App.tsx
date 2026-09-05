@@ -107,6 +107,7 @@ type ServerProductInfo = {
   id: string; cat: string; price: number; name: string;
   volume?: string | null; badge?: string | null; stock?: number;
   rating?: number; reviewsCount?: number; img?: string | null;
+  gallery?: string[] | null;
   soldToday?: number; soldTotal?: number;
 };
 
@@ -143,6 +144,7 @@ function mergeServerCatalog(base: Product[], serverList: ServerProductInfo[]): P
       // Preserve the new bundled brand cover while an older API deployment
       // still returns the known reused default. Any admin/custom media wins.
       img: sp.img && sp.img !== LEGACY_DEFAULT_MEDIA[sp.id] ? sp.img : localBase.img,
+      gallery: sp.gallery && sp.gallery.length ? sp.gallery : localBase.gallery,
       volume: sp.volume || localBase.volume,
       soldToday: typeof sp.soldToday === "number" ? sp.soldToday : localBase.soldToday,
       soldTotal: typeof sp.soldTotal === "number" ? sp.soldTotal : localBase.soldTotal,
@@ -769,7 +771,7 @@ function Shell() {
     const outcome = await adminAddProduct(product);
     if (!outcome.ok) return outcome;
 
-    const savedProduct = { ...product, img: outcome.img || product.img };
+    const savedProduct = { ...product, img: outcome.img || product.img, gallery: outcome.gallery || product.gallery };
     setProductsList((prev) => [savedProduct, ...prev]);
     try {
       const custom = JSON.parse(localStorage.getItem("delis_custom_products") || "[]") as Product[];

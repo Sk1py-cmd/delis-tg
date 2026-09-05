@@ -544,6 +544,10 @@ export type ServerOrder = {
   order_id: string;
   subtotal: number;
   discount: number;
+  /** Part of `discount` granted by a B2B partner code (0 when none). */
+  b2bDiscount?: number;
+  /** The personal partner discount percent that was applied (0 when none). */
+  b2bPercent?: number;
   /** Amount covered by the gift certificate (0 when none was applied). */
   certApplied?: number;
   deliveryFee: number;
@@ -578,6 +582,8 @@ export async function createOrder(payload: {
   subtotal: number;
   discount: number;
   promoCode?: string;
+  /** B2B partner code — server validates it and applies the partner's personal discount. */
+  b2bCode?: string;
   /** Gift certificate to redeem with this order (server-validated). */
   certCode?: string;
   deliveryFee: number;
@@ -682,7 +688,7 @@ export async function createStarsInvoice(orderId: string): Promise<{
  *  (a product that appears in the UI but cannot be ordered because the
  *  server never saved it). */
 export type AdminSaveOutcome =
-  | { ok: true; id?: string; img?: string }
+  | { ok: true; id?: string; img?: string; gallery?: string[] }
   | { ok: false; offline: boolean; status?: number; error?: string };
 
 export async function adminAddProduct(product: Product): Promise<AdminSaveOutcome> {
@@ -692,8 +698,8 @@ export async function adminAddProduct(product: Product): Promise<AdminSaveOutcom
       headers: { "Content-Type": "application/json", ...authHeader() },
       body: JSON.stringify(product),
     });
-    const body = await res.json().catch(() => null) as { id?: string; img?: string; error?: string } | null;
-    if (res.ok) return { ok: true, id: body?.id, img: body?.img };
+    const body = await res.json().catch(() => null) as { id?: string; img?: string; gallery?: string[]; error?: string } | null;
+    if (res.ok) return { ok: true, id: body?.id, img: body?.img, gallery: body?.gallery };
     return { ok: false, offline: false, status: res.status, error: body?.error };
   } catch {
     return { ok: false, offline: true };
@@ -721,6 +727,17 @@ export async function adminUploadProductImage(
   dataUrl: string,
 ): Promise<{ ok: boolean; img: string; stored: "supabase" | "db" } | null> {
   return apiFetch(`/v1/admin/products/${encodeURIComponent(productId)}/image`, {
+    method: "POST",
+    body: JSON.stringify({ dataUrl }),
+  });
+}
+
+/** Upload one extra gallery photo (cover stays unchanged). Returns the final image URL. */
+export async function adminUploadProductGalleryImage(
+  productId: string,
+  dataUrl: string,
+): Promise<{ ok: boolean; img: string; stored: "supabase" | "db" } | null> {
+  return apiFetch(`/v1/admin/products/${encodeURIComponent(productId)}/gallery-image`, {
     method: "POST",
     body: JSON.stringify({ dataUrl }),
   });
@@ -1108,20 +1125,24 @@ export async function adminPutWholesaleTiers(tiers: WholesaleTier[]): Promise<{ 
 
 /* ─────────── B2B access codes ─────────── */
 
-export async function verifyB2bCode(code: string): Promise<{ ok: boolean; label?: string }> {
+export async function verifyB2bCode(code: string): Promise<{ ok: boolean; label?: string; percent?: number }> {
   const r = await rawJson("/v1/b2b/verify", { method: "POST", body: JSON.stringify({ code }) });
-  return { ok: Boolean(r?.ok), label: r?.label };
+  return { ok: Boolean(r?.ok), label: r?.label, percent: Number(r?.percent || 0) };
 }
 
-export type B2bCodeRow = { code: string; label: string | null; active: number; created_at: string };
+export type B2bCodeRow = { code: string; label: string | null; percent: number; active: number; created_at: string };
 
 export async function fetchAdminB2bCodes(): Promise<B2bCodeRow[]> {
   const r = await apiFetch<{ codes: B2bCodeRow[] }>("/v1/admin/b2b-codes");
-  return r?.codes ?? [];
+  return (r?.codes ?? []).map((c) => ({ ...c, percent: Number(c.percent || 0) }));
 }
 
-export async function adminCreateB2bCode(code?: string, label?: string): Promise<{ ok: boolean; code?: string; error?: string }> {
-  return rawJson("/v1/admin/b2b-codes", { method: "POST", body: JSON.stringify({ code, label }) });
+export async function adminCreateB2bCode(code?: string, label?: string, percent?: number): Promise<{ ok: boolean; code?: string; error?: string }> {
+  return rawJson("/v1/admin/b2b-codes", { method: "POST", body: JSON.stringify({ code, label, percent }) });
+}
+
+export async function adminUpdateB2bCode(code: string, patch: { label?: string; percent?: number }): Promise<{ ok: boolean; error?: string }> {
+  return rawJson(`/v1/admin/b2b-codes/${encodeURIComponent(code)}`, { method: "PATCH", body: JSON.stringify(patch) });
 }
 
 export async function adminDeleteB2bCode(code: string): Promise<{ ok: boolean; error?: string }> {

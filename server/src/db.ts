@@ -530,9 +530,12 @@ function migrate(db: any) {
     );
 
     -- Access codes for the B2B office (issued to partners by the admin).
+    -- percent = the partner's personal wholesale discount, applied to the
+    -- goods subtotal at checkout on top of the quantity ladder.
     CREATE TABLE IF NOT EXISTS b2b_codes (
       code       TEXT PRIMARY KEY,
       label      TEXT,
+      percent    INTEGER NOT NULL DEFAULT 0,
       active     INTEGER NOT NULL DEFAULT 1,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
@@ -654,6 +657,9 @@ function migrate(db: any) {
   if (!productCols.some((c) => c.name === "cost_price")) {
     db.exec("ALTER TABLE products ADD COLUMN cost_price INTEGER DEFAULT 0");
   }
+  if (!productCols.some((c) => c.name === "gallery")) {
+    db.exec("ALTER TABLE products ADD COLUMN gallery TEXT");
+  }
   const itemCols = db.prepare("PRAGMA table_info(order_items)").all() as { name: string }[];
   if (!itemCols.some((c) => c.name === "stock_taken")) {
     // 1 = warehouse stock was decremented for this line (restock on cancel);
@@ -691,6 +697,18 @@ function migrate(db: any) {
   }
   if (!orderCols.some((c) => c.name === "stuck_alerted_at")) {
     db.exec("ALTER TABLE orders ADD COLUMN stuck_alerted_at TEXT");
+  }
+  if (!orderCols.some((c) => c.name === "b2b_code")) {
+    // B2B partner code used for this order (nullable) + its discount percent.
+    db.exec("ALTER TABLE orders ADD COLUMN b2b_code TEXT");
+  }
+  if (!orderCols.some((c) => c.name === "b2b_percent")) {
+    db.exec("ALTER TABLE orders ADD COLUMN b2b_percent INTEGER DEFAULT 0");
+  }
+  const b2bCols = db.prepare("PRAGMA table_info(b2b_codes)").all() as { name: string }[];
+  if (!b2bCols.some((c) => c.name === "percent")) {
+    // Each partner code may carry its own personal discount (0 = ladder only).
+    db.exec("ALTER TABLE b2b_codes ADD COLUMN percent INTEGER NOT NULL DEFAULT 0");
   }
   const promoCols = db.prepare("PRAGMA table_info(promo_codes)").all() as { name: string }[];
   if (!promoCols.some((c) => c.name === "tg_id")) {

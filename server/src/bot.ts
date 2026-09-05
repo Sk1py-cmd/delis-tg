@@ -43,6 +43,45 @@ export function formatPrice(n: number): string {
 }
 
 /**
+ * Scope-aware order lookup for the public /track command.
+ * Order ids are enumerable (DL-1000…DL-9999) and courier_note is free text
+ * written by the manager, so the scope is what keeps this an owner-only
+ * feature:
+ *  - the configured admin and allowed couriers may look up ANY order
+ *    (by id or by BTS code substring in courier_note);
+ *  - a regular user only ever matches THEIR OWN orders;
+ *  - no identity (channels/service messages) → nothing.
+ */
+export function trackOrderLookup(
+  db: Database.Database,
+  input: { fromId?: number; chatId?: number | string; arg: string },
+): { found: false } | { found: true; order: any } {
+  const code = String(input.arg || "").trim().toUpperCase().replace(/[-\s]/g, "");
+  if (!code) return { found: false };
+  const fromId = typeof input.fromId === "number" ? input.fromId : null;
+  const isStaff =
+    (fromId !== null && fromId === ADMIN_CHAT_ID) ||
+    (typeof input.chatId === "number" && COURIER_IDS.has(input.chatId));
+  const order: any = isStaff
+    ? db.prepare(
+        `SELECT * FROM orders
+         WHERE REPLACE(REPLACE(id, '-', ''), ' ', '') = ?
+            OR REPLACE(REPLACE(courier_note, '-', ''), ' ', '') LIKE '%' || ? || '%'
+         ORDER BY created_at DESC LIMIT 1`,
+      ).get(code, code)
+    : fromId
+      ? db.prepare(
+          `SELECT * FROM orders
+           WHERE tg_id = ?
+             AND (REPLACE(REPLACE(id, '-', ''), ' ', '') = ?
+                  OR REPLACE(REPLACE(courier_note, '-', ''), ' ', '') LIKE '%' || ? || '%')
+           ORDER BY created_at DESC LIMIT 1`,
+        ).get(fromId, code, code)
+      : null;
+  return order ? { found: true, order } : { found: false };
+}
+
+/**
  * Fulfil an order exactly once (first time it becomes paid OR delivered):
  *  - awards the Stars cashback to the customer (rate by current tier)
  *  - updates the loyalty tier
@@ -598,7 +637,7 @@ export function startBot(db: Database.Database) {
   bot.on("edited_message:location", handleCourierLocation);
 
   bot.command("track", async (ctx) => {
-    const arg = (ctx.match || "").trim().toUpperCase();
+    const arg = (ctx.match || "").trim();
     if (!arg) {
       await ctx.reply(
         `🔍 <b>Buyurtmani kuzatish</b>\n\nBuyurtma raqamini yoki BTS kodini yuboring:\n\n<code>/track DL-8421</code>\n<code>/track BTS-84521</code>`,
@@ -606,15 +645,9 @@ export function startBot(db: Database.Database) {
       );
       return;
     }
-    const code = arg.replace(/[-\s]/g, "");
-    const order: any = db
-      .prepare(
-        `SELECT * FROM orders
-         WHERE REPLACE(REPLACE(id, '-', ''), ' ', '') = ?
-            OR REPLACE(REPLACE(courier_note, '-', ''), ' ', '') LIKE '%' || ? || '%'
-         ORDER BY created_at DESC LIMIT 1`,
-      )
-      .get(code, code);
+    // Ownership is enforced inside the lookup (owner only; admin/courier any).
+    const lookedUp = trackOrderLookup(db, { fromId: ctx.from?.id, chatId: ctx.chat?.id, arg });
+    const order: any = lookedUp.found ? lookedUp.order : null;
     if (!order) {
       await ctx.reply(`🔍 <code>${esc(arg)}</code> — ${"buyurtma topilmadi / заказ не найден"}`);
       return;

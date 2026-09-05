@@ -2149,6 +2149,231 @@ app.post("/v1/me/chat", { config: { rateLimit: { max: 10, timeWindow: "1 minute"
   return reply.code(201).send({ id, deliveredToAdmin, time: Date.now() });
 });
 
+/* ─────────────── SUPPORT SETTINGS (editable from the admin panel) ───────────────
+ * The customer's "Chat with manager" sheet used to have the greeting and
+ * quick questions hard-coded in the front-end bundle; now they live in
+ * content_settings and can be changed from the admin panel without a release. */
+
+const SUPPORT_SETTINGS_KEY = "support_settings";
+const SUPPORT_LANGS = ["uz", "ru", "en"] as const;
+type SupportLang = (typeof SUPPORT_LANGS)[number];
+
+const SUPPORT_DEFAULTS: Record<SupportLang, { greeting: string; quickQuestions: string[] }> = {
+  uz: {
+    greeting: "Assalomu alaykum! Xabaringiz to'g'ridan-to'g'ri DELIS menejeriga boradi.",
+    quickQuestions: ["🕒 Buyurtmam qachon yetib keladi?", "📦 Tovar borligini tekshirib bering", "💳 To'lov qanday qilaman?", "🚚 Yetkazish qancha turadi?"],
+  },
+  ru: {
+    greeting: "Здравствуйте! Сообщение отправляется напрямую менеджеру DELIS.",
+    quickQuestions: ["🕒 Когда приедет мой заказ?", "📦 Проверьте наличие товара", "💳 Как оплатить заказ?", "🚚 Сколько стоит доставка?"],
+  },
+  en: {
+    greeting: "Hello! Your message goes directly to a DELIS manager.",
+    quickQuestions: ["🕒 When will my order arrive?", "📦 Check product availability", "💳 How do I pay?", "🚚 How much is delivery?"],
+  },
+};
+
+/** Wire shape (matches the front-end SupportSettings type): per-language
+ * greeting/quickQuestions keyed by language. */
+type SupportSettingsOut = {
+  greeting: Record<SupportLang, string>;
+  quickQuestions: Record<SupportLang, string[]>;
+};
+
+function shapeDefaults(): SupportSettingsOut {
+  return {
+    greeting: { uz: SUPPORT_DEFAULTS.uz.greeting, ru: SUPPORT_DEFAULTS.ru.greeting, en: SUPPORT_DEFAULTS.en.greeting },
+    quickQuestions: { uz: SUPPORT_DEFAULTS.uz.quickQuestions, ru: SUPPORT_DEFAULTS.ru.quickQuestions, en: SUPPORT_DEFAULTS.en.quickQuestions },
+  };
+}
+
+function readSupportSettings(): SupportSettingsOut {
+  const row = db.prepare("SELECT value_json FROM content_settings WHERE key = ?").get(SUPPORT_SETTINGS_KEY) as
+    | { value_json: string }
+    | undefined;
+  if (!row) return shapeDefaults();
+  try {
+    const saved: any = JSON.parse(row.value_json);
+    const out = shapeDefaults();
+    for (const lang of SUPPORT_LANGS) {
+      const greeting = typeof saved?.greeting?.[lang] === "string" ? saved.greeting[lang].trim() : "";
+      const questions = Array.isArray(saved?.quickQuestions?.[lang])
+        ? saved.quickQuestions[lang].map((q: unknown) => String(q).trim()).filter(Boolean).slice(0, 8)
+        : [];
+      if (greeting) out.greeting[lang] = greeting;
+      if (questions.length) out.quickQuestions[lang] = questions;
+    }
+    return out;
+  } catch {
+    return shapeDefaults();
+  }
+}
+
+app.get("/v1/support-settings", async () => readSupportSettings());
+
+const supportSettingsSchema = z
+  .object({
+    greeting: z
+      .object({ uz: z.string().max(300), ru: z.string().max(300), en: z.string().max(300) })
+      .strict()
+      .partial()
+      .optional(),
+    quickQuestions: z
+      .object({
+        uz: z.array(z.string().max(80)).max(8),
+        ru: z.array(z.string().max(80)).max(8),
+        en: z.array(z.string().max(80)).max(8),
+      })
+      .strict()
+      .partial()
+      .optional(),
+  })
+  .strict();
+
+app.post("/v1/admin/support-settings", async (req, reply) => {
+  if (!ensureAdmin(req, reply)) return;
+  const parsed = supportSettingsSchema.safeParse(req.body);
+  if (!parsed.success) return reply.code(400).send({ error: "invalid_settings", details: parsed.error.flatten() });
+  // Empty values mean "fall back to the built-in default" — store only overrides.
+  const clean: Record<string, Record<SupportLang, unknown>> = {};
+  if (parsed.data.greeting) {
+    const g: Record<SupportLang, string> = {} as Record<SupportLang, string>;
+    for (const lang of SUPPORT_LANGS) {
+      const v = String(parsed.data.greeting[lang] ?? "").trim();
+      if (v) g[lang] = v;
+    }
+    if (Object.keys(g).length) clean.greeting = g;
+  }
+  if (parsed.data.quickQuestions) {
+    const q: Record<SupportLang, string[]> = {} as Record<SupportLang, string[]>;
+    for (const lang of SUPPORT_LANGS) {
+      const list = (parsed.data.quickQuestions[lang] ?? []).map((s) => s.trim()).filter(Boolean).slice(0, 8);
+      if (list.length) q[lang] = list;
+    }
+    if (Object.keys(q).length) clean.quickQuestions = q;
+  }
+  db.prepare(`
+    INSERT INTO content_settings (key, value_json, updated_at)
+    VALUES (?, ?, datetime('now'))
+    ON CONFLICT(key) DO UPDATE SET value_json = excluded.value_json, updated_at = datetime('now')
+  `).run(SUPPORT_SETTINGS_KEY, JSON.stringify(clean));
+  return { ok: true, settings: readSupportSettings() };
+});
+
+/* ─────────────── SUPPORT INBOX (admin panel) ───────────────
+ * Customers can already write via /v1/me/chat; the admin panel gets the same
+ * threads with the ability to reply without opening Telegram. */
+
+app.get("/v1/admin/support/threads", async (req, reply) => {
+  if (!ensureAdmin(req, reply)) return;
+  const rows: any[] = db.prepare(`
+    SELECT s.tg_id,
+           u.first_name, u.username,
+           s.text AS last_text, s.sender AS last_sender, s.created_at AS last_at,
+           (SELECT COUNT(*) FROM support_messages sm WHERE sm.tg_id = s.tg_id) AS total
+    FROM support_messages s
+    JOIN (SELECT tg_id, MAX(rowid) AS r FROM support_messages GROUP BY tg_id) g
+      ON s.tg_id = g.tg_id AND s.rowid = g.r
+    LEFT JOIN users u ON u.tg_id = s.tg_id
+    ORDER BY s.rowid DESC
+    LIMIT 100
+  `).all();
+  return rows.map((row) => ({
+    tgId: Number(row.tg_id),
+    name: String(row.first_name || ""),
+    username: String(row.username || ""),
+    lastText: String(row.last_text || ""),
+    lastSender: row.last_sender === "customer" ? "customer" : "manager",
+    lastAt: Date.parse(String(row.last_at).replace(" ", "T") + "Z") || 0,
+    total: Number(row.total || 0),
+  }));
+});
+
+app.get("/v1/admin/support/threads/:tgId", async (req, reply) => {
+  if (!ensureAdmin(req, reply)) return;
+  const tgId = Number((req.params as any).tgId);
+  if (!Number.isInteger(tgId) || tgId <= 0) return reply.code(400).send({ error: "invalid_thread" });
+  const rows: any[] = db.prepare(
+    "SELECT id, sender, text, created_at FROM support_messages WHERE tg_id = ? ORDER BY rowid ASC LIMIT 300",
+  ).all(tgId);
+  if (!rows.length) return reply.code(404).send({ error: "thread_not_found" });
+  return rows.map((row) => ({
+    id: row.id,
+    from: row.sender === "customer" ? "user" : "manager",
+    text: row.text,
+    time: Date.parse(String(row.created_at).replace(" ", "T") + "Z") || 0,
+  }));
+});
+
+app.post("/v1/admin/support/reply", { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } }, async (req, reply) => {
+  if (!ensureAdmin(req, reply)) return;
+  const body = (req.body || {}) as any;
+  const tgId = Number(body.tgId);
+  const text = String(body.text || "").trim().slice(0, 1000);
+  if (!Number.isInteger(tgId) || tgId <= 0) return reply.code(400).send({ error: "invalid_thread" });
+  if (!text) return reply.code(400).send({ error: "empty_text" });
+  const thread = db.prepare("SELECT 1 FROM support_messages WHERE tg_id = ?").get(tgId);
+  if (!thread) return reply.code(404).send({ error: "thread_not_found" });
+  const id = `chat_${crypto.randomUUID()}`;
+  db.prepare("INSERT INTO support_messages (id, tg_id, sender, text) VALUES (?, ?, 'manager', ?)").run(id, tgId, text);
+  // Best-effort Telegram delivery (same format as the bot's reply path); the
+  // in-app thread stays available even if delivery fails.
+  let delivered = false;
+  if (process.env.DELIS_DISABLE_NOTIFY !== "1" && tgId > 0) {
+    const api = getBotApi();
+    if (api) {
+      try {
+        await api.sendMessage(tgId, `💬 <b>DELIS manager</b>\n\n${esc(text)}`, { parse_mode: "HTML" });
+        delivered = true;
+      } catch { /* in-app thread is the source of truth */ }
+    }
+  }
+  return { ok: true, delivered };
+});
+
+/* ─────────────── WRITE TO THE MANAGER (admin panel → manager's Telegram) ─────────────── */
+
+const managerNoteSchema = z.object({ text: z.string().trim().min(1).max(500) });
+
+app.post("/v1/admin/manager-note", { config: { rateLimit: { max: 5, timeWindow: "1 minute" } } }, async (req, reply) => {
+  if (!ensureAdmin(req, reply)) return;
+  const parsed = managerNoteSchema.safeParse(req.body);
+  if (!parsed.success) return reply.code(400).send({ error: "empty_text" });
+  const text = parsed.data.text;
+  if (!process.env.TG_BOT_TOKEN) {
+    return reply.code(503).send({ error: "telegram_bot_not_configured" });
+  }
+  let delivered = false;
+  if (process.env.DELIS_DISABLE_NOTIFY !== "1") {
+    const api = getBotApi();
+    const adminId = Number(process.env.ADMIN_CHAT_ID || 0);
+    if (api && adminId > 0) {
+      try {
+        await api.sendMessage(adminId, `📝 <b>Заметка из админ-панели</b>\n\n${esc(text)}`, { parse_mode: "HTML" });
+        delivered = true;
+      } catch (e) {
+        console.error("manager-note delivery failed:", e);
+      }
+    }
+  }
+  const id = `note_${crypto.randomUUID()}`;
+  db.prepare("INSERT INTO manager_notes (id, text, delivered) VALUES (?, ?, ?)").run(id, text, delivered ? 1 : 0);
+  return { ok: true, delivered };
+});
+
+app.get("/v1/admin/manager-notes", async (req, reply) => {
+  if (!ensureAdmin(req, reply)) return;
+  const rows: any[] = db.prepare(
+    "SELECT id, text, delivered, created_at FROM manager_notes ORDER BY rowid DESC LIMIT 20",
+  ).all();
+  return rows.map((row) => ({
+    id: row.id,
+    text: row.text,
+    delivered: Boolean(row.delivered),
+    time: Date.parse(String(row.created_at).replace(" ", "T") + "Z") || 0,
+  }));
+});
+
 /* ─────────────── ADMIN HUB (SECURELY ENFORCED ON BACKEND VIA Telegram HMAC) ─────────────── */
 
 // Middleware helper to ensure requesting user is the actual configured Admin
@@ -2856,7 +3081,7 @@ app.post("/v1/admin/products", async (req, reply) => {
   if (body.gallery) {
     const bad = validateGalleryItems(body.gallery);
     if (bad.error) {
-      return reply.code(bad.status).send({ error: bad.error, maxItems: GALLERY_MAX_ITEMS });
+      return reply.code(bad.status ?? 400).send({ error: bad.error, maxItems: GALLERY_MAX_ITEMS });
     }
     for (const item of body.gallery) {
       if (typeof item !== "string" || !item.trim()) continue;
@@ -2872,13 +3097,13 @@ app.post("/v1/admin/products", async (req, reply) => {
 
   // Cover: explicit img (data URL uploaded), else the first gallery image, else default.
   let cover: string;
-  const imgIsDataUrl = typeof body.img === "string" && body.img.startsWith("data:image/");
-  if (imgIsDataUrl) {
-    const up = await uploadImageData(id, body.img);
+  const img = body.img;
+  if (typeof img === "string" && img.startsWith("data:image/")) {
+    const up = await uploadImageData(id, img);
     if ("error" in up) return reply.code(up.status).send({ error: up.error });
     cover = up.img;
   } else {
-    cover = (typeof body.img === "string" && body.img.trim()) || gallery[0] || DEFAULT_IMG;
+    cover = (typeof img === "string" && img.trim()) || gallery[0] || DEFAULT_IMG;
   }
   if (!gallery.includes(cover)) gallery.unshift(cover);
 
@@ -2932,7 +3157,7 @@ app.post("/v1/admin/products/:id/update", async (req, reply) => {
   if (body.gallery !== undefined) {
     const bad = validateGalleryItems(body.gallery);
     if (bad.error) {
-      return reply.code(bad.status).send({ error: bad.error, maxItems: GALLERY_MAX_ITEMS });
+      return reply.code(bad.status ?? 400).send({ error: bad.error, maxItems: GALLERY_MAX_ITEMS });
     }
     let gallery: string[] = [];
     for (const item of body.gallery) {

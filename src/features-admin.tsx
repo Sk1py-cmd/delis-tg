@@ -298,23 +298,37 @@ export function AdminPanelSheet({
   const [importText, setImportText] = useState("");
 
   const handleImportProducts = async () => {
-    // Expected format per line:  name;price;category(home|car);volume;stock;cost
+    // Expected format per line:
+    //   name;price;category(home|car);volume;stock;cost;photo
+    // photo (optional): an existing public path ("images/prod-wax.jpg"), a bare
+    //   filename ("prod-wax.jpg" — auto-prefixed with images/), an absolute
+    //   https:// URL, or a data:image/... URL. Empty → default image per category.
     const lines = importText.split("\n").map((l) => l.trim()).filter(Boolean);
     let added = 0;
     let failed = 0;
     for (const line of lines) {
       const parts = line.split(";").map((s) => s.trim());
       if (parts.length < 2) continue;
-      const [name, priceStr, cat, volume, stockStr, costStr] = parts;
+      const [name, priceStr, cat, volume, stockStr, costStr, imgRaw] = parts;
       const price = parseInt(priceStr, 10);
       if (!name || isNaN(price) || price < 1000) continue;
+      const category = cat === "car" ? "car" : "home";
+      // Resolve the photo column: full URLs and data URLs pass through untouched
+      // (the server uploads data URLs to the CDN); paths and bare filenames are
+      // normalised to the public "images/..." form.
+      let img = imgRaw || "";
+      if (img && !/^(https?:|data:image\/|blob:)/i.test(img)) {
+        img = img.replace(/^\/+/, ""); // "/images/x.jpg" → "images/x.jpg"
+        if (!img.startsWith("images/")) img = `images/${img}`; // "prod-wax.jpg" → "images/prod-wax.jpg"
+      }
+      if (!img) img = category === "car" ? "images/prod-wax.jpg" : "images/prod-floor.jpg";
       const product: Product = {
         id: `custom-${Date.now()}-${added}`,
-        cat: cat === "car" ? "car" : "home",
+        cat: category,
         price,
         costPrice: costStr ? parseInt(costStr, 10) || undefined : undefined,
         name,
-        img: cat === "car" ? "images/prod-wax.jpg" : "images/prod-floor.jpg",
+        img,
         desc: { uz: name, ru: name, en: name },
         spec: { uz: "Import", ru: "Импорт", en: "Imported" },
         volume: volume || "500 ml",
@@ -340,7 +354,7 @@ export function AdminPanelSheet({
     onToast(
       added > 0
         ? (lang === "ru" ? `✓ Импортировано товаров: ${added}` : lang === "en" ? `✓ Imported products: ${added}` : `✓ Import qilindi: ${added}`)
-        : (lang === "ru" ? "Формат: Название;Цена;home|car;Объём;Остаток;Себестоимость" : lang === "en" ? "Format: Name;Price;home|car;Volume;Stock;Cost" : "Format: Nomi;Narxi;home|car;Hajmi;Qoldiq;Sotib olish")
+        : (lang === "ru" ? "Формат: Название;Цена;home|car;Объём;Остаток;Себестоимость;Фото" : lang === "en" ? "Format: Name;Price;home|car;Volume;Stock;Cost;Photo" : "Format: Nomi;Narxi;home|car;Hajmi;Qoldiq;Sotib olish;Foto")
     );
     if (added > 0) { setImportText(""); setShowImport(false); }
   };
@@ -1757,12 +1771,15 @@ export function AdminPanelSheet({
               ) : (
                 <div className="space-y-2 rounded-[18px] border border-moss/25 bg-sagetint/30 p-3 animate-fadein">
                   <p className="text-[11px] font-bold text-pine">
-                    {lang === "ru" ? "Каждая строка: Название;Цена;home|car;Объём;Остаток;Себестоимость" : lang === "en" ? "Each line: Name;Price;home|car;Volume;Stock;Cost" : "Har bir qator: Nomi;Narxi;home|car;Hajmi;Qoldiq;Sotib olish"}
+                    {lang === "ru" ? "Каждая строка: Название;Цена;home|car;Объём;Остаток;Себестоимость;Фото" : lang === "en" ? "Each line: Name;Price;home|car;Volume;Stock;Cost;Photo" : "Har bir qator: Nomi;Narxi;home|car;Hajmi;Qoldiq;Sotib olish;Foto"}
+                  </p>
+                  <p className="text-[10px] font-semibold leading-relaxed text-pine/70">
+                    {lang === "ru" ? "Фото (необязательно): images/xxx.jpg · имя файла (prod-wax.jpg) · https://… · data:image/…" : lang === "en" ? "Photo (optional): images/xxx.jpg · a filename (prod-wax.jpg) · https://… · data:image/…" : "Foto (ixtiyoriy): images/xxx.jpg · fayl nomi (prod-wax.jpg) · https://… · data:image/…"}
                   </p>
                   <textarea
                     value={importText}
                     onChange={(e) => setImportText(e.target.value)}
-                    placeholder={"Window Cleaner;55000;home;500 ml;24;40000\nCar Wax;128000;car;500 ml;12;90000"}
+                    placeholder={"Window Cleaner;55000;home;500 ml;24;40000;images/prod-glass.jpg\nCar Wax;128000;car;500 ml;12;90000;prod-wax.jpg"}
                     rows={4}
                     className="w-full resize-none rounded-[12px] border border-ink/15 bg-paper px-3 py-2.5 font-mono text-[12px] font-semibold text-ink outline-none focus:border-moss"
                   />

@@ -201,7 +201,7 @@ describe("B2B access codes", () => {
     const res = await app.inject({ method: "POST", url: "/v1/admin/b2b-codes", headers: ADMIN(), payload: { label: "Test partner" } });
     assert.equal(res.statusCode, 200);
     code = res.json().code;
-    assert.match(code, /^B2B-[A-Z0-9]{6}$/);
+    assert.match(code, /^B2B-[A-Z0-9]{8}$/);
   });
 
   it("admin updates the personal percent and verification returns it", async () => {
@@ -370,7 +370,7 @@ describe("Order status transitions are idempotent", () => {
     assert.equal(duplicate.unchanged, true);
     assert.equal(Number((db.prepare("SELECT stars FROM users WHERE tg_id = ?").get(customerId) as any).stars), starsAfter);
     const events = db.prepare(
-      "SELECT COUNT(*) AS count FROM loyalty_events WHERE tg_id = ? AND source = 'order' AND reference_id = ?",
+      "SELECT COUNT(*) AS count FROM loyalty_transactions WHERE tg_id = ? AND source = 'order' AND reference_id = ?",
     ).get(customerId, orderId) as any;
     assert.equal(events.count, expectedStars > 0 ? 1 : 0);
   });

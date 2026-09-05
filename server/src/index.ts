@@ -852,7 +852,10 @@ app.post("/v1/me/loyalty/birthday/claim", async (req, reply) => {
 
 /* ─────────────── PROMO CODES ─────────────── */
 
-app.get("/v1/promo/validate", async (req, reply) => {
+/* Public endpoint — rate-limited (per subject/IP) because it is a
+ * brute-force oracle for promo codes; see /v1/b2b/verify for the same
+ * class of issue with partner codes. */
+app.get("/v1/promo/validate", { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } }, async (req, reply) => {
   const code = ((req.query as any)?.code || "").toUpperCase().trim();
   const lang = getLang(req);
   const promo: any = db.prepare(
@@ -1533,7 +1536,12 @@ app.post("/v1/orders", {
   const b2bCode = body.b2bCode?.toUpperCase().trim();
   if (b2bCode) {
     const b2b: any = db.prepare("SELECT code, percent FROM b2b_codes WHERE code = ? AND active = 1").get(b2bCode);
-    if (!b2b) return reply.code(400).send({ error: "invalid_b2b_code" });
+    if (!b2b) {
+      // Second oracle for B2B codes (the order route is already per-session
+      // limited) — log so sweeps via checkout are visible too.
+      req.log.warn({ ip: req.ip, tgId, b2bCode }, "order rejected: invalid b2b code");
+      return reply.code(400).send({ error: "invalid_b2b_code" });
+    }
     b2bPercent = Math.max(0, Math.min(70, Number(b2b.percent || 0)));
   }
 
@@ -3413,13 +3421,20 @@ function ensureB2bCodes() {
   // Table starts empty — codes are created only via the admin UI (no demo data)
 }
 
-app.post("/v1/b2b/verify", async (req, reply) => {
+/* Strict per-subject limit: this endpoint is a brute-force oracle for
+ * partner codes (up to 70% off). 5/min per signed identity keeps legit
+ * checkout flows comfortable while making any systematic sweep infeasible;
+ * failures are logged so attack patterns are visible to the owner. */
+app.post("/v1/b2b/verify", { config: { rateLimit: { max: 5, timeWindow: "1 minute" } } }, async (req, reply) => {
   const tgId = getUserId(req);
   if (!tgId) return reply.code(401).send({ error: "unauthorized" });
   const code = String((req.body as any)?.code || "").toUpperCase().trim();
   if (!code) return reply.code(400).send({ error: "invalid_code" });
   const row: any = db.prepare("SELECT code, label, percent FROM b2b_codes WHERE code = ? AND active = 1").get(code);
-  if (!row) return reply.code(404).send({ ok: false, error: "not_found" });
+  if (!row) {
+    req.log.warn({ ip: req.ip, tgId, code }, "b2b code verification failed");
+    return reply.code(404).send({ ok: false, error: "not_found" });
+  }
   return { ok: true, code: row.code, label: row.label, percent: Number(row.percent || 0) };
 });
 
@@ -3431,8 +3446,14 @@ app.get("/v1/admin/b2b-codes", async (req, reply) => {
 app.post("/v1/admin/b2b-codes", async (req, reply) => {
   if (!ensureAdmin(req, reply)) return;
   const body = (req.body || {}) as any;
-  const code = String(body.code || genHumanCode("B2B", 6)).toUpperCase().trim();
+  const code = String(body.code || genHumanCode("B2B", 8)).toUpperCase().trim();
   if (code.length < 4 || code.length > 40) return reply.code(400).send({ error: "invalid_code" });
+  // Brute-force guard: codes are probed through the public /v1/b2b/verify
+  // oracle, so require >= 8 alphanumeric chars of entropy (32^8 ≈ 1.1e12).
+  const entropy = code.replace(/[^A-Z0-9]/g, "");
+  if (entropy.length < 8) {
+    return reply.code(400).send({ error: "code_too_weak", hint: "code needs at least 8 A-Z0-9 characters" });
+  }
   const percent = Math.max(0, Math.min(70, Number(body.percent || 0) || 0));
   const label = String(body.label || "").slice(0, 120) || null;
   try {
@@ -3503,8 +3524,9 @@ app.get("/v1/me/certificates", async (req, reply) => {
   return { certificates: rows };
 });
 
-// Checkout probes the code WITHOUT burning it (burn happens inside the order tx)
-app.post("/v1/certificates/check", async (req, reply) => {
+// Checkout probes the code WITHOUT burning it (burn happens inside the order tx).
+// Rate-limited per subject — a status oracle for certificate codes (up to 5M UZS).
+app.post("/v1/certificates/check", { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } }, async (req, reply) => {
   const tgId = getUserId(req);
   if (!tgId) return reply.code(401).send({ error: "unauthorized" });
   const code = String((req.body as any)?.code || "").toUpperCase().trim();

@@ -221,8 +221,16 @@ const app = Fastify({
   logger: true,
   bodyLimit: 150_000_000,
   /* Behind Render/any reverse proxy every user shares the proxy IP — without
-     trustProxy the rate-limiter would put ALL customers into one 120 req/min
-     bucket. Read the real client IP from X-Forwarded-For instead. */
+     trustProxy the rate-limiter would put ALL customers into one bucket.
+     Read the real client IP from X-Forwarded-For instead.
+
+     SECURITY INVARIANT: this trusts the leftmost XFF entry, so the public
+     edge MUST sanitize it — worker.js pins X-Forwarded-For to the
+     CF-Connecting-IP before forwarding. If the API is ever exposed WITHOUT
+     that edge (direct Render ingress), clients can spoof XFF and rotate
+     IP-keyed buckets; all sensitive routes additionally key limits on the
+     signed subject (see rateLimit keyGenerator above), which cannot be
+     spoofed. */
   trustProxy: true,
 });
 
@@ -257,6 +265,19 @@ await app.register(cors, {
 await app.register(rateLimit, {
   max: 300,
   timeWindow: "1 minute",
+  /* Key every bucket on the SIGNED subject (Telegram initData or browser
+     session token) when one is present, falling back to req.ip. IP-keying
+     alone is unsafe here: the edge is a reverse proxy (trustProxy below) and
+     an attacker who can inject X-Forwarded-For entries would rotate unlimited
+     buckets; per-subject keying also stops one shared carrier-NAT IP from
+     starving the whole household. Unauthenticated routes stay IP-keyed —
+     the Cloudflare worker (worker.js) rewrites X-Forwarded-For to the real
+     client IP so direct clients cannot spoof it. */
+  keyGenerator: (req: any) => {
+    const identity =
+      String(req.headers["authorization"] || req.headers["x-delis-browser-session"] || "") || `ip:${req.ip}`;
+    return crypto.createHash("sha256").update(identity).digest("hex");
+  },
   errorResponseBuilder: () => ({
     statusCode: 429,
     error: "Too Many Requests",

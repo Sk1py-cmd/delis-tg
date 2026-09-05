@@ -194,6 +194,43 @@ describe("computeTotals — server never trusts the client", () => {
     assert.equal(overThreshold.totals.deliveryFee, 0);
   });
 
+  it("applies a personal B2B discount after the wholesale ladder", () => {
+    const res = computeTotals({
+      items: [{ id: "wax", qty: 6 }], b2bPercent: 10,
+      getProduct, getPromo, deliveryMethod: "pickup",
+    });
+    assert.ok(res.ok);
+    // Wholesale first: 128000 × 88% × 6 = 675840, then personal 10%.
+    assert.equal(res.totals.subtotal, 675840);
+    assert.equal(res.totals.b2bDiscount, 67584);
+    assert.equal(res.totals.discount, 67584);
+    assert.equal(res.totals.total, 608256);
+  });
+
+  it("does not stack B2B with promo codes and clamps unsafe percentages", () => {
+    const promo = computeTotals({
+      items: [{ id: "wax", qty: 1 }], promoCode: "SAVE15", b2bPercent: 40,
+      getProduct, getPromo, deliveryMethod: "pickup",
+    });
+    assert.ok(promo.ok);
+    assert.equal(promo.totals.b2bDiscount, 0);
+    assert.equal(promo.totals.discount, Math.floor(128000 * 0.15));
+
+    const capped = computeTotals({
+      items: [{ id: "wax", qty: 1 }], b2bPercent: 999,
+      getProduct, getPromo, deliveryMethod: "pickup",
+    });
+    assert.ok(capped.ok);
+    assert.equal(capped.totals.b2bDiscount, Math.floor(128000 * 0.70));
+
+    const negative = computeTotals({
+      items: [{ id: "wax", qty: 1 }], b2bPercent: -25,
+      getProduct, getPromo, deliveryMethod: "pickup",
+    });
+    assert.ok(negative.ok);
+    assert.equal(negative.totals.b2bDiscount, 0);
+  });
+
   it("total = subtotal − discount + fee, floored at 0", () => {
     const res = computeTotals({
       items: [{ id: "glass", qty: 1 }], promoCode: "SAVE15",

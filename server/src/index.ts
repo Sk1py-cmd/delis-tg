@@ -671,6 +671,21 @@ function ensureUser(tgId: number, name?: string, username?: string) {
 
 /* ─────────────── PRODUCTS ─────────────── */
 
+/** Parse a product's gallery (JSON-encoded TEXT) into a string[]. Falls back
+ *  to the cover image when no gallery is stored. */
+function parseGallery(img: string | null | undefined, raw: string | null | undefined): string[] {
+  if (raw) {
+    try {
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr)) {
+        const clean = arr.filter((s: unknown) => typeof s === "string" && s.trim()).map((s: string) => s.trim());
+        if (clean.length) return clean;
+      }
+    } catch { /* fall through */ }
+  }
+  return img ? [img] : [];
+}
+
 app.get("/v1/products", async (req, reply) => {
   const lang = getLang(req);
   const cat = (req.query as any)?.cat;
@@ -698,6 +713,7 @@ app.get("/v1/products", async (req, reply) => {
     rating: p.rating,
     reviewsCount: p.reviews,
     img: p.img,
+    gallery: parseGallery(p.img, p.gallery),
     soldToday: soldMap.get(p.id)?.soldToday || 0,
     soldTotal: soldMap.get(p.id)?.soldTotal || 0,
     features: (p[`features_${lang}`] || p.features_uz || "").split(",").filter(Boolean),
@@ -713,6 +729,7 @@ app.get("/v1/products/:id", async (req, reply) => {
     name: p[`name_${lang}`] || p.name_uz,
     volume: p.volume, badge: p.badge, stock: p.stock,
     rating: p.rating, reviewsCount: p.reviews, img: p.img,
+    gallery: parseGallery(p.img, p.gallery),
     features: (p[`features_${lang}`] || p.features_uz || "").split(",").filter(Boolean),
   };
 });
@@ -2655,47 +2672,72 @@ const IMG_MIME: Record<string, string> = {
   "image/webp": "webp",
 };
 
-async function storeProductImage(pid: string, dataUrl: string): Promise<{ img: string } | { error: string; status: number }> {
+/** Upload a single data-URL image (cover or gallery item). Does not touch the DB. */
+async function uploadImageData(pid: string, dataUrl: string): Promise<{ img: string } | { error: string; status: number }> {
   const m = dataUrl.match(/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=\r\n]+)$/);
   if (!m) return { error: "invalid_image", status: 400 };
   const buf = Buffer.from(m[2], "base64");
   if (buf.length === 0 || buf.length > IMG_MAX_BYTES) {
     return { error: "image_too_large", status: 413 };
   }
-  let img: string | null = null;
   if (supabaseConfigured()) {
-    img = await uploadProductImage(`products/${pid}-${Date.now()}.${IMG_MIME[m[1]]}`, buf, m[1]);
+    const img = await uploadProductImage(`products/${pid}-${Date.now()}.${IMG_MIME[m[1]]}`, buf, m[1]);
     if (!img) return { error: "image_storage_unavailable", status: 502 };
-  } else {
-    // No object storage configured — keep the (frontend-compressed) data URL
-    img = dataUrl;
+    return { img };
   }
-  db.prepare("UPDATE products SET img = ? WHERE id = ?").run(img, pid);
-  return { img };
+  // No object storage configured — keep the (frontend-compressed) data URL
+  return { img: dataUrl };
+}
+
+async function storeProductImage(pid: string, dataUrl: string): Promise<{ img: string } | { error: string; status: number }> {
+  const res = await uploadImageData(pid, dataUrl);
+  if ("error" in res) return res;
+  db.prepare("UPDATE products SET img = ? WHERE id = ?").run(res.img, pid);
+  return { img: res.img };
 }
 
 app.post("/v1/admin/products", async (req, reply) => {
   if (!ensureAdmin(req, reply)) return;
   const body = req.body as any;
   const id = body.id || `custom-${Date.now()}`;
+  const DEFAULT_IMG = "images/prod-floor.jpg";
+
+  // Gallery: optional array of images (paths, https URLs, or data URLs).
+  // Data URLs go through the storage pipeline (Supabase CDN when configured).
+  let gallery: string[] = [];
+  if (Array.isArray(body.gallery)) {
+    for (const item of body.gallery as unknown[]) {
+      if (typeof item !== "string" || !item.trim()) continue;
+      if (item.startsWith("data:image/")) {
+        const up = await uploadImageData(id, item);
+        if ("error" in up) return reply.code(up.status).send({ error: up.error });
+        gallery.push(up.img);
+      } else {
+        gallery.push(item.trim());
+      }
+    }
+  }
+
+  // Cover: explicit img (data URL uploaded), else the first gallery image, else default.
+  let cover: string;
   const imgIsDataUrl = typeof body.img === "string" && body.img.startsWith("data:image/");
+  if (imgIsDataUrl) {
+    const up = await uploadImageData(id, body.img);
+    if ("error" in up) return reply.code(up.status).send({ error: up.error });
+    cover = up.img;
+  } else {
+    cover = (typeof body.img === "string" && body.img.trim()) || gallery[0] || DEFAULT_IMG;
+  }
+  if (!gallery.includes(cover)) gallery.unshift(cover);
+
   db.prepare(`
-    INSERT INTO products (id, cat, price, name_uz, name_ru, name_en, volume, badge, stock, rating, reviews, img, active)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 5.0, 0, ?, 1)
+    INSERT INTO products (id, cat, price, name_uz, name_ru, name_en, volume, badge, stock, rating, reviews, img, gallery, active)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 5.0, 0, ?, ?, 1)
   `).run(
     id, body.cat, body.price, body.name, body.name, body.name, body.volume || "500 ml", body.badge || null, body.stock || 0,
-    imgIsDataUrl ? "images/prod-floor.jpg" : (body.img || "images/prod-floor.jpg")
+    cover, JSON.stringify(gallery),
   );
-  // Data-URL photos go through the storage pipeline (Supabase CDN when configured)
-  if (imgIsDataUrl) {
-    const res = await storeProductImage(id, body.img);
-    if ("error" in res) {
-      db.prepare("DELETE FROM products WHERE id = ?").run(id);
-      return reply.code(res.status).send({ error: res.error });
-    }
-    return { ok: true, id, img: res.img };
-  }
-  return { ok: true, id };
+  return { ok: true, id, img: cover, gallery };
 });
 
 app.post("/v1/admin/products/:id/update", async (req, reply) => {
@@ -2731,6 +2773,26 @@ app.post("/v1/admin/products/:id/update", async (req, reply) => {
     const badge = body.badge === null || body.badge === "" ? null : String(body.badge).slice(0, 20);
     db.prepare("UPDATE products SET badge = ? WHERE id = ?").run(badge, pid);
   }
+  if (body.gallery !== undefined) {
+    let gallery: string[] = [];
+    if (Array.isArray(body.gallery)) {
+      for (const item of body.gallery as unknown[]) {
+        if (typeof item !== "string" || !item.trim()) continue;
+        if (item.startsWith("data:image/")) {
+          const up = await uploadImageData(pid, item);
+          if ("error" in up) return reply.code(up.status).send({ error: up.error });
+          gallery.push(up.img);
+        } else {
+          gallery.push(item.trim());
+        }
+      }
+    }
+    db.prepare("UPDATE products SET gallery = ? WHERE id = ?").run(JSON.stringify(gallery), pid);
+    // Keep the cover consistent: the first gallery image is the main photo.
+    if (gallery.length > 0 && body.img === undefined) {
+      db.prepare("UPDATE products SET img = ? WHERE id = ?").run(gallery[0], pid);
+    }
+  }
   return { ok: true };
 });
 
@@ -2741,6 +2803,21 @@ app.post("/v1/admin/products/:id/image", async (req, reply) => {
   if (!product) return reply.code(404).send({ error: "product_not_found" });
   const dataUrl = String((req.body as any)?.dataUrl || "");
   const res = await storeProductImage(pid, dataUrl);
+  if ("error" in res) {
+    const extra = res.error === "image_too_large" ? { maxBytes: IMG_MAX_BYTES } : {};
+    return reply.code(res.status).send({ error: res.error, ...extra });
+  }
+  return { ok: true, img: res.img, stored: supabaseConfigured() ? "supabase" : "db" };
+});
+
+/* Upload one extra gallery photo (returns the URL; the cover/img is untouched). */
+app.post("/v1/admin/products/:id/gallery-image", async (req, reply) => {
+  if (!ensureAdmin(req, reply)) return;
+  const pid = (req.params as any).id;
+  const product: any = db.prepare("SELECT id FROM products WHERE id = ?").get(pid);
+  if (!product) return reply.code(404).send({ error: "product_not_found" });
+  const dataUrl = String((req.body as any)?.dataUrl || "");
+  const res = await uploadImageData(pid, dataUrl);
   if ("error" in res) {
     const extra = res.error === "image_too_large" ? { maxBytes: IMG_MAX_BYTES } : {};
     return reply.code(res.status).send({ error: res.error, ...extra });

@@ -654,6 +654,9 @@ function migrate(db: any) {
   if (!productCols.some((c) => c.name === "cost_price")) {
     db.exec("ALTER TABLE products ADD COLUMN cost_price INTEGER DEFAULT 0");
   }
+  if (!productCols.some((c) => c.name === "gallery")) {
+    db.exec("ALTER TABLE products ADD COLUMN gallery TEXT");
+  }
   const itemCols = db.prepare("PRAGMA table_info(order_items)").all() as { name: string }[];
   if (!itemCols.some((c) => c.name === "stock_taken")) {
     // 1 = warehouse stock was decremented for this line (restock on cancel);

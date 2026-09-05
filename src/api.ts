@@ -682,7 +682,7 @@ export async function createStarsInvoice(orderId: string): Promise<{
  *  (a product that appears in the UI but cannot be ordered because the
  *  server never saved it). */
 export type AdminSaveOutcome =
-  | { ok: true; id?: string; img?: string }
+  | { ok: true; id?: string; img?: string; gallery?: string[] }
   | { ok: false; offline: boolean; status?: number; error?: string };
 
 export async function adminAddProduct(product: Product): Promise<AdminSaveOutcome> {
@@ -692,8 +692,8 @@ export async function adminAddProduct(product: Product): Promise<AdminSaveOutcom
       headers: { "Content-Type": "application/json", ...authHeader() },
       body: JSON.stringify(product),
     });
-    const body = await res.json().catch(() => null) as { id?: string; img?: string; error?: string } | null;
-    if (res.ok) return { ok: true, id: body?.id, img: body?.img };
+    const body = await res.json().catch(() => null) as { id?: string; img?: string; gallery?: string[]; error?: string } | null;
+    if (res.ok) return { ok: true, id: body?.id, img: body?.img, gallery: body?.gallery };
     return { ok: false, offline: false, status: res.status, error: body?.error };
   } catch {
     return { ok: false, offline: true };
@@ -721,6 +721,17 @@ export async function adminUploadProductImage(
   dataUrl: string,
 ): Promise<{ ok: boolean; img: string; stored: "supabase" | "db" } | null> {
   return apiFetch(`/v1/admin/products/${encodeURIComponent(productId)}/image`, {
+    method: "POST",
+    body: JSON.stringify({ dataUrl }),
+  });
+}
+
+/** Upload one extra gallery photo (cover stays unchanged). Returns the final image URL. */
+export async function adminUploadProductGalleryImage(
+  productId: string,
+  dataUrl: string,
+): Promise<{ ok: boolean; img: string; stored: "supabase" | "db" } | null> {
+  return apiFetch(`/v1/admin/products/${encodeURIComponent(productId)}/gallery-image`, {
     method: "POST",
     body: JSON.stringify({ dataUrl }),
   });

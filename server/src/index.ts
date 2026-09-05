@@ -219,7 +219,13 @@ function getDeliveryConfig(): typeof DEFAULT_DELIVERY_CONFIG {
 const FREE_SHIPPING_THRESHOLD = DEFAULT_FREE_SHIPPING_THRESHOLD;
 const app = Fastify({
   logger: true,
-  bodyLimit: 150_000_000,
+  /* Payload caps. Fastify has no per-route bodyLimit (verified against
+     v5.11: config.bodyLimit is ignored), so the server option carries the
+     LARGEST media allowance as the backstop and a preParsing hook enforces
+     a small DEFAULT cap plus per-route media allowances (see below).
+     Previously every route accepted 150MB — a 150MB JSON body on a public
+     endpoint would be parsed into memory. */
+  bodyLimit: 60_000_000,
   /* Behind Render/any reverse proxy every user shares the proxy IP — without
      trustProxy the rate-limiter would put ALL customers into one bucket.
      Read the real client IP from X-Forwarded-For instead.
@@ -2543,6 +2549,9 @@ app.get("/v1/admin/readiness", async (req, reply) => {
   add("admin", Number(process.env.ADMIN_CHAT_ID || 0) > 0 ? "ok" : "fail", Number(process.env.ADMIN_CHAT_ID || 0) > 0 ? "Admin recipient configured" : "ADMIN_CHAT_ID is missing");
   add("app_url", /^https:\/\/[^/]+/.test(appUrl) ? "ok" : "fail", appUrl || "APP_URL is missing or is not HTTPS");
   add("browser_secret", process.env.BROWSER_SESSION_SECRET ? "ok" : "fail", process.env.BROWSER_SESSION_SECRET ? "Dedicated browser session secret configured" : "BROWSER_SESSION_SECRET must be set explicitly");
+  // Dev admin impersonation must never survive to production — the ready
+  // flag would be the last gate to catch it.
+  add("dev_admin_token", process.env.DELIS_DEV_ADMIN_TOKEN ? "fail" : "ok", process.env.DELIS_DEV_ADMIN_TOKEN ? "DELIS_DEV_ADMIN_TOKEN is set — dev admin impersonation is active and must be removed before launch" : "Dev admin impersonation disabled");
   const publicApiUrl = String(process.env.PUBLIC_API_URL || "").replace(/\/$/, "");
   add("public_api_url", /^https:\/\/[^/]+/.test(publicApiUrl) ? "ok" : "fail", publicApiUrl || "PUBLIC_API_URL is missing or is not HTTPS");
   add("backups", supabaseConfigured() ? "ok" : "warn", supabaseConfigured() ? "Supabase backup configured" : "Local DB snapshots active (backups/ next to the DB) — add Supabase for off-site storage");
@@ -2718,6 +2727,39 @@ const IMG_MIME: Record<string, string> = {
   "image/webp": "webp",
 };
 
+/* Gallery integrity guard: a product's media set is bounded so one admin
+ * payload cannot bloat the DB row — and every public /v1/products response
+ * (without object storage the data URLs live in SQLite and are returned to
+ * all visitors). */
+const GALLERY_MAX_ITEMS = 12;
+const GALLERY_MAX_ITEM_LEN = 2000; // non-data-URL entries: paths / https URLs
+
+function validateGalleryItems(items: unknown[]): { error?: string; status?: number } {
+  if (!Array.isArray(items)) return {};
+  let seen = 0;
+  for (const item of items) {
+    if (typeof item !== "string" || !item.trim()) continue;
+    seen++;
+    if (seen > GALLERY_MAX_ITEMS) return { error: "gallery_too_large", status: 400 };
+    if (!item.startsWith("data:image/") && item.length > GALLERY_MAX_ITEM_LEN) {
+      return { error: "gallery_item_too_long", status: 400 };
+    }
+  }
+  return {};
+}
+
+/** Magic-byte check: the DECLARED mime must match the actual bytes, otherwise
+ *  arbitrary binaries would be stored (public bucket / DB) with an image
+ *  extension. Closes "HTML accepted as image/webp" from the 2026-09-05 audit. */
+function isPlausibleImage(buf: Buffer, mime: string): boolean {
+  if (mime === "image/jpeg") return buf.length > 4 && buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff;
+  if (mime === "image/png")
+    return buf.length > 8 && buf.readUInt32BE(0) === 0x89504e47 && buf.readUInt32BE(4) === 0x0d0a1a0a;
+  if (mime === "image/webp")
+    return buf.length > 12 && buf.toString("ascii", 0, 4) === "RIFF" && buf.toString("ascii", 8, 12) === "WEBP";
+  return false;
+}
+
 /** Upload a single data-URL image (cover or gallery item). Does not touch the DB. */
 async function uploadImageData(pid: string, dataUrl: string): Promise<{ img: string } | { error: string; status: number }> {
   const m = dataUrl.match(/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=\r\n]+)$/);
@@ -2725,6 +2767,9 @@ async function uploadImageData(pid: string, dataUrl: string): Promise<{ img: str
   const buf = Buffer.from(m[2], "base64");
   if (buf.length === 0 || buf.length > IMG_MAX_BYTES) {
     return { error: "image_too_large", status: 413 };
+  }
+  if (!isPlausibleImage(buf, m[1])) {
+    return { error: "invalid_image", status: 400 };
   }
   if (supabaseConfigured()) {
     const img = await uploadProductImage(`products/${pid}-${Date.now()}.${IMG_MIME[m[1]]}`, buf, m[1]);
@@ -2742,17 +2787,78 @@ async function storeProductImage(pid: string, dataUrl: string): Promise<{ img: s
   return { img: res.img };
 }
 
+/* Product mutations were written to the DB with zero validation (arbitrary
+ * id incl. path chars, string prices, unbounded names). Server-side price
+ * math and the Supabase object path both consume these fields, so they get
+ * strict schemas. Unknown keys (the frontend mirrors its local Product
+ * shape) are ignored. */
+const DATA_URL_MAX_LEN = 4_500_000; // 3MB binary → ~4MB base64 + prefix
+const productCreateSchema = z.object({
+  id: z.string().trim().regex(/^[a-zA-Z0-9][a-zA-Z0-9-]{0,59}$/).optional(),
+  cat: z.enum(["home", "car"]),
+  price: z.number().int().min(0).max(100_000_000),
+  name: z.string().trim().min(1).max(120),
+  volume: z.string().trim().max(40).optional(),
+  badge: z.string().trim().max(20).nullable().optional(),
+  stock: z.number().int().min(0).max(1_000_000).optional(),
+  // Count/length bounds are checked by validateGalleryItems (clearer errors)
+  gallery: z.array(z.string()).optional(),
+  img: z.string().max(DATA_URL_MAX_LEN).optional(),
+});
+const productUpdateSchema = z.object({
+  price: z.number().int().min(0).max(100_000_000).optional(),
+  stock: z.number().int().min(0).max(1_000_000).optional(),
+  active: z.boolean().optional(),
+  name: z.string().trim().min(1).max(120).optional(),
+  cat: z.enum(["home", "car"]).optional(),
+  volume: z.string().trim().max(40).optional(),
+  badge: z.string().trim().max(20).nullable().optional(),
+  gallery: z.array(z.string()).optional(),
+  img: z.string().max(DATA_URL_MAX_LEN).optional(),
+});
+
+/* Per-route payload allowances enforced BEFORE parsing (Fastify has no
+ * per-route bodyLimit). Non-media routes: 2MB default. Media routes carry
+ * base64 data-URL images, so they get explicit, bounded allowances. */
+const DEFAULT_BODY_LIMIT = 2_000_000;
+const MEDIA_BODY_LIMITS: Array<{ re: RegExp; limit: number }> = [
+  { re: /^\/v1\/admin\/products\/[^/]+\/(image|gallery-image)$/, limit: 5_000_000 },
+  { re: /^\/v1\/admin\/products(\/[^/]+\/update)?$/, limit: 60_000_000 },
+  { re: /^\/v1\/admin\/content$/, limit: 5_500_000 },
+  { re: /^\/v1\/stories$/, limit: 15_000_000 },
+];
+app.addHook("preParsing", async (req, reply) => {
+  const lenHeader = req.headers["content-length"];
+  if (typeof lenHeader === "string" && lenHeader !== "") {
+    const size = Number(lenHeader);
+    if (Number.isFinite(size) && size >= 0) {
+      const allowance = MEDIA_BODY_LIMITS.find((entry) => entry.re.test(req.url))?.limit ?? DEFAULT_BODY_LIMIT;
+      if (size > allowance) {
+        return reply.code(413).send({ error: "payload_too_large", maxBytes: allowance });
+      }
+    }
+  }
+});
+
 app.post("/v1/admin/products", async (req, reply) => {
   if (!ensureAdmin(req, reply)) return;
-  const body = req.body as any;
+  const parsed = productCreateSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return reply.code(400).send({ error: "invalid_product", details: parsed.error.flatten() });
+  }
+  const body = parsed.data;
   const id = body.id || `custom-${Date.now()}`;
   const DEFAULT_IMG = "images/prod-floor.jpg";
 
   // Gallery: optional array of images (paths, https URLs, or data URLs).
   // Data URLs go through the storage pipeline (Supabase CDN when configured).
   let gallery: string[] = [];
-  if (Array.isArray(body.gallery)) {
-    for (const item of body.gallery as unknown[]) {
+  if (body.gallery) {
+    const bad = validateGalleryItems(body.gallery);
+    if (bad.error) {
+      return reply.code(bad.status).send({ error: bad.error, maxItems: GALLERY_MAX_ITEMS });
+    }
+    for (const item of body.gallery) {
       if (typeof item !== "string" || !item.trim()) continue;
       if (item.startsWith("data:image/")) {
         const up = await uploadImageData(id, item);
@@ -2789,7 +2895,11 @@ app.post("/v1/admin/products", async (req, reply) => {
 app.post("/v1/admin/products/:id/update", async (req, reply) => {
   if (!ensureAdmin(req, reply)) return;
   const pid = (req.params as any).id;
-  const body = req.body as any;
+  const parsed = productUpdateSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return reply.code(400).send({ error: "invalid_product", details: parsed.error.flatten() });
+  }
+  const body = parsed.data;
   if (body.price !== undefined) {
     db.prepare("UPDATE products SET price = ? WHERE id = ?").run(body.price, pid);
   }
@@ -2820,17 +2930,19 @@ app.post("/v1/admin/products/:id/update", async (req, reply) => {
     db.prepare("UPDATE products SET badge = ? WHERE id = ?").run(badge, pid);
   }
   if (body.gallery !== undefined) {
+    const bad = validateGalleryItems(body.gallery);
+    if (bad.error) {
+      return reply.code(bad.status).send({ error: bad.error, maxItems: GALLERY_MAX_ITEMS });
+    }
     let gallery: string[] = [];
-    if (Array.isArray(body.gallery)) {
-      for (const item of body.gallery as unknown[]) {
-        if (typeof item !== "string" || !item.trim()) continue;
-        if (item.startsWith("data:image/")) {
-          const up = await uploadImageData(pid, item);
-          if ("error" in up) return reply.code(up.status).send({ error: up.error });
-          gallery.push(up.img);
-        } else {
-          gallery.push(item.trim());
-        }
+    for (const item of body.gallery) {
+      if (typeof item !== "string" || !item.trim()) continue;
+      if (item.startsWith("data:image/")) {
+        const up = await uploadImageData(pid, item);
+        if ("error" in up) return reply.code(up.status).send({ error: up.error });
+        gallery.push(up.img);
+      } else {
+        gallery.push(item.trim());
       }
     }
     db.prepare("UPDATE products SET gallery = ? WHERE id = ?").run(JSON.stringify(gallery), pid);

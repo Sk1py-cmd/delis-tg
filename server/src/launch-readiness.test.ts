@@ -134,6 +134,38 @@ describe("launch hardening", () => {
     assert.doesNotMatch(response.body, /launch-readiness-token/);
   });
 
+  it("keeps default payloads small while media routes allow large images", async () => {
+    // A 3MB pad on a regular order must be rejected by the ~2MB global cap
+    // (previously every route accepted up to 150MB)
+    const pad = "x".repeat(3_000_000);
+    const orders = await app.inject({
+      method: "POST", url: "/v1/orders", headers: jsonAuth(99008),
+      payload: { ...orderPayload, delivery: { ...orderPayload.delivery, note: pad } },
+    });
+    assert.equal(orders.statusCode, 413);
+
+    // But a ~2.2MB JPEG body passes the image route's own 5MB allowance
+    // (decoded ≈ 2.18MB < 3MB image limit) — above the 2MB default cap
+    const JPEG_MIN_B64 = "/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AVN//2Q==";
+    const dataUrl = `data:image/jpeg;base64,${JPEG_MIN_B64.replace(/=+$/, "")}${"A".repeat(2_900_000)}`;
+    const image = await app.inject({
+      method: "POST", url: "/v1/admin/products/wax/image", headers: jsonAuth(ADMIN_ID), payload: { dataUrl },
+    });
+    assert.equal(image.statusCode, 200, image.body);
+  });
+
+  it("fails readiness while the dev admin token is enabled", async () => {
+    process.env.DELIS_DEV_ADMIN_TOKEN = "some-dev-token";
+    const withToken = await app.inject({ method: "GET", url: "/v1/admin/readiness", headers: auth(ADMIN_ID) });
+    assert.equal(withToken.statusCode, 200, withToken.body);
+    const check = withToken.json().checks.find((item: any) => item.id === "dev_admin_token");
+    assert.equal(check?.level, "fail");
+    assert.equal(withToken.json().ready, false);
+    delete process.env.DELIS_DEV_ADMIN_TOKEN;
+    const withoutToken = await app.inject({ method: "GET", url: "/v1/admin/readiness", headers: auth(ADMIN_ID) });
+    assert.equal(withoutToken.json().checks.find((item: any) => item.id === "dev_admin_token")?.level, "ok");
+  });
+
   it("does not pretend a broadcast succeeded when Telegram delivery is disabled", async () => {
     const response = await app.inject({
       method: "POST", url: "/v1/admin/broadcast", headers: jsonAuth(ADMIN_ID),

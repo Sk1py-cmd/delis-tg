@@ -911,6 +911,57 @@ export async function postSupportMessage(text: string): Promise<{ id: string; de
   return apiFetch("/v1/me/chat", { method: "POST", body: JSON.stringify({ text }) });
 }
 
+/* ─────────── Support settings (editable from the admin panel) ─────────── */
+
+export type SupportSettings = {
+  greeting: { uz: string; ru: string; en: string };
+  quickQuestions: { uz: string[]; ru: string[]; en: string[] };
+};
+
+export async function fetchSupportSettings(): Promise<SupportSettings | null> {
+  return apiFetch<SupportSettings>("/v1/support-settings");
+}
+
+export async function adminSaveSupportSettings(settings: Partial<Record<string, unknown>>): Promise<{ ok: boolean; settings?: SupportSettings } | null> {
+  return apiFetch("/v1/admin/support-settings", { method: "POST", body: JSON.stringify(settings) });
+}
+
+/* ─────────── Support inbox (admin panel) ─────────── */
+
+export type SupportThread = {
+  tgId: number;
+  name: string;
+  username: string;
+  lastText: string;
+  lastSender: "customer" | "manager";
+  lastAt: number;
+  total: number;
+};
+
+export async function fetchSupportThreads(): Promise<SupportThread[] | null> {
+  return apiFetch<SupportThread[]>("/v1/admin/support/threads");
+}
+
+export async function fetchSupportThread(tgId: number): Promise<SupportMessage[] | null> {
+  return apiFetch<SupportMessage[]>(`/v1/admin/support/threads/${tgId}`);
+}
+
+export async function postSupportReply(tgId: number, text: string): Promise<{ ok: boolean; delivered: boolean } | null> {
+  return apiFetch("/v1/admin/support/reply", { method: "POST", body: JSON.stringify({ tgId, text }) });
+}
+
+/* ─────────── Write to the manager (admin panel → Telegram) ─────────── */
+
+export type ManagerNote = { id: string; text: string; delivered: boolean; time: number };
+
+export async function postManagerNote(text: string): Promise<{ ok: boolean; delivered: boolean } | null> {
+  return apiFetch("/v1/admin/manager-note", { method: "POST", body: JSON.stringify({ text }) });
+}
+
+export async function fetchManagerNotes(): Promise<ManagerNote[] | null> {
+  return apiFetch<ManagerNote[]>("/v1/admin/manager-notes");
+}
+
 /* ─────────── Reviews ─────────── */
 
 export async function fetchReviews(productId: string): Promise<any[] | null> {

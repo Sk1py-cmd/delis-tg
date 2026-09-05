@@ -451,6 +451,15 @@ function migrate(db: any) {
     CREATE INDEX IF NOT EXISTS idx_support_owner_date ON support_messages(tg_id, created_at);
     CREATE UNIQUE INDEX IF NOT EXISTS idx_support_admin_message ON support_messages(admin_message_id) WHERE admin_message_id IS NOT NULL;
 
+    -- "Write to the manager" notes sent from the admin panel (delivered to
+    -- the manager's Telegram; kept here as a small history/audit trail).
+    CREATE TABLE IF NOT EXISTS manager_notes (
+      id         TEXT PRIMARY KEY,
+      text       TEXT NOT NULL,
+      delivered  INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
     -- Audit record for real Telegram broadcasts sent from the admin panel.
     CREATE TABLE IF NOT EXISTS broadcasts (
       id         TEXT PRIMARY KEY,

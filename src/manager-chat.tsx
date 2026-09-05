@@ -6,11 +6,18 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useI18n } from "./i18n";
 import { CONFIG } from "./config";
-import { fetchSupportMessages, postSupportMessage, type SupportMessage } from "./api";
+import { fetchSupportMessages, fetchSupportSettings, postSupportMessage, type SupportMessage, type SupportSettings } from "./api";
 import { haptic } from "./kit";
 import { IconSend, IconSymbol, IconUser } from "./icons";
 import { Sheet } from "./chrome";
 
+/* Built-in fallbacks — the admin panel can override both from the server
+ * (content_settings "support_settings", see fetchSupportSettings). */
+const DEFAULT_GREETING: Record<string, string> = {
+  uz: "Assalomu alaykum! Xabaringiz to'g'ridan-to'g'ri DELIS menejeriga boradi.",
+  ru: "Здравствуйте! Сообщение отправляется напрямую менеджеру DELIS.",
+  en: "Hello! Your message goes directly to a DELIS manager.",
+};
 const QUICK_QUESTIONS: Record<string, string[]> = {
   uz: ["🕒 Buyurtmam qachon yetib keladi?", "📦 Tovar borligini tekshirib bering", "💳 To'lov qanday qilaman?", "🚚 Yetkazish qancha turadi?"],
   ru: ["🕒 Когда приедет мой заказ?", "📦 Проверьте наличие товара", "💳 Как оплатить заказ?", "🚚 Сколько стоит доставка?"],
@@ -23,8 +30,13 @@ export function ManagerChatSheet({ open, onClose }: { open: boolean; onClose: ()
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState(false);
+  const [settings, setSettings] = useState<SupportSettings | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const L = (uz: string, ru: string, en: string) => (lang === "ru" ? ru : lang === "en" ? en : uz);
+
+  /* Admin-editable greeting / quick questions (falls back to built-ins). */
+  const greeting = settings?.greeting?.[lang]?.trim() || DEFAULT_GREETING[lang];
+  const quickQuestions = (settings?.quickQuestions?.[lang]?.length ? settings.quickQuestions[lang] : QUICK_QUESTIONS[lang]) || QUICK_QUESTIONS.uz;
 
   const refresh = useCallback(async () => {
     const rows = await fetchSupportMessages();
@@ -37,6 +49,7 @@ export function ManagerChatSheet({ open, onClose }: { open: boolean; onClose: ()
   useEffect(() => {
     if (!open) return;
     void refresh();
+    void fetchSupportSettings().then((row) => { if (row) setSettings(row); });
     const timer = window.setInterval(() => void refresh(), 8_000);
     return () => window.clearInterval(timer);
   }, [open, refresh]);
@@ -69,7 +82,7 @@ export function ManagerChatSheet({ open, onClose }: { open: boolean; onClose: ()
           <div className="flex items-start gap-2.5">
             <span className="motion-icon-tile flex h-8 w-8 shrink-0 items-center justify-center rounded-[11px] bg-pine text-white"><IconUser size={17} /></span>
             <div className="max-w-[82%] rounded-[18px] rounded-tl-[6px] bg-paper2 px-3.5 py-2.5 text-[13px] font-medium leading-relaxed text-ink">
-              {L("Assalomu alaykum! Xabaringiz to'g'ridan-to'g'ri DELIS menejeriga boradi.", "Здравствуйте! Сообщение отправляется напрямую менеджеру DELIS.", "Hello! Your message goes directly to a DELIS manager.")}
+              {greeting}
             </div>
           </div>
 
@@ -90,7 +103,7 @@ export function ManagerChatSheet({ open, onClose }: { open: boolean; onClose: ()
         </div>
 
         <div className="no-scrollbar mt-2.5 flex gap-1.5 overflow-x-auto pb-1">
-          {(QUICK_QUESTIONS[lang] || QUICK_QUESTIONS.uz).map((question) => (
+          {quickQuestions.map((question) => (
             <button key={question} onClick={() => void send(question)} className="press shrink-0 rounded-full border border-ink/15 bg-card px-3 py-1.5 text-[11px] font-semibold text-ink/70">
               <span className="inline-flex items-center gap-1.5"><IconSymbol symbol={question.split(" ")[0]} size={14} /> {question.slice(question.indexOf(" ") + 1)}</span>
             </button>

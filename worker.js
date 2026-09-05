@@ -24,6 +24,13 @@ export default {
       const proxyRequest = new Request(target, request);
       proxyRequest.headers.set("X-Forwarded-Host", url.host);
       proxyRequest.headers.set("X-Forwarded-Proto", "https");
+      /* SECURITY: never forward the client's own X-Forwarded-For — it is
+         attacker-controlled, and the API (Fastify trustProxy) takes the
+         leftmost entry as the client IP, so a spoofed value would rotate
+         unlimited rate-limit buckets. Pin it to Cloudflare's view of the
+         real client IP (CF adds CF-Connecting-IP on every edge request). */
+      const clientIp = request.headers.get("CF-Connecting-IP");
+      if (clientIp) proxyRequest.headers.set("X-Forwarded-For", clientIp);
       return fetch(proxyRequest);
     }
     return env.ASSETS.fetch(request);

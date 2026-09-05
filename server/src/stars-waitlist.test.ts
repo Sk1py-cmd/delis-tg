@@ -397,7 +397,10 @@ describe("Waitlist — server records + restock notifications", () => {
 });
 
 describe("Admin products — extended fields & photo upload", () => {
-  const JPEG = "data:image/jpeg;base64,aGVsbG8td29ybGQ="; // tiny payload; server only validates shape
+  // A REAL minimal JPEG (valid SOI/EOI magic bytes) — the server now
+  // verifies magic bytes against the declared mime, not just the shape.
+  const JPEG_MIN_B64 = "/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AVN//2Q==";
+  const JPEG = `data:image/jpeg;base64,${JPEG_MIN_B64}`;
 
   it("photo upload requires admin", async () => {
     const res = await app.inject({ method: "POST", url: "/v1/admin/products/wax/image", headers: { ...authOf(9401), ...JSON_POST }, payload: { dataUrl: JPEG } });
@@ -407,9 +410,28 @@ describe("Admin products — extended fields & photo upload", () => {
   it("rejects garbage and oversized images", async () => {
     const bad = await app.inject({ method: "POST", url: "/v1/admin/products/wax/image", headers: { ...authOf(ADMIN_ID), ...JSON_POST }, payload: { dataUrl: "data:image/gif;base64,aGk=" } });
     assert.equal(bad.statusCode, 400);
-    const huge = `data:image/jpeg;base64,${"A".repeat(Math.ceil((3 * 1024 * 1024 + 2) * 4 / 3))}`;
+    // Valid JPEG magic + padding past the 3MB decoded limit → 413 image_too_large
+    // (strip the base64 padding from the prefix — a "==" mid-string stops decoding)
+    const prefix = JPEG_MIN_B64.replace(/=+$/, "");
+    const huge = `data:image/jpeg;base64,${prefix}${"A".repeat(4 * 1024 * 1024)}`;
     const big = await app.inject({ method: "POST", url: "/v1/admin/products/wax/image", headers: { ...authOf(ADMIN_ID), ...JSON_POST }, payload: { dataUrl: huge } });
     assert.equal(big.statusCode, 413);
+    assert.equal(big.json().error, "image_too_large");
+  });
+
+  it("rejects bytes that do not match the declared mime (magic-byte check)", async () => {
+    // "<html>" served as image/webp — stored with a .webp name it is an
+    // HTML injection / client XSS vector (2026-09-05 audit, M4)
+    const html = Buffer.from("<html><script>alert(1)</script></html>").toString("base64");
+    for (const dataUrl of [
+      `data:image/webp;base64,${html}`,
+      `data:image/jpeg;base64,${html}`,
+      `data:image/png;base64,${html}`,
+    ]) {
+      const res = await app.inject({ method: "POST", url: "/v1/admin/products/wax/image", headers: { ...authOf(ADMIN_ID), ...JSON_POST }, payload: { dataUrl } });
+      assert.equal(res.statusCode, 400, res.body);
+      assert.equal(res.json().error, "invalid_image");
+    }
   });
 
   it("404 for unknown product", async () => {
@@ -458,6 +480,83 @@ describe("Admin products — extended fields & photo upload", () => {
     const prod: any = db.prepare("SELECT img FROM products WHERE id = 'test-photo'").get();
     assert.equal(prod.img, JPEG);
     db.prepare("DELETE FROM products WHERE id = 'test-photo'").run();
+  });
+});
+
+describe("Admin products — input validation & gallery bounds (audit M5/M6)", () => {
+  it("rejects product ids that are not simple slugs (path traversal)", async () => {
+    const res = await app.inject({
+      method: "POST", url: "/v1/admin/products", headers: { ...authOf(ADMIN_ID), ...JSON_POST },
+      payload: { id: "../evil/../../x", cat: "home", price: 10000, name: "Evil" },
+    });
+    assert.equal(res.statusCode, 400, res.body);
+    assert.equal(res.json().error, "invalid_product");
+  });
+
+  it("rejects non-numeric prices, missing names and unknown categories", async () => {
+    const stringPrice = await app.inject({
+      method: "POST", url: "/v1/admin/products", headers: { ...authOf(ADMIN_ID), ...JSON_POST },
+      payload: { id: "bad-price", cat: "home", price: "12345", name: "Bad price" },
+    });
+    assert.equal(stringPrice.statusCode, 400, stringPrice.body);
+    const noName = await app.inject({
+      method: "POST", url: "/v1/admin/products", headers: { ...authOf(ADMIN_ID), ...JSON_POST },
+      payload: { id: "no-name", cat: "home", price: 10000 },
+    });
+    assert.equal(noName.statusCode, 400, noName.body);
+    const badCat = await app.inject({
+      method: "POST", url: "/v1/admin/products", headers: { ...authOf(ADMIN_ID), ...JSON_POST },
+      payload: { id: "bad-cat", cat: "weapons", price: 10000, name: "Bad cat" },
+    });
+    assert.equal(badCat.statusCode, 400, badCat.body);
+    const longName = await app.inject({
+      method: "POST", url: "/v1/admin/products", headers: { ...authOf(ADMIN_ID), ...JSON_POST },
+      payload: { id: "long-name", cat: "home", price: 10000, name: "x".repeat(121) },
+    });
+    assert.equal(longName.statusCode, 400, longName.body);
+  });
+
+  it("rejects oversized update values", async () => {
+    const res = await app.inject({
+      method: "POST", url: "/v1/admin/products/wax/update", headers: { ...authOf(ADMIN_ID), ...JSON_POST },
+      payload: { price: "not-a-number" },
+    });
+    assert.equal(res.statusCode, 400, res.body);
+    assert.equal(res.json().error, "invalid_product");
+  });
+
+  it("caps a product gallery at 12 items (public responses stay bounded)", async () => {
+    const tooMany = await app.inject({
+      method: "POST", url: "/v1/admin/products", headers: { ...authOf(ADMIN_ID), ...JSON_POST },
+      payload: { id: "gallery-13", cat: "home", price: 10000, name: "Gallery 13", gallery: Array.from({ length: 13 }, (_, i) => `images/g${i}.jpg`) },
+    });
+    assert.equal(tooMany.statusCode, 400, tooMany.body);
+    assert.equal(tooMany.json().error, "gallery_too_large");
+
+    const ok = await app.inject({
+      method: "POST", url: "/v1/admin/products", headers: { ...authOf(ADMIN_ID), ...JSON_POST },
+      payload: { id: "gallery-12", cat: "home", price: 10000, name: "Gallery 12", gallery: Array.from({ length: 12 }, (_, i) => `images/g${i}.jpg`) },
+    });
+    assert.equal(ok.statusCode, 200, ok.body);
+    assert.equal(ok.json().gallery.length, 12);
+
+    const updateTooMany = await app.inject({
+      method: "POST", url: "/v1/admin/products/gallery-12/update", headers: { ...authOf(ADMIN_ID), ...JSON_POST },
+      payload: { gallery: Array.from({ length: 13 }, (_, i) => `images/h${i}.jpg`) },
+    });
+    assert.equal(updateTooMany.statusCode, 400, updateTooMany.body);
+
+    const db = (await import("./db.js")).getDb();
+    db.prepare("DELETE FROM products WHERE id IN ('gallery-12', 'gallery-13')").run();
+  });
+
+  it("caps non-data-URL gallery items at a sane length", async () => {
+    const res = await app.inject({
+      method: "POST", url: "/v1/admin/products", headers: { ...authOf(ADMIN_ID), ...JSON_POST },
+      payload: { id: "gallery-long", cat: "home", price: 10000, name: "Gallery long", gallery: ["x".repeat(2001)] },
+    });
+    assert.equal(res.statusCode, 400, res.body);
+    assert.equal(res.json().error, "gallery_item_too_long");
   });
 });
 

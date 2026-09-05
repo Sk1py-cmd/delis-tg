@@ -25,7 +25,8 @@ import {
 import type { ReturnRequest } from "./features-extra";
 import type { AdminSaveOutcome } from "./api";
 import { formatPrice, haptic, compressImageFile } from "./kit";
-import { IconBox, IconChart, IconCheck, IconClock, IconClose, IconCopy, IconCreditCard, IconDownload, IconFactory, IconFileText, IconLock, IconMedal, IconPhone, IconPlus, IconRefresh, IconSend, IconSettings, IconShield, IconSparkle, IconSymbol, IconTag, IconTrash, IconUser, IconUserCheck, IconTruck } from "./icons";
+import { IconBox, IconChart, IconChat, IconCheck, IconClock, IconClose, IconCopy, IconCreditCard, IconDownload, IconFactory, IconFileText, IconLock, IconMedal, IconPhone, IconPlus, IconRefresh, IconSend, IconSettings, IconShield, IconSparkle, IconSymbol, IconTag, IconTrash, IconUser, IconUserCheck, IconTruck } from "./icons";
+import { SupportAdminTab } from "./support-admin";
 import { Sheet } from "./chrome";
 import { ContentManagementTab } from "./content-config";
 import { SiteSettingsTab } from "./site-settings-tab";
@@ -38,7 +39,7 @@ import { QrBatchesAdminTab, B2bAdminTab, CertsAdminTab } from "./features-admin-
 import { PRODUCTS as PRODUCT_CATALOG } from "./data";
 import { loadAdminStories, saveAdminStories, type Story as AdminStory } from "./stories";
 
-type AdminTab = "analytics" | "orders" | "inventory" | "requests" | "jobs" | "promos" | "content" | "site" | "payments" | "logs" | "stories" | "clients" | "loyalty" | "backup" | "deal" | "qr" | "b2b" | "certs" | "delivery";
+type AdminTab = "analytics" | "orders" | "support" | "inventory" | "requests" | "jobs" | "promos" | "content" | "site" | "payments" | "logs" | "stories" | "clients" | "loyalty" | "backup" | "deal" | "qr" | "b2b" | "certs" | "delivery";
 type AdminOrderStatus = Order["status"];
 const ADMIN_ORDER_FLOW: Exclude<AdminOrderStatus, "canceled">[] = ["new", "preparing", "shipped", "delivered"];
 const ADMIN_ORDER_TRANSITIONS: Record<AdminOrderStatus, AdminOrderStatus[]> = {
@@ -789,6 +790,7 @@ export function AdminPanelSheet({
               const TABS = [
                 { id: "analytics", label: t("adminTabAnalytics"), icon: IconChart, badge: 0 },
                 { id: "orders", label: t("adminTabOrders"), icon: IconBox, badge: allOrders.filter((o) => o.status === "new").length },
+                { id: "support", label: lang === "ru" ? "Поддержка" : "Qo'llab-quvvatlash", icon: IconChat, badge: 0 },
                 { id: "inventory", label: t("adminTabProducts"), icon: IconFactory, badge: 0 },
                 { id: "requests", label: t("adminTabReturns"), icon: IconRefresh, badge: returns.filter((r) => r.status === "pending").length + waitlist.filter((w) => !w.notified).length },
                 { id: "promos", label: t("adminTabPromos"), icon: IconTag, badge: 0 },
@@ -810,7 +812,7 @@ export function AdminPanelSheet({
               const MKT = lang === "uz" ? "Marketing" : lang === "ru" ? "Маркетинг" : "Marketing";
               const SYS = lang === "uz" ? "Tizim" : lang === "ru" ? "Система" : "System";
               const GROUPS: Array<{ label: string; ids: readonly string[] }> = [
-                { label: OPS, ids: ["analytics", "orders", "inventory", "requests", "clients", "jobs"] },
+                { label: OPS, ids: ["analytics", "orders", "support", "inventory", "requests", "clients", "jobs"] },
                 { label: MKT, ids: ["promos", "deal", "loyalty", "stories", "certs", "qr", "b2b"] },
                 { label: SYS, ids: ["content", "site", "payments", "delivery", "backup", "logs"] },
               ];
@@ -2313,6 +2315,8 @@ export function AdminPanelSheet({
           {activeTab === "site" && (
             <SiteSettingsTab onToast={onToast} />
           )}
+
+          {activeTab === "support" && <SupportAdminTab onToast={onToast} />}
 
           {/* ─────────────── LOYALTY CONTROL / QR MEMBER CARD ─────────────── */}
           {activeTab === "loyalty" && <LoyaltyAdminTab onToast={onToast} />}

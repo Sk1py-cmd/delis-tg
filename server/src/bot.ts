@@ -82,6 +82,29 @@ export function trackOrderLookup(
 }
 
 /**
+ * Decide whether a successful_payment event may flip the referenced order to
+ * "paid". The payer must be the order's owner or the configured admin —
+ * otherwise a forwarded payment message (or a stolen invoice payload)
+ * could mark a stranger's order paid without any money received.
+ */
+export function decideStarsPayment(
+  db: Database.Database,
+  input: { orderId?: string; payerId?: number },
+):
+  | { action: "mark_paid"; orderId: string }
+  | { action: "skip"; reason: "no_order_id" | "not_found" | "payer_mismatch" } {
+  const orderId = input.orderId ? String(input.orderId).trim() : "";
+  if (!orderId) return { action: "skip", reason: "no_order_id" };
+  const order: any = db.prepare("SELECT id, tg_id FROM orders WHERE id = ?").get(orderId);
+  if (!order) return { action: "skip", reason: "not_found" };
+  const payer = input.payerId;
+  if (!payer || (payer !== ADMIN_CHAT_ID && Number(order.tg_id) !== Number(payer))) {
+    return { action: "skip", reason: "payer_mismatch" };
+  }
+  return { action: "mark_paid", orderId };
+}
+
+/**
  * Fulfil an order exactly once (first time it becomes paid OR delivered):
  *  - awards the Stars cashback to the customer (rate by current tier)
  *  - updates the loyalty tier
@@ -773,6 +796,12 @@ export function startBot(db: Database.Database) {
   bot.callbackQuery(/^order_accept_(.+)$/, async (ctx) => {
     const orderId = ctx.match![1];
     try {
+      // Only the configured admin may drive the order status flow
+      // (same gate as order_status_* — legacy button must not be wider).
+      if (ctx.from?.id !== ADMIN_CHAT_ID) {
+        await ctx.answerCallbackQuery({ text: "⛔ Faqat admin / Только для админа" });
+        return;
+      }
       const result = await transitionOrderStatus(db, orderId, "preparing");
       if (!result.ok) {
         await ctx.answerCallbackQuery({
@@ -1110,6 +1139,14 @@ export function startBot(db: Database.Database) {
       await next();
       return;
     }
+    // In a personal admin chat (positive chat id) only the admin user
+    // themselves may save a manager reply — not anyone who can reach the
+    // same chat. Group admin chats keep the chat-scoped gate (the configured
+    // group is the boundary) until an explicit staff allowlist exists.
+    if (ADMIN_CHAT_ID > 0 && ctx.from?.id !== ADMIN_CHAT_ID) {
+      await next();
+      return;
+    }
     const source = db.prepare(
       "SELECT tg_id FROM support_messages WHERE admin_message_id = ? AND sender = 'customer'",
     ).get(ctx.message.reply_to_message.message_id) as { tg_id: number } | undefined;
@@ -1161,24 +1198,42 @@ export function startBot(db: Database.Database) {
       // Keep the payment recorded even if an old payload is malformed.
     }
 
-    if (payload.orderId) {
+    // The order flips to paid ONLY when the payer matches the order owner
+    // (or the admin). A mismatched payer means the payment belongs to a
+    // different account — we must not mark someone else's order paid.
+    const decision = decideStarsPayment(db, { orderId: payload.orderId, payerId: ctx.from?.id });
+    let mismatch = false;
+    if (decision.action === "mark_paid") {
       db.prepare("UPDATE orders SET payment_status = 'paid', updated_at = datetime('now') WHERE id = ?")
-        .run(payload.orderId);
+        .run(decision.orderId);
       // Cashback + referral bonus (exactly once)
-      fulfillOrder(db, String(payload.orderId));
+      fulfillOrder(db, decision.orderId);
+    } else {
+      mismatch = decision.reason !== "no_order_id";
+      console.error(
+        `stars payment rejected: ${decision.reason} orderId=${payload.orderId ?? "—"} payer=${ctx.from?.id ?? "—"}`,
+      );
     }
 
     if (ADMIN_CHAT_ID) {
+      const line = mismatch
+        ? `⚠️ <b>Stars оплата НЕ применена</b> (${decision.action === "skip" ? decision.reason : ""})\n`
+        : `⭐ <b>Telegram Stars оплата получена</b>\n`;
       await api.sendMessage(
         ADMIN_CHAT_ID,
-        `⭐ <b>Telegram Stars оплата получена</b>\nЗаказ: #${esc(payload.orderId || "—")}\nStars: ${esc(payment.total_amount)}\nКлиент: ${esc(ctx.from?.first_name || "—")}`,
+        `${line}Заказ: #${esc(payload.orderId || "—")}\nStars: ${esc(payment.total_amount)}\nКлиент: ${esc(ctx.from?.first_name || "—")}`,
         { parse_mode: "HTML" },
       );
     }
 
-    await ctx.reply("✅ Оплата Telegram Stars подтверждена. Спасибо за заказ!", {
-      reply_markup: new InlineKeyboard().webApp("📦 Открыть заказ", `${APP_URL}?tab=orders`),
-    });
+    await ctx.reply(
+      mismatch
+        ? "⚠️ Оплата получена, но она не привязана к вашему заказу. Напишите в поддержку."
+        : "✅ Оплата Telegram Stars подтверждена. Спасибо за заказ!",
+      {
+        reply_markup: new InlineKeyboard().webApp("📦 Открыть заказ", `${APP_URL}?tab=orders`),
+      },
+    );
   });
 
   /* ────── Handle web_app_data from Mini App ────── */

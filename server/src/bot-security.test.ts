@@ -82,3 +82,32 @@ describe("/track order lookup is owner-scoped (IDOR fix)", async () => {
     assert.equal(r.found, false);
   });
 });
+
+describe("Stars payment decision is payer-scoped (forwarded-payment fix)", async () => {
+  const { decideStarsPayment } = await import("./bot.js");
+
+  it("the order owner may mark their order paid", () => {
+    const r = decideStarsPayment(db, { orderId: "DL-1001", payerId: 111001 });
+    assert.deepEqual(r, { action: "mark_paid", orderId: "DL-1001" });
+  });
+
+  it("the configured admin may mark any order paid", () => {
+    const r = decideStarsPayment(db, { orderId: "DL-1002", payerId: ADMIN_ID });
+    assert.deepEqual(r, { action: "mark_paid", orderId: "DL-1002" });
+  });
+
+  it("a stranger's payment does NOT mark someone else's order paid", () => {
+    const r = decideStarsPayment(db, { orderId: "DL-1001", payerId: 120001 });
+    assert.deepEqual(r, { action: "skip", reason: "payer_mismatch" });
+  });
+
+  it("an order that does not exist is never marked paid", () => {
+    const r = decideStarsPayment(db, { orderId: "DL-9999", payerId: 111001 });
+    assert.deepEqual(r, { action: "skip", reason: "not_found" });
+  });
+
+  it("a malformed payload (no order id) is skipped, not a mismatch", () => {
+    assert.deepEqual(decideStarsPayment(db, { payerId: 111001 }), { action: "skip", reason: "no_order_id" });
+    assert.deepEqual(decideStarsPayment(db, { orderId: "  " }), { action: "skip", reason: "no_order_id" });
+  });
+});

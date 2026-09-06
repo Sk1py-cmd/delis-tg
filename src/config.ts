@@ -35,6 +35,11 @@ export const CONFIG = {
   SUPPORT_TG: "@Sk1py",
   SUPPORT_TG_LINK: "https://t.me/Sk1py",
   SUPPORT_EMAIL: "hello@delis.uz",
+  /** Имя менеджера для блока «Написать менеджеру» (пусто = без имени).
+   *  Меняется из админки (вкладка «Сайт») — как и часы работы ниже. */
+  MANAGER_NAME: "",
+  /** Часы работы поддержки — строка для людей, например "9:00 – 21:00". */
+  SUPPORT_HOURS: "9:00 – 21:00",
   /** Бот — реальный (создан в @BotFather заказчиком). */
   BOT_LINK: "https://t.me/delisgroup_bot",
   BOT_USERNAME: "delisgroup_bot",

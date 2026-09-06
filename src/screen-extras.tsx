@@ -4,6 +4,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useI18n, type Lang } from "./i18n";
 import { CONFIG } from "./config";
+import { useSiteSettings, tgHref } from "./site-settings";
 import { haptic, Reveal } from "./kit";
 import { addJobApp, type JobPositionId } from "./data";
 import {
@@ -126,6 +127,8 @@ export function QuickAccessSheet({
   onChat?: () => void;
 }) {
   const { t, lang } = useI18n();
+  /* Контакты менеджера — редактируются из админки (вкладка «Сайт»). */
+  const site = useSiteSettings();
   const actions = [
     ...(onSearch
       ? [{ icon: IconSearch, title: t("searchAllPh").replace("…", ""), sub: t("searchTryAgain"), action: onSearch, tint: "bg-sagetint text-pine" }]
@@ -180,7 +183,7 @@ export function QuickAccessSheet({
           </button>
         ))}
         <a
-          href={CONFIG.SUPPORT_TG_LINK}
+          href={tgHref(site.supportTg)}
           target="_blank"
           rel="noreferrer"
           onClick={() => haptic("medium")}
@@ -191,7 +194,9 @@ export function QuickAccessSheet({
           </span>
           <span className="flex-1">
             <span className="block text-[14px] font-bold text-ink">{t("quickSupport")}</span>
-            <span className="mt-0.5 block text-[12px] font-medium text-ink/70">{t("quickSupportSub")}</span>
+            <span className="mt-0.5 block text-[12px] font-medium text-ink/70">
+              {t("quickSupportSub")} · {site.managerName ? `${site.managerName} · ` : ""}{site.supportHours}
+            </span>
           </span>
           <IconChevron size={15} className="text-ink/75" />
         </a>
@@ -285,6 +290,7 @@ export function HeroSlider({
 
 export function FaqScreen() {
   const { t } = useI18n();
+  const site = useSiteSettings();
   const [openIdx, setOpenIdx] = useState<number | null>(0);
   const [cat, setCat] = useState("all");
   const cats = [
@@ -368,7 +374,7 @@ export function FaqScreen() {
 
       {/* Support CTA */}
       <a
-        href={CONFIG.SUPPORT_TG_LINK}
+        href={tgHref(site.supportTg)}
         target="_blank"
         rel="noreferrer"
         onClick={() => haptic("medium")}
@@ -774,6 +780,7 @@ const CAREERS_FORM_L: Record<Lang, {
 
 export function CareersScreen() {
   const { t, lang } = useI18n();
+  const site = useSiteSettings();
   const ex = CAREERS_EXTRA[lang];
   const FL = CAREERS_FORM_L[lang];
   const [selected, setSelected] = useState<JobPositionId | null>(null);
@@ -797,7 +804,7 @@ export function CareersScreen() {
     addJobApp({ position: selected, name: name.trim(), phone: phone.trim(), note: note.trim() || undefined });
     const posLabel = JOB_POSITIONS_L[lang][selected].t;
     const text = encodeURIComponent(FL.tmpl(posLabel, name.trim(), phone.trim(), note.trim()));
-    setTgLink(`${CONFIG.SUPPORT_TG_LINK}?text=${text}`);
+    setTgLink(`${tgHref(site.supportTg)}?text=${text}`);
     setSent(true);
   };
 
@@ -960,7 +967,7 @@ export function CareersScreen() {
         {/* CTA */}
         <Reveal delay={120} className="mt-6">
           <a
-            href={CONFIG.SUPPORT_TG_LINK}
+            href={tgHref(site.supportTg)}
             target="_blank"
             rel="noreferrer"
             onClick={() => haptic("medium")}
@@ -969,7 +976,9 @@ export function CareersScreen() {
             <IconSend size={16} />
             {t("careersCta")}
           </a>
-          <p className="mt-2.5 text-center text-[12px] font-medium text-ink/70">{t("careersCtaSub")}</p>
+          <p className="mt-2.5 text-center text-[12px] font-medium text-ink/70">
+            {site.managerName ? `${site.managerName} · ` : ""}{site.supportTg} · {site.supportHours} — {t("careersCtaSub")}
+          </p>
         </Reveal>
       </div>
     </section>
@@ -1214,6 +1223,7 @@ const RETURNS_L: Record<Lang, {
   step: { t: string; d: string }[];
   cta: string;
   ctaS: string;
+  daily: string;
 }> = {
   uz: {
     kicker: "Qaytarish",
@@ -1238,6 +1248,7 @@ const RETURNS_L: Record<Lang, {
       { t: "To'lov", d: "Pul 1–3 kunda qaytadi" },
     ],
     cta: "Qo'llab-quvvatlashga yozish",
+    daily: "har kuni",
     ctaS: `${CONFIG.SUPPORT_TG} · har kuni 9:00–21:00`,
   },
   ru: {
@@ -1263,6 +1274,7 @@ const RETURNS_L: Record<Lang, {
       { t: "Возврат", d: "Деньги приходят за 1–3 дня" },
     ],
     cta: "Написать в поддержку",
+    daily: "ежедневно",
     ctaS: `${CONFIG.SUPPORT_TG} · ежедневно 9:00–21:00`,
   },
   en: {
@@ -1288,20 +1300,24 @@ const RETURNS_L: Record<Lang, {
       { t: "Refund", d: "Money back in 1–3 days" },
     ],
     cta: "Contact support",
+    daily: "daily",
     ctaS: `${CONFIG.SUPPORT_TG} · daily 9:00–21:00`,
   },
 };
 
 export function ReturnsScreen() {
   const { lang } = useI18n();
+  const site = useSiteSettings();
   const L = RETURNS_L[lang];
+  /* Динамическая подпись: имя менеджера (если задано) + редактируемые часы. */
+  const ctaSub = `${site.managerName ? `${site.managerName} · ` : ""}${site.supportTg} · ${L.daily} ${site.supportHours}`;
   return (
     <section className="pb-4">
       <HeroSlider
         slides={[
           { img: "images/prod-wax.jpg", kicker: L.kicker, title: L.hero, sub: L.heroS },
           { img: "images/prod-shampoo.jpg", kicker: L.kicker, title: `${L.numL}`, sub: L.rule[1].d },
-          { img: "images/cat-car.jpg", kicker: L.kicker, title: L.ok[3], sub: L.ctaS },
+          { img: "images/cat-car.jpg", kicker: L.kicker, title: L.ok[3], sub: ctaSub },
         ]}
       />
 
@@ -1384,7 +1400,7 @@ export function ReturnsScreen() {
         {/* CTA */}
         <Reveal delay={120} className="mt-6">
           <a
-            href={CONFIG.SUPPORT_TG_LINK}
+            href={tgHref(site.supportTg)}
             target="_blank"
             rel="noreferrer"
             onClick={() => haptic("medium")}
@@ -1393,7 +1409,7 @@ export function ReturnsScreen() {
             <IconSend size={16} />
             {L.cta}
           </a>
-          <p className="mt-2.5 text-center text-[12px] font-medium text-ink/70">{L.ctaS}</p>
+          <p className="mt-2.5 text-center text-[12px] font-medium text-ink/70">{ctaSub}</p>
         </Reveal>
       </div>
     </section>

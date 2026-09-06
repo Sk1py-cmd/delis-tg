@@ -14,6 +14,7 @@ import {
 import { formatPrice, haptic, sendDataToBot, openTelegramShare, openTelegramInvoice, requestTelegramContact } from "./kit";
 import { createStarsInvoice, fetchOrderStatus } from "./api";
 import { CONFIG } from "./config";
+import { useSiteSettings, tgHref } from "./site-settings";
 import {
   IconCheck,
   IconCopy,
@@ -441,6 +442,7 @@ export function PaymentGatewayModal({
   onPaymentSuccess: (order: Order) => void;
 }) {
   const { t, lang } = useI18n();
+  const site = useSiteSettings();
   const [countdown, setCountdown] = useState(600); // 10 minutes
   const [isProcessing, setIsProcessing] = useState(false);
   const [checking, setChecking] = useState(false);
@@ -609,13 +611,13 @@ export function PaymentGatewayModal({
               <p className="text-[13px] font-bold text-amberdeep">{t("payNotConfigured")}</p>
               <p className="mt-1 text-[12px] leading-relaxed text-ink2">{t("payNotConfiguredSub")}</p>
               <a
-                href={CONFIG.SUPPORT_TG_LINK}
+                href={tgHref(site.supportTg)}
                 target="_blank"
                 rel="noreferrer"
                 className="press mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-card px-3.5 py-2 text-[12px] font-bold text-pine"
               >
                 <IconSend size={13} />
-                {CONFIG.SUPPORT_TG}
+                {site.managerName ? `${site.managerName} · ` : ""}{site.supportTg}
               </a>
             </div>
           )}

@@ -40,7 +40,8 @@ export function SiteSettingsTab({ onToast }: { onToast: (message: string) => voi
   const current = useSiteSettings();
   const [draft, setDraft] = useState<SiteSettings>(current);
   const [saving, setSaving] = useState(false);
-  const ru = lang === "ru";
+  /* Все подписи — на трёх языках (uz / ru / en). */
+  const L = (uz: string, ru: string, en: string) => (lang === "ru" ? ru : lang === "en" ? en : uz);
 
   const save = async () => {
     setSaving(true);
@@ -48,13 +49,13 @@ export function SiteSettingsTab({ onToast }: { onToast: (message: string) => voi
     await saveSiteSettings(draft);
     setSaving(false);
     haptic("success");
-    onToast(ru ? "Контакты сайта сохранены ✓" : "Kontaktlar saqlandi ✓");
+    onToast(L("Kontaktlar saqlandi ✓", "Контакты сайта сохранены ✓", "Site contacts saved ✓"));
   };
 
   const reset = () => {
     haptic("light");
     setDraft(current);
-    onToast(ru ? "Изменения отменены" : "O'zgarishlar bekor qilindi");
+    onToast(L("O'zgarishlar bekor qilindi", "Изменения отменены", "Changes reverted"));
   };
 
   const dirty = JSON.stringify(draft) !== JSON.stringify(current);
@@ -62,21 +63,45 @@ export function SiteSettingsTab({ onToast }: { onToast: (message: string) => voi
   return (
     <div className="space-y-3 animate-pop">
       <p className="text-[11px] leading-snug text-ink2">
-        {ru
-          ? "Эти контакты показываются в футере и кнопках связи. Пустое поле соцсети — иконка скрыта."
-          : "Bu kontaktlar futterda va aloqa tugmalarida ko'rsatiladi. Bo'sh ijtimoiy tarmoq — belgi yashirinadi."}
+        {L(
+          "Bu kontaktlar futterda va aloqa tugmalarida ko'rsatiladi. Bo'sh ijtimoiy tarmoq — belgi yashirinadi.",
+          "Эти контакты показываются в футере, кнопках связи и у бота /support. Пустое поле соцсети — иконка скрыта.",
+          "These contacts appear in the footer and contact buttons. An empty social field hides the icon.",
+        )}
       </p>
 
       <div className="space-y-4 rounded-[20px] border border-ink/18 bg-card p-4">
         <Field
-          label={ru ? "Телефон поддержки" : "Qo'llab-quvvatlash telefoni"}
+          label={L("Menejer ismi", "Имя менеджера", "Manager name")}
+          hint={L(
+            "«Menejerga yozish» blokida ko'rinadi. Bo'sh — faqat username ko'rsatiladi.",
+            "Показывается в блоке «Написать менеджеру» и в боте. Пусто — только username.",
+            "Shown in the “Write to manager” block and the bot. Empty — username only.",
+          )}
+          value={draft.managerName}
+          placeholder={L("Murodjon", "Муроджон", "Murodjon")}
+          onChange={(v) => setDraft({ ...draft, managerName: v })}
+        />
+        <Field
+          label={L("Ish vaqti", "Часы работы поддержки", "Support hours")}
+          hint={L(
+            "Erkin matn: «9:00 – 21:00» yoki «Dush–Shan, 9:00–21:00».",
+            "Свободный текст: «9:00 – 21:00» или «Пн–Вс, 9:00–21:00».",
+            "Free text: “9:00 – 21:00” or “Mon–Sun, 9:00–21:00”.",
+          )}
+          value={draft.supportHours}
+          placeholder="9:00 – 21:00"
+          onChange={(v) => setDraft({ ...draft, supportHours: v })}
+        />
+        <Field
+          label={L("Qo'llab-quvvatlash telefoni", "Телефон поддержки", "Support phone")}
           value={draft.supportPhone}
           placeholder="+998 88 044-66-55"
           onChange={(v) => setDraft({ ...draft, supportPhone: v })}
         />
         <Field
-          label={ru ? "Телефон 2 (необязательно)" : "Telefon 2 (ixtiyoriy)"}
-          hint={ru ? "Пусто — второй номер не показывается." : "Bo'sh — ikkinchi raqam ko'rsatilmaydi."}
+          label={L("Telefon 2 (ixtiyoriy)", "Телефон 2 (необязательно)", "Phone 2 (optional)")}
+          hint={L("Bo'sh — ikkinchi raqam ko'rsatilmaydi.", "Пусто — второй номер не показывается.", "Empty — the second number is hidden.")}
           value={draft.supportPhone2}
           placeholder="+998 94 331-64-64"
           onChange={(v) => setDraft({ ...draft, supportPhone2: v })}
@@ -88,8 +113,12 @@ export function SiteSettingsTab({ onToast }: { onToast: (message: string) => voi
           onChange={(v) => setDraft({ ...draft, supportEmail: v })}
         />
         <Field
-          label={ru ? "Telegram менеджера" : "Menejerning Telegrami"}
-          hint={ru ? "@username или https://t.me/... — куда клиенты пишут в поддержку." : "@username yoki https://t.me/... — mijozlar yozadigan manzil."}
+          label={L("Menejerning Telegrami", "Telegram менеджера", "Manager Telegram")}
+          hint={L(
+            "@username yoki https://t.me/... — mijozlar yozadigan manzil.",
+            "@username или https://t.me/... — куда клиенты пишут в поддержку.",
+            "@username or https://t.me/... — where customers write for support.",
+          )}
           value={draft.supportTg}
           placeholder="@delis_care"
           onChange={(v) => setDraft({ ...draft, supportTg: v })}
@@ -98,11 +127,15 @@ export function SiteSettingsTab({ onToast }: { onToast: (message: string) => voi
 
       <div className="space-y-4 rounded-[20px] border border-ink/18 bg-card p-4">
         <p className="text-[10px] font-extrabold uppercase tracking-wider text-ink2">
-          {ru ? "Соцсети (пусто = скрыто)" : "Ijtimoiy tarmoqlar (bo'sh = yashirin)"}
+          {L("Ijtimoiy tarmoqlar (bo'sh = yashirin)", "Соцсети (пусто = скрыто)", "Socials (empty = hidden)")}
         </p>
         <Field
-          label={ru ? "Telegram-канал" : "Telegram-kanal"}
-          hint={ru ? "Например https://t.me/delis_uz. Пусто — показываем ссылку на бота." : "Masalan https://t.me/delis_uz. Bo'sh — bot havolasi ko'rsatiladi."}
+          label={L("Telegram-kanal", "Telegram-канал", "Telegram channel")}
+          hint={L(
+            "Masalan https://t.me/delis_uz. Bo'sh — bot havolasi ko'rsatiladi.",
+            "Например https://t.me/delis_uz. Пусто — показываем ссылку на бота.",
+            "E.g. https://t.me/delis_uz. Empty — the bot link is shown.",
+          )}
           value={draft.telegram}
           placeholder="https://t.me/…"
           onChange={(v) => setDraft({ ...draft, telegram: v })}
@@ -127,14 +160,16 @@ export function SiteSettingsTab({ onToast }: { onToast: (message: string) => voi
           disabled={saving || !dirty}
           className="flex-1 rounded-[16px] bg-moss py-3 text-[13px] font-bold text-white transition disabled:opacity-40"
         >
-          {saving ? (ru ? "Сохранение…" : "Saqlanmoqda…") : ru ? "Сохранить" : "Saqlash"}
+          {saving
+            ? L("Saqlanmoqda…", "Сохранение…", "Saving…")
+            : L("Saqlash", "Сохранить", "Save")}
         </button>
         {dirty && (
           <button
             onClick={reset}
             className="rounded-[16px] border border-ink/18 bg-card px-4 text-[13px] font-bold text-ink2"
           >
-            {ru ? "Сброс" : "Bekor"}
+            {L("Bekor", "Сброс", "Reset")}
           </button>
         )}
       </div>

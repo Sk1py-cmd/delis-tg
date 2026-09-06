@@ -16,6 +16,10 @@ export type SiteSettings = {
   supportPhone2: string;
   supportEmail: string;
   supportTg: string;    // @username (или полная t.me-ссылка)
+  /** Отображаемое имя менеджера («Написать менеджеру»); пусто = без имени. */
+  managerName: string;
+  /** Часы работы поддержки — строка для людей ("9:00 – 21:00"). */
+  supportHours: string;
   telegram: string;     // канал (пусто = скрыт)
   instagram: string;    // пусто = скрыт
   youtube: string;      // пусто = скрыт
@@ -30,6 +34,8 @@ function defaults(): SiteSettings {
     supportPhone2: CONFIG.SUPPORT_PHONE_2,
     supportEmail: CONFIG.SUPPORT_EMAIL,
     supportTg: CONFIG.SUPPORT_TG,
+    managerName: CONFIG.MANAGER_NAME,
+    supportHours: CONFIG.SUPPORT_HOURS,
     telegram: CONFIG.SOCIALS.telegram,
     instagram: CONFIG.SOCIALS.instagram,
     youtube: CONFIG.SOCIALS.youtube,
@@ -46,6 +52,8 @@ function normalize(raw: unknown): SiteSettings {
     supportPhone2: pick("supportPhone2"),
     supportEmail: pick("supportEmail"),
     supportTg: pick("supportTg"),
+    managerName: pick("managerName"),
+    supportHours: pick("supportHours"),
     telegram: pick("telegram"),
     instagram: pick("instagram"),
     youtube: pick("youtube"),

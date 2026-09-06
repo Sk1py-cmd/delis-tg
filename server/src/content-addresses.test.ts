@@ -81,6 +81,43 @@ describe("managed site settings, delivery and home content", () => {
     assert.equal(publicSettings.json().supportPhone, "+998 90 123-45-67");
   });
 
+  it("saves and publishes the support block (manager name + hours)", async () => {
+    const save = await app.inject({
+      method: "POST", url: "/v1/admin/site-settings", headers: ADMIN(),
+      payload: {
+        managerName: "  Murodjon  ",
+        supportHours: "Dush–Yak, 9:00–21:00",
+        supportTg: "@delis_care",
+      },
+    });
+    assert.equal(save.statusCode, 200, save.body);
+    assert.equal(save.json().settings.managerName, "Murodjon");
+    assert.equal(save.json().settings.supportHours, "Dush–Yak, 9:00–21:00");
+
+    const publicSettings = await app.inject({ method: "GET", url: "/v1/site-settings" });
+    assert.equal(publicSettings.json().managerName, "Murodjon");
+    assert.equal(publicSettings.json().supportHours, "Dush–Yak, 9:00–21:00");
+    assert.equal(publicSettings.json().supportTg, "@delis_care");
+
+    // The bot's /support message builder consumes the same stored values.
+    const { supportContacts } = await import("./bot.js");
+    const contacts = supportContacts(db);
+    assert.equal(contacts.managerName, "Murodjon");
+    assert.equal(contacts.supportHours, "Dush–Yak, 9:00–21:00");
+    assert.equal(contacts.managerTg, "@delis_care");
+  });
+
+  it("supportContacts falls back to env/built-in defaults when nothing is stored", async () => {
+    // A fresh key (unknown to content_settings) keeps defaults intact.
+    db.prepare("DELETE FROM content_settings WHERE key = 'site_settings'").run();
+    const { supportContacts } = await import("./bot.js");
+    const contacts = supportContacts(db);
+    assert.equal(contacts.managerName, "");
+    assert.equal(contacts.supportHours, "9:00 – 21:00");
+    assert.ok(contacts.phone.startsWith("+998"));
+    assert.ok(contacts.managerTg.length > 0);
+  });
+
   it("validates, saves and publishes delivery config", async () => {
     const invalid = await app.inject({
       method: "PUT", url: "/v1/admin/delivery-config", headers: ADMIN(),

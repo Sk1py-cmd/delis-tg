@@ -69,6 +69,47 @@ export function formatPrice(n: number): string {
  *  - a regular user only ever matches THEIR OWN orders;
  *  - no identity (channels/service messages) → nothing.
  */
+/** Support contacts shown to customers (bot /support etc.).
+ *  Priority: admin-editable site_settings (content_settings) → env defaults.
+ *  managerName is the display name of the manager ("Написать менеджеру"),
+ *  supportHours is the human-readable working-hours line ("9:00 – 21:00"). */
+export function supportContacts(db: Database.Database): {
+  phone: string;
+  phone2: string;
+  email: string;
+  managerName: string;
+  supportHours: string;
+  managerTg: string;
+} {
+  const fallback = {
+    phone: SUPPORT_PHONE,
+    phone2: SUPPORT_PHONE_2,
+    email: "hello@delis.uz",
+    managerName: "",
+    supportHours: "9:00 – 21:00",
+    managerTg: SUPPORT_MANAGER_TG,
+  };
+  try {
+    const row = db.prepare("SELECT value_json FROM content_settings WHERE key = ?").get("site_settings") as
+      | { value_json: string }
+      | undefined;
+    if (!row) return fallback;
+    const saved: any = JSON.parse(row.value_json);
+    if (typeof saved !== "object" || saved === null) return fallback;
+    const pick = (key: string, fb: string) => (typeof saved[key] === "string" && saved[key].trim() ? saved[key].trim() : fb);
+    return {
+      phone: pick("supportPhone", fallback.phone),
+      phone2: pick("supportPhone2", fallback.phone2),
+      email: pick("supportEmail", fallback.email),
+      managerName: pick("managerName", fallback.managerName),
+      supportHours: pick("supportHours", fallback.supportHours),
+      managerTg: pick("supportTg", fallback.managerTg),
+    };
+  } catch {
+    return fallback;
+  }
+}
+
 export function trackOrderLookup(
   db: Database.Database,
   input: { fromId?: number; chatId?: number | string; arg: string },
@@ -1187,15 +1228,22 @@ export function startBot(db: Database.Database) {
   /* ────── /support — Contact manager ────── */
 
   bot.command("support", async (ctx) => {
+    // Admin-editable contacts (site_settings) with env fallbacks — the
+    // manager name/hours/phones can be changed from the admin panel without
+    // a redeploy.
+    const c = supportContacts(db);
+    const managerLine = c.managerName
+      ? `${esc(c.managerName)} (${esc(c.managerTg)})`
+      : esc(c.managerTg);
     await ctx.reply(
       `💬 <b>Qo'llab-quvvatlash</b>\n\n` +
-      `📞 ${esc(SUPPORT_PHONE)}\n` +
-      `📞 ${esc(SUPPORT_PHONE_2)}\n` +
-      `⏰ 9:00 – 21:00, har kuni\n\n` +
-      `Menejerga yozish uchun ${esc(SUPPORT_MANAGER_TG)} ga yozing yoki pastdagi tugmani bosing.`,
+      `📞 ${esc(c.phone)}\n` +
+      `📞 ${esc(c.phone2)}\n` +
+      `⏰ ${esc(c.supportHours)}, har kuni\n\n` +
+      `Menejer: ${managerLine} — yozing yoki pastdagi tugmani bosing.`,
       {
         parse_mode: "HTML",
-        reply_markup: new InlineKeyboard().url("💬 Menejerga yozish", `https://t.me/${SUPPORT_MANAGER_TG.replace(/^@/, "")}`),
+        reply_markup: new InlineKeyboard().url("💬 Menejerga yozish", `https://t.me/${c.managerTg.replace(/^@/, "").replace(/^https:\/\/t\.me\//, "")}`),
       },
     );
   });

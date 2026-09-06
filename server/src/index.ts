@@ -530,6 +530,7 @@ app.post("/v1/admin/payments/self-check", async (req, reply) => {
 const SITE_SETTINGS_KEY = "site_settings";
 const SITE_SETTINGS_FIELDS = [
   "supportPhone", "supportPhone2", "supportEmail", "supportTg",
+  "managerName", "supportHours",
   "telegram", "instagram", "youtube",
 ] as const;
 

@@ -6,6 +6,7 @@ import type { LoyaltyConfig, MeResponse } from "./api";
 import { fetchMe, isApiConfigured } from "./api";
 import { useI18n } from "./i18n";
 import { CONFIG } from "./config";
+import { useSiteSettings, tgHref } from "./site-settings";
 import { PRODUCTS, loadBirthday, saveBirthday, type Order, type Product } from "./data";
 import { formatPrice, haptic, type TgUser } from "./kit";
 import {
@@ -586,6 +587,8 @@ export function ProfileSheet({
 }) {
   const { t, lang } = useI18n();
   const L = (uz: string, ru: string, en: string) => (lang === "ru" ? ru : lang === "en" ? en : uz);
+  /* Контакты поддержки — редактируются из админки (вкладка «Сайт»). */
+  const site = useSiteSettings();
   const [birthday, setBirthday] = useState<string>(() => loadBirthday());
   const [notif, setNotif] = useState(true);
   const [welcome, setWelcome] = useState<MeResponse["welcome"] | null>(null);
@@ -1007,7 +1010,7 @@ export function ProfileSheet({
 
           {/* Telegram Support Chat */}
           <a
-            href={CONFIG.SUPPORT_TG_LINK}
+            href={tgHref(site.supportTg)}
             target="_blank"
             rel="noreferrer"
             className="press flex items-center gap-3.5 py-4"
@@ -1017,7 +1020,9 @@ export function ProfileSheet({
             </span>
             <span className="flex-1">
               <span className="block text-[14px] font-bold text-ink">{t("supportRow")}</span>
-              <span className="mt-0.5 block text-[12px] font-semibold text-ink/70">{t("supportSub")}</span>
+              <span className="mt-0.5 block text-[12px] font-semibold text-ink/70">
+                {site.managerName ? `${site.managerName} · ` : ""}{site.supportTg} · {site.supportHours}
+              </span>
             </span>
             <IconChevron size={16} className="text-ink/75" />
           </a>

@@ -3,7 +3,7 @@
  */
 import { useEffect, useMemo, useState } from "react";
 import { useI18n } from "./i18n";
-import { CONFIG } from "./config";
+import { useSiteSettings, phoneHref } from "./site-settings";
 import { type Order, type Product, PRODUCTS } from "./data";
 import { formatPrice, haptic } from "./kit";
 import { IconCheck, IconClock, IconFactory, IconHeart, IconMap, IconMotorcycle, IconNote, IconPhone, IconPlus, IconRepeat, IconSearch, IconSparkle, IconSymbol, IconTruck } from "./icons";
@@ -69,6 +69,7 @@ export function OrderTrackingSheet({
   initialQuery?: string;
 }) {
   const { t, lang } = useI18n();
+  const site = useSiteSettings();
   const [query, setQuery] = useState("");
   const [result, setResult] = useState<Order | null>(null);
   const [notFound, setNotFound] = useState(false);
@@ -314,10 +315,10 @@ export function OrderTrackingSheet({
 
             {/* Courier service phone */}
             <a
-              href={CONFIG.SUPPORT_PHONE_LINK}
+              href={phoneHref(site.supportPhone)}
               className="press flex h-12 items-center justify-center gap-2 rounded-[18px] border border-ink/15 bg-card text-[13px] font-bold text-ink"
             >
-              <IconPhone size={16} /> {t("trackCourierPhone")}: {CONFIG.SUPPORT_PHONE}
+              <IconPhone size={16} /> {t("trackCourierPhone")}: {site.supportPhone}
             </a>
           </div>
         )}

@@ -11,6 +11,7 @@ import {
   IconBank,
   IconCheck,
   IconChevron,
+  IconClock,
   IconInstagram,
   IconMail,
   IconPhone,
@@ -169,6 +170,8 @@ export function Footer({
   const contacts = [
     { icon: IconPhone, label: site.supportPhone, href: phoneHref(site.supportPhone) },
     ...(site.supportPhone2 ? [{ icon: IconPhone, label: site.supportPhone2, href: phoneHref(site.supportPhone2) }] : []),
+    /* Часы работы поддержки — редактируются из админки (вкладка «Сайт»). */
+    { icon: IconClock, label: `${t("footerSupportHours")}: ${site.supportHours}`, href: "" },
     { icon: IconSend, label: CONFIG.BOT_LINK.replace("https://", ""), href: CONFIG.BOT_LINK },
     ...(site.supportEmail ? [{ icon: IconMail, label: site.supportEmail, href: mailHref(site.supportEmail) }] : []),
     { icon: IconPin, label: t("address"), href: "" },

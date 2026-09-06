@@ -21,9 +21,11 @@ services:
       REPORT_HOUR: ${REPORT_HOUR:-18}
       BACKUP_HOUR: ${BACKUP_HOUR:-3}
       COURIER_CHAT_IDS: ${COURIER_CHAT_IDS:-}
+      # ОБЯЗАТЕЛЬНО, если ADMIN_CHAT_ID — групповой чат (кто может отвечать/менять статусы)
+      STAFF_TG_USER_IDS: ${STAFF_TG_USER_IDS:-}
       SUPPORT_PHONE: ${SUPPORT_PHONE:-+998 88 044-66-55}
       SUPPORT_PHONE_2: ${SUPPORT_PHONE_2:-+998 94 331-64-64}
-      SUPPORT_MANAGER_TG: ${SUPPORT_MANAGER_TG:-@Sk1py}
+      SUPPORT_MANAGER_TG: ${SUPPORT_MANAGER_TG:-@delisgroup_bot}
       PAYME_MERCHANT_ID: ${PAYME_MERCHANT_ID:-}
       PAYME_KEY: ${PAYME_KEY:-}
       CLICK_SERVICE_ID: ${CLICK_SERVICE_ID:-}
@@ -31,5 +33,10 @@ services:
       CLICK_SECRET: ${CLICK_SECRET:-}
       SUPABASE_URL: ${SUPABASE_URL:-}
       SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY:-}
+      # Новое (сентябрь 2026): окно сессии для checkout, период бэкапа, доп. CORS origin'ы
+      TG_MONEY_INIT_DATA_MAX_AGE_SECONDS: ${TG_MONEY_INIT_DATA_MAX_AGE_SECONDS:-900}
+      BACKUP_UPLOAD_SECONDS: ${BACKUP_UPLOAD_SECONDS:-300}
+      CORS_EXTRA_ORIGINS: ${CORS_EXTRA_ORIGINS:-}
+      PUBLIC_API_URL: ${PUBLIC_API_URL:-}
     volumes:
       - ./server/data:/app/server/data

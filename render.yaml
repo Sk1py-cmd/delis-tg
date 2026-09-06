@@ -28,6 +28,8 @@ services:
         sync: false
       - key: COURIER_CHAT_IDS     # ID курьеров через запятую
         sync: false
+      - key: STAFF_TG_USER_IDS    # ОБЯЗАТЕЛЬНО при групповом ADMIN_CHAT_ID: user-id сотрудников через запятую
+        sync: false
       - key: SUPPORT_PHONE
         sync: false
       - key: SUPPORT_PHONE_2
@@ -43,6 +45,15 @@ services:
       - key: CLICK_MERCHANT_ID
         sync: false
       - key: CLICK_SECRET
+        sync: false
+      - key: PUBLIC_API_URL       # origin API (для вебхуков Payme/Click в админке), без / в конце
+        sync: false
+      # ── новые (сентябрь 2026), значения по умолчанию см. .env.example ──
+      - key: TG_MONEY_INIT_DATA_MAX_AGE_SECONDS  # окно сессии checkout (default 900)
+        sync: false
+      - key: BACKUP_UPLOAD_SECONDS                # период бэкапа БД в Supabase (default 300)
+        sync: false
+      - key: CORS_EXTRA_ORIGINS                   # точные доп. CORS origin'ы через запятую
         sync: false
       # ── значения по умолчанию ──
       - key: SEED_ON_START

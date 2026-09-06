@@ -8,6 +8,8 @@ import crypto from "crypto";
 
 const BOT_TOKEN = process.env.TG_BOT_TOKEN || "";
 const DEFAULT_MAX_AGE_SECONDS = 24 * 60 * 60;
+/** Stricter default for money routes (checkout, returns) — audit L4. */
+export const DEFAULT_MONEY_MAX_AGE_SECONDS = 15 * 60;
 const CLOCK_SKEW_SECONDS = 5 * 60;
 
 function maxAgeSeconds(): number {
@@ -15,6 +17,19 @@ function maxAgeSeconds(): number {
   return Number.isFinite(configured) && configured >= 300
     ? Math.floor(configured)
     : DEFAULT_MAX_AGE_SECONDS;
+}
+
+/**
+ * Freshness bound enforced on money routes (order placement, returns). A
+ * captured initData payload must not move money hours later even though the
+ * general browsing window is a day. Tunable via
+ * TG_MONEY_INIT_DATA_MAX_AGE_SECONDS (min 300s); default 15 minutes.
+ */
+export function moneyMaxAgeSeconds(): number {
+  const configured = Number(process.env.TG_MONEY_INIT_DATA_MAX_AGE_SECONDS || DEFAULT_MONEY_MAX_AGE_SECONDS);
+  return Number.isFinite(configured) && configured >= 300
+    ? Math.floor(configured)
+    : DEFAULT_MONEY_MAX_AGE_SECONDS;
 }
 
 function secureHexEqual(left: string, right: string): boolean {
@@ -32,6 +47,7 @@ function secureHexEqual(left: string, right: string): boolean {
 export function verifyInitData(
   initData: string,
   nowSeconds = Math.floor(Date.now() / 1000),
+  maxAgeSecondsOverride?: number,
 ): {
   id: number;
   first_name?: string;
@@ -50,7 +66,8 @@ export function verifyInitData(
     const authDate = Number(params.get("auth_date"));
     if (!Number.isInteger(authDate)) return null;
     const age = nowSeconds - authDate;
-    if (age > maxAgeSeconds() || age < -CLOCK_SKEW_SECONDS) return null;
+    const allowedAge = maxAgeSecondsOverride ?? maxAgeSeconds();
+    if (age > allowedAge || age < -CLOCK_SKEW_SECONDS) return null;
 
     const dataCheckString = [...params.entries()]
       .sort(([a], [b]) => a.localeCompare(b))
@@ -77,4 +94,15 @@ export function verifyInitData(
 
 export function extractUserId(initData: string): number | null {
   return verifyInitData(initData)?.id ?? null;
+}
+
+/**
+ * True when initData has a VALID signature and passes the general browsing
+ * window, but is older than the money window. Money routes use this to answer
+ * 401 init_data_stale (instead of a plain unauthorized) so the client can tell
+ * the user to reopen the Mini App instead of retrying a doomed request.
+ */
+export function isInitDataStaleForMoney(initData: string, nowSeconds = Math.floor(Date.now() / 1000)): boolean {
+  if (!verifyInitData(initData, nowSeconds)) return false; // invalid anyway → not "stale"
+  return verifyInitData(initData, nowSeconds, moneyMaxAgeSeconds()) === null;
 }

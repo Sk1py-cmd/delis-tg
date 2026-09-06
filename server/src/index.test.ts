@@ -198,14 +198,22 @@ describe("DELIS API — money paths", () => {
     assert.equal(res.json().error, "telegram_required_for_stars");
   });
 
-  it("allows authenticated API calls from Cloudflare and Pages static hosts", async () => {
+  it("allows authenticated API calls from this project's own preview hosts only", async () => {
+    // Audit L5: platform wildcards (*.workers.dev / *.github.io …) are gone —
+    // only the owner's own worker namespace and Pages host are allowed.
     for (const origin of [
-      "https://arena-preview-delis.workers.dev",
+      "https://arena-01a070d4-delis-tg-admin.mirzaaxmedov2001.workers.dev",
       "https://sk1py-cmd.github.io",
     ]) {
       const res = await app.inject({ method: "GET", url: "/health", headers: { origin } });
       assert.equal(res.statusCode, 200);
       assert.equal(res.headers["access-control-allow-origin"], origin);
+    }
+    // A stranger's host on the same platforms must NOT be allowed.
+    for (const origin of ["https://arena-preview-delis.workers.dev", "https://stranger.github.io"]) {
+      const res = await app.inject({ method: "GET", url: "/health", headers: { origin } });
+      assert.equal(res.statusCode, 200); // not a CORS enforcement error — just no ACAO header
+      assert.equal(res.headers["access-control-allow-origin"], undefined);
     }
   });
 

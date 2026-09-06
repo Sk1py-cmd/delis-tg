@@ -19,6 +19,23 @@ const COURIER_IDS = new Set(
   (process.env.COURIER_CHAT_IDS || String(ADMIN_CHAT_ID || ""))
     .split(",").map((s) => Number(s.trim())).filter((n) => Number.isFinite(n) && n > 0),
 );
+/**
+ * Telegram USER ids that may act as admin in the bot: the configured admin
+ * themself plus an explicit staff allowlist (STAFF_TG_USER_IDS,
+ * comma-separated). This closes the group-chat residual (audit M3): with a
+ * negative/group ADMIN_CHAT_ID every group member would otherwise count as
+ * "the manager" for replies, status buttons and broadcasts.
+ */
+export const STAFF_USER_IDS = new Set(
+  String(process.env.STAFF_TG_USER_IDS || "")
+    .split(",").map((s) => Number(s.trim()))
+    .filter((n) => Number.isInteger(n) && n > 0),
+);
+if (ADMIN_CHAT_ID > 0) STAFF_USER_IDS.add(ADMIN_CHAT_ID);
+
+export function isBotStaff(fromId: number | undefined | null): boolean {
+  return typeof fromId === "number" && STAFF_USER_IDS.has(fromId);
+}
 
 /* ── Shared helpers ── */
 
@@ -60,7 +77,7 @@ export function trackOrderLookup(
   if (!code) return { found: false };
   const fromId = typeof input.fromId === "number" ? input.fromId : null;
   const isStaff =
-    (fromId !== null && fromId === ADMIN_CHAT_ID) ||
+    isBotStaff(fromId) ||
     (typeof input.chatId === "number" && COURIER_IDS.has(input.chatId));
   const order: any = isStaff
     ? db.prepare(
@@ -79,6 +96,33 @@ export function trackOrderLookup(
         ).get(fromId, code, code)
       : null;
   return order ? { found: true, order } : { found: false };
+}
+
+/**
+ * Whether a courier may bind live-location tracking to an order (audit L2):
+ *  - only orders that are actually out for delivery ("shipped") may be
+ *    tracked — not fresh/preparing ones;
+ *  - one order → one courier: a second allowed courier cannot hijack an
+ *    active live session started by a colleague.
+ */
+export function courierArmDecision(
+  db: Database.Database,
+  input: { orderId: string; courierId: number },
+): { ok: true; orderId: string } | { ok: false; reason: "not_found" | "not_shipped" | "already_tracked" } {
+  const order: any = db.prepare("SELECT id, status FROM orders WHERE id = ?").get(input.orderId);
+  if (!order) return { ok: false, reason: "not_found" };
+  if (String(order.status) !== "shipped") return { ok: false, reason: "not_shipped" };
+  const bound: any = db
+    .prepare("SELECT tg_id, live_until_ms FROM courier_locations WHERE order_id = ?")
+    .get(order.id);
+  if (
+    bound &&
+    Number(bound.tg_id) !== Number(input.courierId) &&
+    Number(bound.live_until_ms) > Date.now()
+  ) {
+    return { ok: false, reason: "already_tracked" };
+  }
+  return { ok: true, orderId: String(order.id) };
 }
 
 /**
@@ -228,6 +272,11 @@ export async function transitionOrderStatus(
   let restockedProducts: string[] = [];
   db.transaction(() => {
     db.prepare("UPDATE orders SET status = ?, updated_at = datetime('now') WHERE id = ?").run(status, orderId);
+    // Terminal states end live tracking immediately — the row is deleted so
+    // the customer's map stops even before the live_period expires (audit L2).
+    if (status === "delivered" || status === "canceled") {
+      db.prepare("DELETE FROM courier_locations WHERE order_id = ?").run(orderId);
+    }
     if (status === "canceled" && order.status !== "canceled") {
       const items = db.prepare(
         "SELECT product_id, qty FROM order_items WHERE order_id = ? AND stock_taken = 1",
@@ -603,6 +652,19 @@ export function startBot(db: Database.Database) {
     }
     if (!orderId) return; // courier is just sharing a location casually — ignore
 
+    // Stop publishing the moment the order is no longer out for delivery
+    // (delivered/canceled/anything else) — a finished order must not keep a
+    // live location on the customer's map (audit L2).
+    const trackedOrder: any = db.prepare("SELECT status FROM orders WHERE id = ?").get(orderId);
+    if (!trackedOrder || String(trackedOrder.status) !== "shipped") {
+      db.prepare("DELETE FROM courier_locations WHERE order_id = ?").run(orderId);
+      armedOrders.delete(from.id);
+      return;
+    }
+    // Only the courier already bound to this order may keep updating it.
+    const boundRow: any = db.prepare("SELECT tg_id FROM courier_locations WHERE order_id = ?").get(orderId);
+    if (boundRow && Number(boundRow.tg_id) !== Number(from.id)) return;
+
     const hadSession = db.prepare("SELECT 1 FROM courier_locations WHERE order_id = ?").get(orderId);
     const now = Date.now();
     const livePeriod = Number(loc.live_period || 15 * 60);
@@ -643,15 +705,23 @@ export function startBot(db: Database.Database) {
       await ctx.reply(`❌ Buyurtma <code>${esc(arg)}</code> topilmadi.`, { parse_mode: "HTML" });
       return;
     }
-    if (order.status === "canceled" || order.status === "delivered") {
-      await ctx.reply(`⚠️ <code>${esc(arg)}</code> holati: ${esc(order.status)} — kuzatuv kerak emas.`, { parse_mode: "HTML" });
-      return;
-    }
     const courierId = ctx.from?.id;
     if (!courierId) return;
-    armedOrders.set(courierId, { orderId: order.id, armedAt: Date.now() });
+    // Arm gate (audit L2): shipped-only + one courier per order.
+    const arm = courierArmDecision(db, { orderId: String(order.id), courierId });
+    if (!arm.ok) {
+      const msg =
+        arm.reason === "not_found"
+          ? `❌ Buyurtma <code>${esc(arg)}</code> topilmadi.`
+          : arm.reason === "not_shipped"
+            ? `⏳ <code>${esc(order.id)}</code> holati: <b>${esc(order.status)}</b>. Jonli kuzatuv faqat <b>shipped</b> (yetkazilmoqda) holatida yoqiladi — avval statusni yangilang.`
+            : `⛔ <code>${esc(order.id)}</code> uchun jonli kuzatuv boshqa kuryerda aktiv.`;
+      await ctx.reply(msg, { parse_mode: "HTML" });
+      return;
+    }
+    armedOrders.set(courierId, { orderId: arm.orderId, armedAt: Date.now() });
     await ctx.reply(
-      `🛵 <code>${esc(order.id)}</code> uchun tayyor! Endi bu chatga <b>jonli lokatsiya</b> yuboring (15 daqiqa ichida).`,
+      `🛵 <code>${esc(arm.orderId)}</code> uchun tayyor! Endi bu chatga <b>jonli lokatsiya</b> yuboring (15 daqiqa ichida).`,
       { parse_mode: "HTML" },
     );
   });
@@ -725,7 +795,7 @@ export function startBot(db: Database.Database) {
   /* ────── /broadcast — admin-only mass message ────── */
 
   bot.command("broadcast", async (ctx) => {
-    if (!ctx.from || ctx.from.id !== ADMIN_CHAT_ID) {
+    if (!isBotStaff(ctx.from?.id)) {
       await ctx.reply("⛔ Faqat admin uchun / Только для админа");
       return;
     }
@@ -757,8 +827,8 @@ export function startBot(db: Database.Database) {
     const orderId = ctx.match![1];
     const status = ctx.match![2];
     try {
-      // Only the configured admin may drive the order status flow.
-      if (ctx.from?.id !== ADMIN_CHAT_ID) {
+      // Only staff (admin + STAFF_TG_USER_IDS) may drive the order status flow.
+      if (!isBotStaff(ctx.from?.id)) {
         await ctx.answerCallbackQuery({ text: "⛔ Faqat admin / Только для админа" });
         return;
       }
@@ -796,9 +866,9 @@ export function startBot(db: Database.Database) {
   bot.callbackQuery(/^order_accept_(.+)$/, async (ctx) => {
     const orderId = ctx.match![1];
     try {
-      // Only the configured admin may drive the order status flow
-      // (same gate as order_status_* — legacy button must not be wider).
-      if (ctx.from?.id !== ADMIN_CHAT_ID) {
+      // Only staff (admin + STAFF_TG_USER_IDS) may drive the order status
+      // flow (same gate as order_status_* — legacy button must not be wider).
+      if (!isBotStaff(ctx.from?.id)) {
         await ctx.answerCallbackQuery({ text: "⛔ Faqat admin / Только для админа" });
         return;
       }
@@ -1139,11 +1209,11 @@ export function startBot(db: Database.Database) {
       await next();
       return;
     }
-    // In a personal admin chat (positive chat id) only the admin user
-    // themselves may save a manager reply — not anyone who can reach the
-    // same chat. Group admin chats keep the chat-scoped gate (the configured
-    // group is the boundary) until an explicit staff allowlist exists.
-    if (ADMIN_CHAT_ID > 0 && ctx.from?.id !== ADMIN_CHAT_ID) {
+    // Audit M3: a manager reply requires a STAFF user — the configured admin
+    // themself or an explicit STAFF_TG_USER_IDS allowlist. In a group admin
+    // chat this stops any random group member from impersonating the manager;
+    // in a personal chat the set contains exactly the admin.
+    if (!isBotStaff(ctx.from?.id)) {
       await next();
       return;
     }
@@ -1272,11 +1342,11 @@ export function startBot(db: Database.Database) {
           `💳 ${esc(o.payment?.method || "—")} · ${esc(o.payment?.status || "—")}\n\n` +
           `📅 ${esc(o.created_at)}`;
 
-        const kb = new InlineKeyboard()
-          .text("✅ Vazifaga olish / В работу", `order_accept_${o.order_id}`)
-          .row();
-        if (customer.phone) kb.url("📞 Qo'ng'iroq", `tel:${String(customer.phone).replace(/[^\d+]/g, "")}`);
-        kb.webApp("📋 Batafsil", `${APP_URL}?tab=admin`);
+        // Same quick-status keyboard the API path uses — the legacy
+        // order_accept_* button is no longer minted anywhere (audit M2); the
+        // handler stays only for admin-gated old messages still floating in
+        // the admin chat.
+        const kb = orderStatusKeyboard(String(o.order_id), "new", customer.phone);
 
         try {
           await api.sendMessage(ADMIN_CHAT_ID, adminText, { parse_mode: "HTML", reply_markup: kb });

@@ -18,8 +18,12 @@ export type SiteSettings = {
   supportTg: string;    // @username (или полная t.me-ссылка)
   /** Отображаемое имя менеджера («Написать менеджеру»); пусто = без имени. */
   managerName: string;
-  /** Часы работы поддержки — строка для людей ("9:00 – 21:00"). */
+  /** Часы работы поддержки — общая строка-фолбэк ("9:00 – 21:00"). */
   supportHours: string;
+  /** Часы работы по языкам (uz/ru/en); пусто = берётся supportHours. */
+  supportHoursUz: string;
+  supportHoursRu: string;
+  supportHoursEn: string;
   telegram: string;     // канал (пусто = скрыт)
   instagram: string;    // пусто = скрыт
   youtube: string;      // пусто = скрыт
@@ -36,6 +40,9 @@ function defaults(): SiteSettings {
     supportTg: CONFIG.SUPPORT_TG,
     managerName: CONFIG.MANAGER_NAME,
     supportHours: CONFIG.SUPPORT_HOURS,
+    supportHoursUz: "",
+    supportHoursRu: "",
+    supportHoursEn: "",
     telegram: CONFIG.SOCIALS.telegram,
     instagram: CONFIG.SOCIALS.instagram,
     youtube: CONFIG.SOCIALS.youtube,
@@ -54,10 +61,21 @@ function normalize(raw: unknown): SiteSettings {
     supportTg: pick("supportTg"),
     managerName: pick("managerName"),
     supportHours: pick("supportHours"),
+    supportHoursUz: pick("supportHoursUz"),
+    supportHoursRu: pick("supportHoursRu"),
+    supportHoursEn: pick("supportHoursEn"),
     telegram: pick("telegram"),
     instagram: pick("instagram"),
     youtube: pick("youtube"),
   };
+}
+
+/** Часы работы на языке интерфейса: uz/ru/en-вариант → общая строка → дефолт. */
+export function hoursFor(s: SiteSettings, lang: "uz" | "ru" | "en"): string {
+  const per = lang === "uz" ? s.supportHoursUz : lang === "ru" ? s.supportHoursRu : s.supportHoursEn;
+  const v = (per || "").trim();
+  const fallback = (s.supportHours || "").trim();
+  return v || fallback || CONFIG.SUPPORT_HOURS;
 }
 
 export function loadSiteSettings(): SiteSettings {

@@ -118,6 +118,28 @@ describe("managed site settings, delivery and home content", () => {
     assert.ok(contacts.managerTg.length > 0);
   });
 
+  it("stores per-language support hours and the bot picks the uz variant", async () => {
+    const save = await app.inject({
+      method: "POST", url: "/v1/admin/site-settings", headers: ADMIN(),
+      payload: {
+        supportHoursUz: "har kuni 9:00–21:00",
+        supportHoursRu: "ежедневно 9:00–21:00",
+        supportHoursEn: "daily 9:00–21:00",
+        supportHours: "9:00 – 21:00",
+      },
+    });
+    assert.equal(save.statusCode, 200, save.body);
+    assert.equal(save.json().settings.supportHoursUz, "har kuni 9:00–21:00");
+
+    const publicSettings = await app.inject({ method: "GET", url: "/v1/site-settings" });
+    assert.equal(publicSettings.json().supportHoursRu, "ежедневно 9:00–21:00");
+
+    const { supportContacts } = await import("./bot.js");
+    const contacts = supportContacts(db);
+    assert.equal(contacts.supportHoursUz, "har kuni 9:00–21:00"); // bot /support shows uz wording
+    assert.equal(contacts.supportHours, "9:00 – 21:00"); // shared fallback intact
+  });
+
   it("validates, saves and publishes delivery config", async () => {
     const invalid = await app.inject({
       method: "PUT", url: "/v1/admin/delivery-config", headers: ADMIN(),

@@ -531,6 +531,7 @@ const SITE_SETTINGS_KEY = "site_settings";
 const SITE_SETTINGS_FIELDS = [
   "supportPhone", "supportPhone2", "supportEmail", "supportTg",
   "managerName", "supportHours",
+  "supportHoursUz", "supportHoursRu", "supportHoursEn",
   "telegram", "instagram", "youtube",
 ] as const;
 

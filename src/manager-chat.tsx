@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useI18n } from "./i18n";
-import { useSiteSettings, tgHref } from "./site-settings";
+import { useSiteSettings, tgHref, hoursFor } from "./site-settings";
 import { fetchSupportMessages, fetchSupportSettings, postSupportMessage, type SupportMessage, type SupportSettings } from "./api";
 import { haptic } from "./kit";
 import { IconSend, IconSymbol, IconUser } from "./icons";
@@ -85,7 +85,7 @@ export function ManagerChatSheet({ open, onClose }: { open: boolean; onClose: ()
         site.managerName
           ? L(`Menejer: ${site.managerName}`, `Менеджер: ${site.managerName}`, `Manager: ${site.managerName}`)
           : L("Menejer bilan chat", "Чат с менеджером", "Chat with manager")
-      } · ${site.supportHours}`}
+      } · ${hoursFor(site, lang)}`}
     >
       <div className="flex h-[58vh] min-h-[380px] flex-col pt-1">
         <div className="flex-1 space-y-2.5 overflow-y-auto pr-1">

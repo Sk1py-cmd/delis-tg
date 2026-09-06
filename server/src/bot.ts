@@ -13,7 +13,7 @@ const APP_URL = process.env.APP_URL || "https://app.delis.uz";
 /** Support contacts used by /support — keep in sync with frontend src/config.ts. */
 const SUPPORT_PHONE = process.env.SUPPORT_PHONE || "+998 88 044-66-55";
 const SUPPORT_PHONE_2 = process.env.SUPPORT_PHONE_2 || "+998 94 331-64-64";
-const SUPPORT_MANAGER_TG = process.env.SUPPORT_MANAGER_TG || "@Sk1py";
+const SUPPORT_MANAGER_TG = process.env.SUPPORT_MANAGER_TG || "@delisgroup_bot";
 /** Telegram ids allowed to push courier live-locations (comma-separated). */
 const COURIER_IDS = new Set(
   (process.env.COURIER_CHAT_IDS || String(ADMIN_CHAT_ID || ""))
@@ -79,6 +79,7 @@ export function supportContacts(db: Database.Database): {
   email: string;
   managerName: string;
   supportHours: string;
+  supportHoursUz: string;
   managerTg: string;
 } {
   const fallback = {
@@ -87,6 +88,7 @@ export function supportContacts(db: Database.Database): {
     email: "hello@delis.uz",
     managerName: "",
     supportHours: "9:00 – 21:00",
+    supportHoursUz: "",
     managerTg: SUPPORT_MANAGER_TG,
   };
   try {
@@ -103,6 +105,7 @@ export function supportContacts(db: Database.Database): {
       email: pick("supportEmail", fallback.email),
       managerName: pick("managerName", fallback.managerName),
       supportHours: pick("supportHours", fallback.supportHours),
+      supportHoursUz: pick("supportHoursUz", fallback.supportHoursUz),
       managerTg: pick("supportTg", fallback.managerTg),
     };
   } catch {
@@ -1230,8 +1233,9 @@ export function startBot(db: Database.Database) {
   bot.command("support", async (ctx) => {
     // Admin-editable contacts (site_settings) with env fallbacks — the
     // manager name/hours/phones can be changed from the admin panel without
-    // a redeploy.
+    // a redeploy. Hours use the uz variant when set (message is Uzbek).
     const c = supportContacts(db);
+    const hours = c.supportHoursUz || c.supportHours;
     const managerLine = c.managerName
       ? `${esc(c.managerName)} (${esc(c.managerTg)})`
       : esc(c.managerTg);
@@ -1239,7 +1243,7 @@ export function startBot(db: Database.Database) {
       `💬 <b>Qo'llab-quvvatlash</b>\n\n` +
       `📞 ${esc(c.phone)}\n` +
       `📞 ${esc(c.phone2)}\n` +
-      `⏰ ${esc(c.supportHours)}, har kuni\n\n` +
+      `⏰ ${esc(hours)}\n\n` +
       `Menejer: ${managerLine} — yozing yoki pastdagi tugmani bosing.`,
       {
         parse_mode: "HTML",

@@ -6,7 +6,7 @@ import type { LoyaltyConfig, MeResponse } from "./api";
 import { fetchMe, isApiConfigured } from "./api";
 import { useI18n } from "./i18n";
 import { CONFIG } from "./config";
-import { useSiteSettings, tgHref } from "./site-settings";
+import { useSiteSettings, tgHref, hoursFor } from "./site-settings";
 import { PRODUCTS, loadBirthday, saveBirthday, type Order, type Product } from "./data";
 import { formatPrice, haptic, type TgUser } from "./kit";
 import {
@@ -1021,7 +1021,7 @@ export function ProfileSheet({
             <span className="flex-1">
               <span className="block text-[14px] font-bold text-ink">{t("supportRow")}</span>
               <span className="mt-0.5 block text-[12px] font-semibold text-ink/70">
-                {site.managerName ? `${site.managerName} · ` : ""}{site.supportTg} · {site.supportHours}
+                {site.managerName ? `${site.managerName} · ` : ""}{site.supportTg} · {hoursFor(site, lang)}
               </span>
             </span>
             <IconChevron size={16} className="text-ink/75" />

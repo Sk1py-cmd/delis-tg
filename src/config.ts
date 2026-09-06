@@ -32,8 +32,8 @@ export const CONFIG = {
   /** Второй номер поддержки (показывается в футере и в боте /support). */
   SUPPORT_PHONE_2: "+998 94 331-64-64",
   SUPPORT_PHONE_2_LINK: "tel:+998943316464",
-  SUPPORT_TG: "@Sk1py",
-  SUPPORT_TG_LINK: "https://t.me/Sk1py",
+  SUPPORT_TG: "@delisgroup_bot",
+  SUPPORT_TG_LINK: "https://t.me/delisgroup_bot",
   SUPPORT_EMAIL: "hello@delis.uz",
   /** Имя менеджера для блока «Написать менеджеру» (пусто = без имени).
    *  Меняется из админки (вкладка «Сайт») — как и часы работы ниже. */

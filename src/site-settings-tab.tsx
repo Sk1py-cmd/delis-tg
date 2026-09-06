@@ -83,11 +83,34 @@ export function SiteSettingsTab({ onToast }: { onToast: (message: string) => voi
           onChange={(v) => setDraft({ ...draft, managerName: v })}
         />
         <Field
-          label={L("Ish vaqti", "Часы работы поддержки", "Support hours")}
+          label={L("Ish vaqti (uz / ru / en)", "Часы работы (uz / ru / en)", "Support hours (uz / ru / en)")}
           hint={L(
-            "Erkin matn: «9:00 – 21:00» yoki «Dush–Shan, 9:00–21:00».",
-            "Свободный текст: «9:00 – 21:00» или «Пн–Вс, 9:00–21:00».",
-            "Free text: “9:00 – 21:00” or “Mon–Sun, 9:00–21:00”.",
+            "Har til o'z varianti: «har kuni 9:00–21:00» / «ежедневно…» / «daily…». Bo'sh — umumiy qiymat.",
+            "Перевод часов для каждого языка. Пусто — используется общее значение ниже.",
+            "Per-language wording. Empty — the shared value below is used.",
+          )}
+          value={draft.supportHoursUz}
+          placeholder="har kuni 9:00–21:00"
+          onChange={(v) => setDraft({ ...draft, supportHoursUz: v })}
+        />
+        <Field
+          label={L("Часы — русский", "Часы — русский", "Hours — Russian")}
+          value={draft.supportHoursRu}
+          placeholder="ежедневно 9:00–21:00"
+          onChange={(v) => setDraft({ ...draft, supportHoursRu: v })}
+        />
+        <Field
+          label={L("Часы — English", "Часы — English", "Hours — English")}
+          value={draft.supportHoursEn}
+          placeholder="daily 9:00–21:00"
+          onChange={(v) => setDraft({ ...draft, supportHoursEn: v })}
+        />
+        <Field
+          label={L("Ish vaqti — umumiy", "Часы работы — общие", "Support hours — shared")}
+          hint={L(
+            "Barcha tillar uchun standart (agar til varianti bo'sh bo'lsa).",
+            "Значение по умолчанию для всех языков (если вариант языка пуст).",
+            "Default for all languages (when the language variant is empty).",
           )}
           value={draft.supportHours}
           placeholder="9:00 – 21:00"
@@ -113,14 +136,14 @@ export function SiteSettingsTab({ onToast }: { onToast: (message: string) => voi
           onChange={(v) => setDraft({ ...draft, supportEmail: v })}
         />
         <Field
-          label={L("Menejerning Telegrami", "Telegram менеджера", "Manager Telegram")}
+          label={L("Menejerning Telegrami", "Telegram менеджера (username)", "Manager Telegram (username)")}
           hint={L(
-            "@username yoki https://t.me/... — mijozlar yozadigan manzil.",
-            "@username или https://t.me/... — куда клиенты пишут в поддержку.",
-            "@username or https://t.me/... — where customers write for support.",
+            "@username yoki https://t.me/... — mijozlar yozadigan manzil. Standart: @delisgroup_bot — o'zingizniki bilan almashtiring.",
+            "Username, на который пишут клиенты (@user или ссылка). По умолчанию @delisgroup_bot — замените на своего менеджера, если нужно.",
+            "Username customers write to (@user or link). Default @delisgroup_bot — replace with your manager.",
           )}
           value={draft.supportTg}
-          placeholder="@delis_care"
+          placeholder="@delisgroup_bot"
           onChange={(v) => setDraft({ ...draft, supportTg: v })}
         />
       </div>

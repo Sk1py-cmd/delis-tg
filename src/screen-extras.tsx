@@ -4,7 +4,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useI18n, type Lang } from "./i18n";
 import { CONFIG } from "./config";
-import { useSiteSettings, tgHref } from "./site-settings";
+import { useSiteSettings, tgHref, hoursFor } from "./site-settings";
 import { haptic, Reveal } from "./kit";
 import { addJobApp, type JobPositionId } from "./data";
 import {
@@ -195,7 +195,7 @@ export function QuickAccessSheet({
           <span className="flex-1">
             <span className="block text-[14px] font-bold text-ink">{t("quickSupport")}</span>
             <span className="mt-0.5 block text-[12px] font-medium text-ink/70">
-              {t("quickSupportSub")} · {site.managerName ? `${site.managerName} · ` : ""}{site.supportHours}
+              {t("quickSupportSub")} · {site.managerName ? `${site.managerName} · ` : ""}{hoursFor(site, lang)}
             </span>
           </span>
           <IconChevron size={15} className="text-ink/75" />
@@ -977,7 +977,7 @@ export function CareersScreen() {
             {t("careersCta")}
           </a>
           <p className="mt-2.5 text-center text-[12px] font-medium text-ink/70">
-            {site.managerName ? `${site.managerName} · ` : ""}{site.supportTg} · {site.supportHours} — {t("careersCtaSub")}
+            {site.managerName ? `${site.managerName} · ` : ""}{site.supportTg} · {hoursFor(site, lang)} — {t("careersCtaSub")}
           </p>
         </Reveal>
       </div>
@@ -1310,7 +1310,7 @@ export function ReturnsScreen() {
   const site = useSiteSettings();
   const L = RETURNS_L[lang];
   /* Динамическая подпись: имя менеджера (если задано) + редактируемые часы. */
-  const ctaSub = `${site.managerName ? `${site.managerName} · ` : ""}${site.supportTg} · ${L.daily} ${site.supportHours}`;
+  const ctaSub = `${site.managerName ? `${site.managerName} · ` : ""}${site.supportTg} · ${hoursFor(site, lang)}`;
   return (
     <section className="pb-4">
       <HeroSlider

@@ -4,7 +4,7 @@
 import { useState } from "react";
 import { useI18n } from "./i18n";
 import { CONFIG } from "./config";
-import { useSiteSettings, phoneHref, mailHref, tgHref } from "./site-settings";
+import { useSiteSettings, phoneHref, mailHref, tgHref, hoursFor } from "./site-settings";
 import { NEWS } from "./data";
 import { haptic, Reveal } from "./kit";
 import {
@@ -165,13 +165,13 @@ export function Footer({
 }: {
   onNavigate?: (screen: "faq" | "about" | "blog" | "production" | "careers" | "delivery" | "returns") => void;
 }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const site = useSiteSettings();
   const contacts = [
     { icon: IconPhone, label: site.supportPhone, href: phoneHref(site.supportPhone) },
     ...(site.supportPhone2 ? [{ icon: IconPhone, label: site.supportPhone2, href: phoneHref(site.supportPhone2) }] : []),
     /* Часы работы поддержки — редактируются из админки (вкладка «Сайт»). */
-    { icon: IconClock, label: `${t("footerSupportHours")}: ${site.supportHours}`, href: "" },
+    { icon: IconClock, label: `${t("footerSupportHours")}: ${hoursFor(site, lang)}`, href: "" },
     { icon: IconSend, label: CONFIG.BOT_LINK.replace("https://", ""), href: CONFIG.BOT_LINK },
     ...(site.supportEmail ? [{ icon: IconMail, label: site.supportEmail, href: mailHref(site.supportEmail) }] : []),
     { icon: IconPin, label: t("address"), href: "" },

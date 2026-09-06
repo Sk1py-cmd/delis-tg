@@ -198,14 +198,22 @@ describe("DELIS API — money paths", () => {
     assert.equal(res.json().error, "telegram_required_for_stars");
   });
 
-  it("allows authenticated API calls from Cloudflare and Pages static hosts", async () => {
+  it("allows authenticated API calls from this project's own preview hosts only", async () => {
+    // Audit L5: platform wildcards (*.workers.dev / *.github.io …) are gone —
+    // only the owner's own worker namespace and Pages host are allowed.
     for (const origin of [
-      "https://arena-preview-delis.workers.dev",
+      "https://arena-01a070d4-delis-tg-admin.mirzaaxmedov2001.workers.dev",
       "https://sk1py-cmd.github.io",
     ]) {
       const res = await app.inject({ method: "GET", url: "/health", headers: { origin } });
       assert.equal(res.statusCode, 200);
       assert.equal(res.headers["access-control-allow-origin"], origin);
+    }
+    // A stranger's host on the same platforms must NOT be allowed.
+    for (const origin of ["https://arena-preview-delis.workers.dev", "https://stranger.github.io"]) {
+      const res = await app.inject({ method: "GET", url: "/health", headers: { origin } });
+      assert.equal(res.statusCode, 200); // not a CORS enforcement error — just no ACAO header
+      assert.equal(res.headers["access-control-allow-origin"], undefined);
     }
   });
 
@@ -215,20 +223,24 @@ describe("DELIS API — money paths", () => {
     const products = res.json();
     assert.ok(products.length >= 8);
     assert.ok(products.every((p: any) => p.price > 0));
-    assert.equal(products.find((p: any) => p.id === "cloud")?.img, "images/prod-cloud.jpg");
-    assert.equal(products.find((p: any) => p.id === "interior")?.img, "images/prod-interior.jpg");
-    assert.equal(products.find((p: any) => p.id === "kitchen")?.img, "images/prod-kitchen.jpg");
-    assert.equal(products.find((p: any) => p.id === "wheel")?.img, "images/prod-wheel.jpg");
+    // Демо-фото каталога удалены: пустой img = фирменный плейсхолдер в UI,
+    // реальные фото загружаются из админ-панели.
+    assert.equal(products.find((p: any) => p.id === "cloud")?.img, "");
+    assert.equal(products.find((p: any) => p.id === "wheel")?.img, "");
+    assert.ok(products.every((p: any) => !String(p.img || "").startsWith("images/prod-")));
   });
 
-  it("upgrades reused default media without overwriting an admin image", async () => {
+  it("demo media migration strips demo photos but keeps admin images", async () => {
     db.prepare("UPDATE products SET img = ? WHERE id = 'cloud'").run("images/prod-floor.jpg");
     db.prepare("UPDATE products SET img = ? WHERE id = 'interior'").run("https://cdn.example/custom-interior.jpg");
+    db.prepare("UPDATE products SET img = ? WHERE id = 'kitchen'").run("images/my-own-photo.jpg");
     const { seedOnStart } = await import("./seed-runner.js");
     seedOnStart(true);
-    assert.equal((db.prepare("SELECT img FROM products WHERE id = 'cloud'").get() as any).img, "images/prod-cloud.jpg");
+    // демо-ссылка вытерта…
+    assert.equal((db.prepare("SELECT img FROM products WHERE id = 'cloud'").get() as any).img, "");
+    // …а фото админа (https и собственный images/-путь) не тронуты
     assert.equal((db.prepare("SELECT img FROM products WHERE id = 'interior'").get() as any).img, "https://cdn.example/custom-interior.jpg");
-    db.prepare("UPDATE products SET img = ? WHERE id = 'interior'").run("images/prod-interior.jpg");
+    assert.equal((db.prepare("SELECT img FROM products WHERE id = 'kitchen'").get() as any).img, "images/my-own-photo.jpg");
   });
 
   it("order: server recomputes prices and total from the DB (client lies ignored)", async () => {

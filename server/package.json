@@ -8,7 +8,7 @@
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "seed": "tsx src/seed.ts",
-    "test": "tsx src/auth-security.test.ts && tsx src/pricing.test.ts && tsx src/index.test.ts && tsx src/bot-security.test.ts && tsx src/rate-limit.test.ts && tsx src/b2b-security.test.ts && tsx src/support-admin.test.ts && tsx src/launch-readiness.test.ts && tsx src/payments-config.test.ts && tsx src/stars-waitlist.test.ts && tsx src/extras.test.ts && tsx src/content-addresses.test.ts && tsx src/loyalty-card.test.ts && tsx src/loyalty-migration.test.ts && tsx src/notify.test.ts && tsx src/backups.test.ts"
+    "test": "tsx src/auth-security.test.ts && tsx src/pricing.test.ts && tsx src/index.test.ts && tsx src/bot-security.test.ts && tsx src/rate-limit.test.ts && tsx src/b2b-security.test.ts && tsx src/support-admin.test.ts && tsx src/launch-readiness.test.ts && tsx src/payments-config.test.ts && tsx src/stars-waitlist.test.ts && tsx src/extras.test.ts && tsx src/content-addresses.test.ts && tsx src/loyalty-card.test.ts && tsx src/loyalty-migration.test.ts && tsx src/notify.test.ts && tsx src/backups.test.ts && tsx src/backlog-hardening.test.ts"
   },
   "dependencies": {
     "@fastify/cors": "^10.0.0",

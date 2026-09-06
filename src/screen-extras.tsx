@@ -4,6 +4,8 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useI18n, type Lang } from "./i18n";
 import { CONFIG } from "./config";
+import { useSiteSettings, tgHref, hoursFor } from "./site-settings";
+import { ProductImage } from "./kit";
 import { haptic, Reveal } from "./kit";
 import { addJobApp, type JobPositionId } from "./data";
 import {
@@ -126,6 +128,8 @@ export function QuickAccessSheet({
   onChat?: () => void;
 }) {
   const { t, lang } = useI18n();
+  /* Контакты менеджера — редактируются из админки (вкладка «Сайт»). */
+  const site = useSiteSettings();
   const actions = [
     ...(onSearch
       ? [{ icon: IconSearch, title: t("searchAllPh").replace("…", ""), sub: t("searchTryAgain"), action: onSearch, tint: "bg-sagetint text-pine" }]
@@ -180,7 +184,7 @@ export function QuickAccessSheet({
           </button>
         ))}
         <a
-          href={CONFIG.SUPPORT_TG_LINK}
+          href={tgHref(site.supportTg)}
           target="_blank"
           rel="noreferrer"
           onClick={() => haptic("medium")}
@@ -191,7 +195,9 @@ export function QuickAccessSheet({
           </span>
           <span className="flex-1">
             <span className="block text-[14px] font-bold text-ink">{t("quickSupport")}</span>
-            <span className="mt-0.5 block text-[12px] font-medium text-ink/70">{t("quickSupportSub")}</span>
+            <span className="mt-0.5 block text-[12px] font-medium text-ink/70">
+              {t("quickSupportSub")} · {site.managerName ? `${site.managerName} · ` : ""}{hoursFor(site, lang)}
+            </span>
           </span>
           <IconChevron size={15} className="text-ink/75" />
         </a>
@@ -285,6 +291,7 @@ export function HeroSlider({
 
 export function FaqScreen() {
   const { t } = useI18n();
+  const site = useSiteSettings();
   const [openIdx, setOpenIdx] = useState<number | null>(0);
   const [cat, setCat] = useState("all");
   const cats = [
@@ -368,7 +375,7 @@ export function FaqScreen() {
 
       {/* Support CTA */}
       <a
-        href={CONFIG.SUPPORT_TG_LINK}
+        href={tgHref(site.supportTg)}
         target="_blank"
         rel="noreferrer"
         onClick={() => haptic("medium")}
@@ -774,6 +781,7 @@ const CAREERS_FORM_L: Record<Lang, {
 
 export function CareersScreen() {
   const { t, lang } = useI18n();
+  const site = useSiteSettings();
   const ex = CAREERS_EXTRA[lang];
   const FL = CAREERS_FORM_L[lang];
   const [selected, setSelected] = useState<JobPositionId | null>(null);
@@ -797,7 +805,7 @@ export function CareersScreen() {
     addJobApp({ position: selected, name: name.trim(), phone: phone.trim(), note: note.trim() || undefined });
     const posLabel = JOB_POSITIONS_L[lang][selected].t;
     const text = encodeURIComponent(FL.tmpl(posLabel, name.trim(), phone.trim(), note.trim()));
-    setTgLink(`${CONFIG.SUPPORT_TG_LINK}?text=${text}`);
+    setTgLink(`${tgHref(site.supportTg)}?text=${text}`);
     setSent(true);
   };
 
@@ -960,7 +968,7 @@ export function CareersScreen() {
         {/* CTA */}
         <Reveal delay={120} className="mt-6">
           <a
-            href={CONFIG.SUPPORT_TG_LINK}
+            href={tgHref(site.supportTg)}
             target="_blank"
             rel="noreferrer"
             onClick={() => haptic("medium")}
@@ -969,7 +977,9 @@ export function CareersScreen() {
             <IconSend size={16} />
             {t("careersCta")}
           </a>
-          <p className="mt-2.5 text-center text-[12px] font-medium text-ink/70">{t("careersCtaSub")}</p>
+          <p className="mt-2.5 text-center text-[12px] font-medium text-ink/70">
+            {site.managerName ? `${site.managerName} · ` : ""}{site.supportTg} · {hoursFor(site, lang)} — {t("careersCtaSub")}
+          </p>
         </Reveal>
       </div>
     </section>
@@ -1214,6 +1224,7 @@ const RETURNS_L: Record<Lang, {
   step: { t: string; d: string }[];
   cta: string;
   ctaS: string;
+  daily: string;
 }> = {
   uz: {
     kicker: "Qaytarish",
@@ -1238,6 +1249,7 @@ const RETURNS_L: Record<Lang, {
       { t: "To'lov", d: "Pul 1–3 kunda qaytadi" },
     ],
     cta: "Qo'llab-quvvatlashga yozish",
+    daily: "har kuni",
     ctaS: `${CONFIG.SUPPORT_TG} · har kuni 9:00–21:00`,
   },
   ru: {
@@ -1263,6 +1275,7 @@ const RETURNS_L: Record<Lang, {
       { t: "Возврат", d: "Деньги приходят за 1–3 дня" },
     ],
     cta: "Написать в поддержку",
+    daily: "ежедневно",
     ctaS: `${CONFIG.SUPPORT_TG} · ежедневно 9:00–21:00`,
   },
   en: {
@@ -1288,20 +1301,24 @@ const RETURNS_L: Record<Lang, {
       { t: "Refund", d: "Money back in 1–3 days" },
     ],
     cta: "Contact support",
+    daily: "daily",
     ctaS: `${CONFIG.SUPPORT_TG} · daily 9:00–21:00`,
   },
 };
 
 export function ReturnsScreen() {
   const { lang } = useI18n();
+  const site = useSiteSettings();
   const L = RETURNS_L[lang];
+  /* Динамическая подпись: имя менеджера (если задано) + редактируемые часы. */
+  const ctaSub = `${site.managerName ? `${site.managerName} · ` : ""}${site.supportTg} · ${hoursFor(site, lang)}`;
   return (
     <section className="pb-4">
       <HeroSlider
         slides={[
           { img: "images/prod-wax.jpg", kicker: L.kicker, title: L.hero, sub: L.heroS },
           { img: "images/prod-shampoo.jpg", kicker: L.kicker, title: `${L.numL}`, sub: L.rule[1].d },
-          { img: "images/cat-car.jpg", kicker: L.kicker, title: L.ok[3], sub: L.ctaS },
+          { img: "images/cat-car.jpg", kicker: L.kicker, title: L.ok[3], sub: ctaSub },
         ]}
       />
 
@@ -1384,7 +1401,7 @@ export function ReturnsScreen() {
         {/* CTA */}
         <Reveal delay={120} className="mt-6">
           <a
-            href={CONFIG.SUPPORT_TG_LINK}
+            href={tgHref(site.supportTg)}
             target="_blank"
             rel="noreferrer"
             onClick={() => haptic("medium")}
@@ -1393,7 +1410,7 @@ export function ReturnsScreen() {
             <IconSend size={16} />
             {L.cta}
           </a>
-          <p className="mt-2.5 text-center text-[12px] font-medium text-ink/70">{L.ctaS}</p>
+          <p className="mt-2.5 text-center text-[12px] font-medium text-ink/70">{ctaSub}</p>
         </Reveal>
       </div>
     </section>
@@ -1404,24 +1421,11 @@ export function ReturnsScreen() {
    BLOG SCREEN
    ============================================================ */
 
-type Article = { id: string; kind: "video" | "article"; img: string; mins: number; titleKey: string };
-
-const ARTICLES: Article[] = [
-  { id: "b1", kind: "video", img: "images/news-car.jpg", mins: 4, titleKey: "blogTitle" },
-  { id: "b2", kind: "article", img: "images/cat-home.jpg", mins: 3, titleKey: "blogTitle" },
-  { id: "b3", kind: "video", img: "images/prod-glass.jpg", mins: 6, titleKey: "blogTitle" },
-  { id: "b4", kind: "article", img: "images/prod-floor.jpg", mins: 5, titleKey: "blogTitle" },
-];
-
-const ARTICLE_TITLES: Record<string, { uz: string; ru: string; en: string }> = {
-  b1: { uz: "Avtoni chiziqlarsiz yuvish san'ati", ru: "Искусство мойки авто без царапин", en: "The art of washing a car without scratches" },
-  b2: { uz: "Uy tozalashda 10 daqiqalik ritual", ru: "10-минутный ритуал уборки дома", en: "A 10-minute home cleaning ritual" },
-  b3: { uz: "Oynalar: izsiz tozalikning 3 qoidasi", ru: "Стёкла: 3 правила чистоты без разводов", en: "Glass: 3 rules for streak-free shine" },
-  b4: { uz: "Laminat parvarishi: professional sir", ru: "Уход за ламинатом: секреты профессионалов", en: "Laminate care: professional secrets" },
-};
-
 export function BlogScreen({ onOpen }: { onOpen: () => void }) {
   const { t, lang } = useI18n();
+  /* Статьи/видео добавляются из админки («Контент» → «Советы»);
+     демо-картинки удалены. Пока нет контента — аккуратная заглушка. */
+  const tips = useManagedContent().tips;
   return (
     <section className="px-4 pt-2 pb-4 min-[390px]:px-5">
       <Reveal>
@@ -1430,15 +1434,28 @@ export function BlogScreen({ onOpen }: { onOpen: () => void }) {
       </Reveal>
 
       <div className="mt-6 space-y-3">
-        {ARTICLES.map((a, i) => (
+        {tips.length === 0 && (
+          <div className="rounded-[22px] border border-dashed border-ink/20 bg-card p-6 text-center">
+            <IconSparkle size={22} className="mx-auto text-pine/60" />
+            <p className="mt-2 text-[13px] font-semibold leading-snug text-ink2">
+              {lang === "ru"
+                ? "Скоро здесь появятся полезные статьи и видео об уходе за домом и авто."
+                : lang === "en"
+                  ? "Helpful articles and videos about home and car care are coming soon."
+                  : "Tez orada uy va avto parvarishi haqidagi foydali maqolalar va videolar paydo bo'ladi."}
+            </p>
+          </div>
+        )}
+
+        {tips.map((a, i) => (
           <button
             key={a.id}
             onClick={() => { haptic("light"); onOpen(); }}
             className="press flex w-full gap-3 overflow-hidden rounded-[22px] border border-ink/18 bg-card text-left shadow-sm"
             style={{ animation: `pop 0.5s ${i * 60}ms cubic-bezier(0.34,1.56,0.64,1) both` }}
           >
-            <div className="relative h-[96px] w-[96px] shrink-0 overflow-hidden">
-              <img src={a.img} alt="" className="h-full w-full object-cover" />
+            <div className="relative h-[96px] w-[96px] shrink-0 overflow-hidden bg-sagetint">
+              <ProductImage src={a.image} className="h-full w-full object-cover" />
               {a.kind === "video" && (
                 <span className="absolute inset-0 flex items-center justify-center bg-pinedeep/30">
                   <span className="flex h-9 w-9 items-center justify-center rounded-full bg-paper/90 text-ink">
@@ -1451,9 +1468,9 @@ export function BlogScreen({ onOpen }: { onOpen: () => void }) {
               <span className={`inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.14em] ${a.kind === "video" ? "bg-amber text-white" : "border border-ink/18 text-ink/75"}`}>
                 {a.kind === "video" ? t("tagVideo") : t("tagArticle")}
               </span>
-              <h3 className="mt-1.5 text-[14px] font-bold leading-snug text-ink">{ARTICLE_TITLES[a.id]?.[lang]}</h3>
+              <h3 className="mt-1.5 text-[14px] font-bold leading-snug text-ink">{a.title[lang]}</h3>
               <p className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-ink/70">
-                <IconClock size={11} /> {a.mins} {t("blogMin")} · {t("blogReadMore")}
+                <IconClock size={11} /> {a.mins} {t("blogMin")} · {a.steps.length} {t("tipSteps")}
               </p>
             </div>
           </button>

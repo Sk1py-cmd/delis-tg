@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { useI18n } from "./i18n";
 import { CONFIG } from "./config";
 import { PRODUCTS, WHOLESALE_TIERS, WHOLESALE_MIN_QTY, wholesalePrice, type Product, type VolumeOption } from "./data";
-import { formatPrice, haptic, lockScroll, openTelegramShare, Reveal, unlockScroll } from "./kit";
+import { formatPrice, haptic, lockScroll, openTelegramShare, ProductImage, Reveal, unlockScroll } from "./kit";
 import { StockBadge } from "./features-service";
 import { BatchInfo } from "./features-improvements";
 import {
@@ -162,8 +162,8 @@ export function ProductScreen({
 
   const galleryImages = useMemo(() => {
     if (!product) return [];
-    if (product.gallery && product.gallery.length > 0) return product.gallery;
-    return [product.img];
+    if (product.gallery && product.gallery.length > 0) return product.gallery.filter(Boolean);
+    return product.img ? [product.img] : [];
   }, [product]);
 
   if (!mounted || !product) return null;
@@ -312,8 +312,7 @@ export function ProductScreen({
             >
               <div className="relative aspect-[4/3]">
                 <div className="product-cinematic-media__orbit" aria-hidden />
-                <img
-                  key={currentImg}
+                <ProductImage
                   src={currentImg}
                   alt={product.name}
                   className="product-image-enter h-full w-full object-cover transition-transform duration-700 hover:scale-[1.045]"
@@ -723,7 +722,7 @@ export function ProductScreen({
                           p.cat === "home" ? "bg-sagetint" : "bg-graphite2"
                         }`}
                       >
-                        <img src={p.img} alt={p.name} className="h-full w-full object-cover" />
+                        <ProductImage src={p.img} alt={p.name} className="h-full w-full object-cover" />
                       </div>
                       <div className="p-3">
                         <p className="truncate font-display text-[13px] font-bold text-ink">{p.name}</p>

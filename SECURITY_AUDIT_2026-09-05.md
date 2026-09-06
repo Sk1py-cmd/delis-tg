@@ -16,7 +16,8 @@
 
 Все утверждения ниже подтверждены либо статическим анализом, либо **динамической верификацией** (`app.inject`, 8/8 воспроизведено, см. раздел «Верификация»).
 
-**Статус на 2026-09-05 (после раунда исправлений):** ✅ H1, H2, H3, M1–M8, L1 и T1 исправлены отдельными коммитами с тестами (213 тестов, 15 файлов, 0 failures). Остались в бэклоге: L2–L7 (см. «Приоритеты»). Детали — в каждом пункте и в секции «Исправления».
+**Статус на 2026-09-05 (после раунда исправлений):** ✅ H1, H2, H3, M1–M8, L1 и T1 исправлены отдельными коммитами с тестами (213 тестов, 15 файлов, 0 failures).
+**Статус на 2026-09-06 (раунд 2):** ✅ закрыт весь бэклог — L2–L7, residual'ы M2/M3 (staff-allowlist + legacy-кнопка) и CI-пробел T1 (тесты в PR-чеках). Детали — в пунктах и в «Приоритеты исправлений — СТАТУС».
 
 ---
 
@@ -65,7 +66,7 @@
 **Фикс:** глобально ~1–2 МБ + `config: { bodyLimit: 150 МБ }` только на `.../image`, `.../gallery-image`, `POST /v1/admin/products`, `.../:id/update`.
 
 ### Низкие
-- **L3.** Имя объекта `products/${pid}-${Date.now()}` — коллизия в одной миллисекунде → тихий перезапис; `Math.random` не используется, но для security-токенов см. L3b: коды QR/сертификатов/B2B генерируются `Math.random` (`genHumanCode`) — предсказуемость PRNG не даёт attacker-у преимущества (коды независимы), но `crypto.randomBytes` здесь бесплатно и правильно.
+- **L3.** Имя объекта `products/${pid}-${Date.now()}` — коллизия в одной миллисекунде → тихий перезапис; `Math.random` не используется, но для security-токенов см. L3b: коды QR/сертификатов/B2B генерируются `Math.random` (`genHumanCode`) — предсказуемость PRNG не даёт attacker-у преимущества (коды независимы), но `crypto.randomBytes` здесь бесплатно и правильно. → ✅ Раунд 2: `genHumanCode`, id заказов `DL-XXXX` и выбор daily-reward переведены на `crypto.randomInt`.
 - Positive: маршруты только под `ensureAdmin`; allowlist MIME; CORS без `*`; на ответах `X-Content-Type-Options: nosniff`.
 
 ---
@@ -126,17 +127,17 @@ bot.callbackQuery(/^order_accept_(.+)$/, async (ctx) => {
   const result = await transitionOrderStatus(db, orderId, "preparing"); // ← кто угодно
 ```
 В отличие от нового `order_status_*` (где есть `ctx.from?.id === ADMIN_CHAT_ID`), legacy-обработчик **не проверяет ни одного условия**. Кнопка висит в уведомлении admin'а, но Telegram **сохраняет inline-кнопки при пересылке**: admin переслал уведомление коллеге/в группу — любой читатель может двинуть заказ в `preparing` (status-переход сам по себе безвреден для денег/остатков, но это дыра в модели авторизации + способ «зависнуть» заказ в нужном состоянии).
-**Фикс:** добавить тот же admin-check; в идеале убрать legacy-кнопку из уведомлений (осталась только в fallback-пути `web_app_data`).
+**Фикс:** добавить тот же admin-check; в идеале убрать legacy-кнопку из уведомлений (осталась только в fallback-пути `web_app_data`). → ✅ Раунд 2: fallback-уведомление теперь использует `orderStatusKeyboard`; `order_accept_*` больше нигде не выпускается (обработчик остался для старых сообщений, gated staff'ом).
 
 ### M3. Непоследовательная модель «кто admin» в боте (user-id vs chat-id)
-✅ **Исправлено частично** (`2bfb988`): в **личном** чате админа (положительный ID) ответ support сохраняется и уходит клиенту только от самого админа-пользователя — имперсонация членом группы/соседом закрыта. **Residual (осознанный):** при отрицательном (групповом) `ADMIN_CHAT_ID` сохраняется chat-scoped поведение — полноценное решение требует явного allowlist'а staff-user-id'ов, оставлено в бэклоге; readiness-предупреждение о групповом ID — в бэклог (M8-коммит покрывает только dev-токен).
+✅ **Исправлено частично** (`2bfb988`): в **личном** чате админа (положительный ID) ответ support сохраняется и уходит клиенту только от самого админа-пользователя — имперсонация членом группы/соседом закрыта. **Residual (осознанный):** при отрицательном (групповом) `ADMIN_CHAT_ID` сохраняется chat-scoped поведение — полноценное решение требует явного allowlist'а staff-user-id'ов, оставлено в бэклоге; readiness-предупреждение о групповом ID — в бэклог (M8-коммит покрывает только dev-токен). → ✅ Раунд 2: `STAFF_TG_USER_IDS` — все admin-операции бота (support-ответы, статус-кнопки, `/broadcast`) требуют staff-пользователя в любом чате; readiness-чек `admin_staff_allowlist` = fail при групповом `ADMIN_CHAT_ID` без allowlist'а.
 - `order_status_*`, `/broadcast` — проверяют **`ctx.from.id === ADMIN_CHAT_ID`** (строго).
 - Ответы на support — проверяют **`ctx.chat.id === ADMIN_CHAT_ID`**: если `ADMIN_CHAT_ID` — **групповой** чат, любой участник группы, ответивший на сообщение поддержки, становится «менеджером»: текст сохраняется как ответ менеджера **и уходит клиенту** (имперсонация).
 **Фикс:** единое правило: все admin-операции — `ctx.from.id === ADMIN_CHAT_ID`; документировать, что `ADMIN_CHAT_ID` должен быть личным чатом (в readiness-check добавить предупреждение при отрицательном ID).
 
 ### Низкие
 - **L1.** ✅ **Исправлено** (`2bfb988`): `decideStarsPayment()` — заказ помечается paid только если payer = `order.tg_id` или admin; forwarded payment / чужой payload → skip + `warn`/`error`-лог + уведомление админа «оплата НЕ применена»; 5 unit-тестов.
-- **L2.** `/courier`: допущенный курьер может «завязать» live-локацию на **любой** незавершённый заказ (внутренний риск, минимальный).
+- **L2.** ✅ **Исправлено (раунд 2)**: `courierArmDecision()` — включить live-отслеживание можно только для заказа в статусе `shipped`; один заказ → один курьер (активную сессию нельзя перехватить); терминальные переходы (`delivered`/`canceled`) и обработчик локаций удаляют строку `courier_locations` немедленно. Тесты: `backlog-hardening.test.ts`.
 - Positive: `esc()` на всю пользовательскую HTML-вкладку в сообщениях; `pre_checkout_query` валидирует payload по БД; ownership на `/v1/me/*`, `orders/:id`, `track` (API-часть), `returns`, `subscriptions` (`sub_cancel_` — owner-scoped ✓).
 
 ---
@@ -146,10 +147,10 @@ bot.callbackQuery(/^order_accept_(.+)$/, async (ctx) => {
 | ID | Наблюдение |
 |---|---|
 | **M8** | ✅ **Исправлено** (`88fb71f`): readiness-чек `dev_admin_token` — `fail`, если задан `DELIS_DEV_ADMIN_TOKEN` (тест: токен вкл/выкл). Сам dev-токен остаётся dev-инструментом: в проде пара не должна задаваться (готовность теперь это поймает). |
-| **L4** | Replay-окно initData по умолчанию 24 ч (`TG_INIT_DATA_MAX_AGE_SECONDS`). Для money-путей разумнее 300–900 с (Mini App сам обнови initData). |
-| **L5** | CORS `credentials: true` + wildcard'и `*.e2b.app`, `*.vercel.app`, `*.workers.dev`, `*.github.io` — любая сторонняя страница этих платформ может делать credentialed-запросы к API (реальный урон ограничен секретностью initData/session, но гигиена плохая) — сузить до конкретных preview-хостов. |
-| **L6** | Бэкап: вся БД (PII) аплоадится в Supabase каждые 30 с + публичный dump по `/v1/admin/backup` — service_role-ключ = единая точка отказа. Операционно: ротация ключа, минимальные политики доступа к бакету. |
-| **L7** | `GET /v1/admin/loyalty/search` отдаёт телефоны по LIKE — admin-only, ок; но `q` уходит в SQL как `%q%` без экранирования `%`/`_` (wildcard-инъекция в LIKE, не SQLi) — чисто гигиена. |
+| **L4** | ✅ **Исправлено (раунд 2)**: для денежных маршрутов (`POST /v1/orders`, `POST /v1/me/returns`) — отдельное окно `TG_MONEY_INIT_DATA_MAX_AGE_SECONDS` (по умолчанию **900 с**, минимум 300; общий window для серфинга остался 24 ч). Подпись валидна, но старше окна → `401 init_data_stale`, фронт показывает трёхъязычное «перезапустите приложение». Браузерные сессии не затронуты. Тесты: `backlog-hardening.test.ts`. |
+| **L5** | ✅ **Исправлено (раунд 2)**: wildcard'ы `*.e2b.app`, `*.vercel.app`, `*.workers.dev`, `*.github.io` удалены. Разрешены: `APP_URL`, localhost, точный `https://sk1py-cmd.github.io`, домены `delis.uz`, **своё** семейство превью `arena-*.mirzaaxmedov2001.workers.dev` (namespace аккаунта владельца — чужие workers.dev не проходят), свой Render-превью, плюс явный opt-in `CORS_EXTRA_ORIGINS` (только точные origin'ы). Тесты: чужие хосты платформ → без ACAO. |
+| **L6** | ✅ **Исправлено (раунд 2)**: полный дамп БД уходит в Supabase раз в **5 минут** вместо 30 с (`BACKUP_UPLOAD_SECONDS`, минимум 60; выгрузка на process-exit сохранена). Ротация ключа/политики бакета остаются операционными задачами владельца. |
+| **L7** | ✅ **Исправлено (раунд 2)**: `/v1/admin/loyalty/search` — `%`/`_` вырезаются из запроса ДО построения LIKE-шаблона (запрос из одних вайлдкардов вроде `%%` возвращает пусто, а не «всё»); шаблон применяется ко всем четырём полям. Тесты: `backlog-hardening.test.ts`. |
 
 ## T1. Состояние тест-сьюта после PR #12 — **исправлено в этом раунде**
 
@@ -182,6 +183,9 @@ bot.callbackQuery(/^order_accept_(.+)$/, async (ctx) => {
 
 1. **Сегодня (H):** ✅ H1 (ownership в `/track`) · ✅ H2 (XFF: чистка в worker + субъектный ключ; allowlist `trustProxy` — бэклог) · ✅ H3 (limiter+энтропия+логи по `b2b/verify`).
 2. **Короткий срок (M):** ✅ M1 (promo/cert лимиты) · ✅ M2 (admin-check в `order_accept_*`) · ✅ M3 (лич. чат закрыт; групповой residual — бэклог) · ✅ M4–M6 (magic bytes / галерея / zod товаров) · ✅ M7 (body caps через preParsing) · ✅ M8 (dev-токен в readiness).
-3. **Бэклог (L):** ✅ L1 (payer-scoped Stars) · L2 (`/courier` — привязка к любому заказу) · L3 (Math.random → crypto для кодов) · L4 (replay-окно initData 24 ч) · L5 (CORS wildcard с credentials) · L6 (PII-dump в Supabase 30 с + публичный backup) · L7 (LIKE-wildcard в loyalty search).
+3. **Бэклог (L):** ✅ L1 (payer-scoped Stars) · ✅ L2 (раунд 2: `/courier` — только `shipped`, один курьер на заказ, очистка на терминальных статусах) · ✅ L3 (раунд 2: `crypto.randomInt` в `genHumanCode`, id заказов `DL-XXXX` и daily-reward) · ✅ L4 (раунд 2: money-window 900 с) · ✅ L5 (раунд 2: wildcard'ы CORS удалены) · ✅ L6 (раунд 2: `BACKUP_UPLOAD_SECONDS`, 5 мин вместо 30 с) · ✅ L7 (раунд 2: wildcards вырезаются из loyalty search).
+4. **Residual'ы M2/M3 (раунд 2):** ✅ legacy-кнопка `order_accept_*` больше не выпускается (fallback-уведомление использует `orderStatusKeyboard`; обработчик остался только для старых сообщений, gated staff'ом) · ✅ `STAFF_TG_USER_IDS` — явный allowlist сотрудников: ответы в support, статус-кнопки и `/broadcast` требуют staff-пользователя и в групповом чате; readiness `admin_staff_allowlist` = fail при групповом `ADMIN_CHAT_ID` без allowlist'а.
+5. **CI (T1-follow-up, раунд 2):** ✅ workflow гоняет typecheck+tests+build и на `pull_request` — красный тест больше не может попасть в main молча; деплой Pages выполняется только для push в main.
 
 *Итог раунда: 5 коммитов на `arena/01a070d4-delis-tg` (H1 → H2 → H3+M1 → M2/M3/L1 → M4–M8), полный сьют **15/15 файлов, 213 тестов, 0 failures**.*
+*Итог раунда 2 (2026-09-06): весь бэклог L2–L7 + residual'ы M2/M3 + CI закрыты на `arena/01a0755f-delis-tg`; сьют **16/16 файлов, 239 тестов (бэкенд) + 20 (фронтенд), 0 failures**.*

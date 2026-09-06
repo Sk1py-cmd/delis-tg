@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useI18n } from "./i18n";
-import { CONFIG } from "./config";
+import { useSiteSettings, tgHref, hoursFor } from "./site-settings";
 import { fetchSupportMessages, fetchSupportSettings, postSupportMessage, type SupportMessage, type SupportSettings } from "./api";
 import { haptic } from "./kit";
 import { IconSend, IconSymbol, IconUser } from "./icons";
@@ -26,6 +26,8 @@ const QUICK_QUESTIONS: Record<string, string[]> = {
 
 export function ManagerChatSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { lang } = useI18n();
+  /* Имя менеджера и часы работы — редактируются из админки (вкладка «Сайт»). */
+  const site = useSiteSettings();
   const [messages, setMessages] = useState<SupportMessage[]>([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
@@ -76,7 +78,15 @@ export function ManagerChatSheet({ open, onClose }: { open: boolean; onClose: ()
   };
 
   return (
-    <Sheet open={open} onClose={onClose} title={L("Menejer bilan chat", "Чат с менеджером", "Chat with manager")}>
+    <Sheet
+      open={open}
+      onClose={onClose}
+      title={`${
+        site.managerName
+          ? L(`Menejer: ${site.managerName}`, `Менеджер: ${site.managerName}`, `Manager: ${site.managerName}`)
+          : L("Menejer bilan chat", "Чат с менеджером", "Chat with manager")
+      } · ${hoursFor(site, lang)}`}
+    >
       <div className="flex h-[58vh] min-h-[380px] flex-col pt-1">
         <div className="flex-1 space-y-2.5 overflow-y-auto pr-1">
           <div className="flex items-start gap-2.5">
@@ -113,7 +123,7 @@ export function ManagerChatSheet({ open, onClose }: { open: boolean; onClose: ()
         {error && (
           <p className="mt-2 text-center text-[11px] font-semibold text-[#B3402E]">
             {L("Serverga ulanib bo'lmadi.", "Не удалось связаться с сервером.", "Could not reach support.")} {" "}
-            <a className="underline" href={CONFIG.SUPPORT_TG_LINK}>{CONFIG.SUPPORT_TG}</a>
+            <a className="underline" href={tgHref(site.supportTg)}>{site.supportTg}</a>
           </p>
         )}
 

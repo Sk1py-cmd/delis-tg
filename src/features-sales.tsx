@@ -3,6 +3,7 @@
  */
 import { useEffect, useMemo, useState } from "react";
 import { useI18n } from "./i18n";
+import { useSiteSettings } from "./site-settings";
 import { PRODUCTS, WHOLESALE_TIERS, type Product } from "./data";
 import { formatPrice, haptic } from "./kit";
 import {
@@ -435,6 +436,8 @@ export function SubscriptionSheet({
 
 export function B2bSheet({ open, onClose, onApply }: { open: boolean; onClose: () => void; onApply: () => void }) {
   const { t, lang } = useI18n();
+  /* Контакты менеджера — редактируются из админки (вкладка «Сайт»). */
+  const site = useSiteSettings();
   const [code, setCode] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
   const [error, setError] = useState(false);
@@ -567,7 +570,7 @@ export function B2bSheet({ open, onClose, onApply }: { open: boolean; onClose: (
           <button
             onClick={() => {
               haptic("success");
-              const manager = "Sk1py";
+              const manager = site.supportTg.replace(/^@/, "").replace(/^https:\/\/t\.me\//, "");
               let cartText = "";
               try {
                 const raw = localStorage.getItem("cart");
@@ -644,8 +647,8 @@ export function B2bSheet({ open, onClose, onApply }: { open: boolean; onClose: (
                   </table>
                   <div class="footer">
                     <b>${lang === "ru" ? "Контакты:" : lang === "en" ? "Contacts:" : "Kontaktlar:"}</b><br/>
-                    📞 +998 88 044-66-55 · +998 94 331-64-64<br/>
-                    💬 t.me/Sk1py · ✉️ hello@delis.uz<br/>
+                    📞 ${site.supportPhone}${site.supportPhone2 ? ` · ${site.supportPhone2}` : ""}<br/>
+                    💬 t.me/${site.supportTg.replace(/^@/, "").replace(/^https:\/\/t\.me\//, "")} · ✉️ ${site.supportEmail}<br/>
                     🌐 delis.uz · @delisgroup_bot
                   </div>
                   <script>setTimeout(()=>window.print(), 500);</script>

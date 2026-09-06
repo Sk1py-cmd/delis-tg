@@ -3,6 +3,8 @@ name: Build and deploy GitHub Pages
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -11,7 +13,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  group: pages-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -30,28 +32,36 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # The full verification gate runs on EVERY pull_request — a red test
+      # must never reach main (audit T1 follow-up: tests used to run only
+      # post-merge).
       - name: Check frontend
-        run: npm run typecheck && npm test
+        run: npm run typecheck && npm test && npm run build
 
       - name: Check backend
         working-directory: server
         run: npm ci && npm run typecheck && npm test
 
+      # Pages artifact is only needed for real deployments (main / manual).
       - name: Build GitHub Pages bundle
+        if: github.event_name != 'pull_request'
         env:
           VITE_BASE_PATH: /delis-tg/
           VITE_API_URL: https://delis-tg-admin.onrender.com
         run: npm run build
 
       - name: Configure Pages
+        if: github.event_name != 'pull_request'
         uses: actions/configure-pages@v5
 
       - name: Upload Pages artifact
+        if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
   deploy:
+    if: github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

@@ -584,7 +584,10 @@ export function CheckoutSheet({
       const rejected = res.kind === "rejected";
       const guarded = rejected && res.error === "reward_margin_guard";
       const starsRequired = rejected && res.error === "telegram_required_for_stars";
-      const telegramRequired = rejected && (res.status === 401 || starsRequired);
+      // Telegram initData signature is valid but older than the money-window
+      // — only reopening the Mini App mints a fresh one.
+      const staleSession = rejected && res.error === "init_data_stale";
+      const telegramRequired = rejected && !staleSession && (res.status === 401 || starsRequired);
       const paymentUnavailable = rejected && res.error === "payment_not_configured";
       const stockChanged = rejected && res.error === "insufficient_stock";
       const productUnavailable = rejected && (res.error === "unknown_product" || res.error === "inactive_product");
@@ -592,7 +595,13 @@ export function CheckoutSheet({
       if (b2bRejected) setB2bApproved(null);
       setRequiresTelegram(telegramRequired);
       setOrderError(
-        telegramRequired
+        staleSession
+          ? lang === "ru"
+            ? "Сессия Telegram устарела. Закройте и снова откройте приложение DELIS, затем повторите заказ — корзина сохранится."
+            : lang === "en"
+              ? "Your Telegram session has expired. Close and reopen the DELIS app, then place the order again — your cart is saved."
+              : "Telegram seansi eskirgan. DELIS ilovasini yopib qayta oching va buyurtmani takrorlang — savat saqlanadi."
+          : telegramRequired
           ? starsRequired
             ? lang === "ru"
               ? "Оплата Telegram Stars доступна только внутри Telegram. Выберите другой способ или откройте DELIS через бота."

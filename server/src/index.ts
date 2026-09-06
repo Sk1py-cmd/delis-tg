@@ -12,7 +12,7 @@ import rateLimit from "@fastify/rate-limit";
 import fastifyStatic from "@fastify/static";
 import { z } from "zod";
 import { getDb, getDbPath, checkpointDb, snapshotDb } from "./db.js";
-import { verifyInitData, extractUserId } from "./auth.js";
+import { verifyInitData, extractUserId, isInitDataStaleForMoney } from "./auth.js";
 import { issueBrowserSession, verifyBrowserSession } from "./browser-session.js";
 import { seedOnStart } from "./seed-runner.js";
 import { computeTotals, WHOLESALE_TIERS } from "./pricing.js";
@@ -251,16 +251,28 @@ app.addContentTypeParser("application/x-www-form-urlencoded", { parseAs: "string
 
 await app.register(cors, {
   /* The Mini App loads from APP_URL, but previews/dev run on other hosts —
-     allow known safe origins explicitly (auth itself is HMAC initData). */
+     allow known safe origins explicitly (auth itself is HMAC initData).
+     Platform-wide wildcards (*.e2b.app, *.vercel.app, …) are deliberately
+     NOT trusted anymore: any stranger's page on those hosts could otherwise
+     issue credentialed cross-origin requests (audit L5). One-off preview
+     hosts go into CORS_EXTRA_ORIGINS as exact origins instead. */
   origin: [
     process.env.APP_URL || "http://localhost:5173",
     /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/,
-    /\.e2b\.app$/,
-    /\.vercel\.app$/,
-    /\.workers\.dev$/,
-    /\.github\.io$/,
+    // Exact static host this repo's CI publishes to (GitHub Pages /delis-tg)
+    "https://sk1py-cmd.github.io",
     // Production custom domains (static frontend ↔ Render API)
-    /^https:\/\/([a-z0-9-]+\.)?delis\.uz$/,
+    /^https:\/\/([a-z0-9-]+\.)*delis\.uz$/,
+    // This project's own preview topology (exact, account-scoped — NOT a
+    // platform wildcard): Cloudflare Worker previews live under the owner's
+    // fixed workers.dev account namespace, and the Render preview host.
+    /^https:\/\/arena-[a-z0-9-]+\.mirzaaxmedov2001\.workers\.dev$/,
+    "https://delis-tg-arena-preview.onrender.com",
+    // Explicit opt-in for temporary previews — exact origins, comma-separated
+    ...String(process.env.CORS_EXTRA_ORIGINS || "")
+      .split(",")
+      .map((origin) => origin.trim())
+      .filter(Boolean),
   ],
   credentials: true,
 });
@@ -518,6 +530,8 @@ app.post("/v1/admin/payments/self-check", async (req, reply) => {
 const SITE_SETTINGS_KEY = "site_settings";
 const SITE_SETTINGS_FIELDS = [
   "supportPhone", "supportPhone2", "supportEmail", "supportTg",
+  "managerName", "supportHours",
+  "supportHoursUz", "supportHoursRu", "supportHoursEn",
   "telegram", "instagram", "youtube",
 ] as const;
 
@@ -686,6 +700,20 @@ function getTgUser(req: any) {
 function ensureUserFromReq(req: any, tgId: number) {
   const u = getTgUser(req);
   ensureUser(tgId, u?.first_name, u?.username);
+}
+
+/**
+ * Money routes (order placement, returns) enforce a tighter initData replay
+ * window than general browsing (audit L4): a signature that is valid for a
+ * day must not move money a day later. When the ONLY problem is age, answer
+ * 401 init_data_stale so the Telegram client can tell the user to reopen the
+ * Mini App instead of silently retrying. Returns true when the reply was sent.
+ */
+function rejectStaleMoneyInitData(req: any, reply: any): boolean {
+  const initData = String(req.headers["authorization"] || "").replace("Telegram ", "");
+  if (!initData || !isInitDataStaleForMoney(initData)) return false;
+  reply.code(401).send({ error: "init_data_stale" });
+  return true;
 }
 
 function ensureUser(tgId: number, name?: string, username?: string) {
@@ -1493,6 +1521,7 @@ app.post("/v1/orders", {
 }, async (req, reply) => {
   const tgId = getUserId(req);
   if (!tgId) return reply.code(401).send({ error: "unauthorized" });
+  if (rejectStaleMoneyInitData(req, reply)) return reply;
   ensureUserFromReq(req, tgId);
 
   const parsed = orderSchema.safeParse(req.body);
@@ -1641,7 +1670,7 @@ app.post("/v1/orders", {
   let id = "";
   const idExists = db.prepare("SELECT 1 FROM orders WHERE id = ?");
   for (let attempt = 0; attempt < 10 && !id; attempt++) {
-    const candidate = `DL-${Math.floor(1000 + Math.random() * 9000)}`;
+    const candidate = `DL-${1000 + crypto.randomInt(9000)}`;
     if (!idExists.get(candidate)) id = candidate;
   }
   if (!id) id = `DL-${Date.now().toString(36).toUpperCase().slice(-6)}`;
@@ -1880,7 +1909,7 @@ app.post("/v1/me/daily/claim", async (req, reply) => {
   const today = tashkentDateKey();
 
   const rewards = [10, 15, 20, 25, 30, 40, 50, 75, 100];
-  const amount = rewards[Math.floor(Math.random() * rewards.length)];
+  const amount = rewards[crypto.randomInt(rewards.length)];
   try {
     // The PRIMARY KEY (tg_id, claimed_at) is the single source of truth —
     // no check-then-insert race.
@@ -2066,6 +2095,7 @@ const returnRequestSchema = z.object({
 app.post("/v1/me/returns", { config: { rateLimit: { max: 10, timeWindow: "1 hour" } } }, async (req, reply) => {
   const tgId = getUserId(req);
   if (!tgId) return reply.code(401).send({ error: "unauthorized" });
+  if (rejectStaleMoneyInitData(req, reply)) return reply;
   const parsed = returnRequestSchema.safeParse(req.body);
   if (!parsed.success) return reply.code(400).send({ error: "invalid_return", details: parsed.error.flatten() });
   const body = parsed.data;
@@ -2653,15 +2683,19 @@ function adminLoyaltyProfile(code: string, lang: "uz" | "ru" | "en") {
 app.get("/v1/admin/loyalty/search", async (req, reply) => {
   if (!ensureAdmin(req, reply)) return;
   const q = String((req.query as any)?.q || "").trim();
-  if (q.length < 2) return { members: [] };
-  const like = `%${q.replace(/[%_]/g, "")}%`;
+  // Strip LIKE wildcards from user input so "%" / "_" cannot alter — or, for
+  // a wildcard-only query like "%%", completely broaden — the pattern
+  // (audit L7 — hygiene; the route is admin-only).
+  const stripped = q.replace(/[%_]/g, "");
+  if (stripped.length < 2) return { members: [] };
+  const like = `%${stripped}%`;
   const rows = db.prepare(`
     SELECT u.tg_id, u.first_name, u.last_name, u.username, u.phone, u.stars, u.tier, c.code
     FROM users u LEFT JOIN loyalty_cards c ON c.tg_id = u.tg_id
     WHERE CAST(u.tg_id AS TEXT) LIKE ? OR lower(COALESCE(u.first_name, '')) LIKE lower(?)
        OR lower(COALESCE(u.username, '')) LIKE lower(?) OR COALESCE(u.phone, '') LIKE ?
     ORDER BY u.created_at DESC LIMIT 20
-  `).all(`%${q}%`, like, like, `%${q}%`) as any[];
+  `).all(like, like, like, like) as any[];
   return {
     members: rows.map((row) => ({
       ...row,
@@ -2772,6 +2806,19 @@ app.get("/v1/admin/readiness", async (req, reply) => {
   const appUrl = String(process.env.APP_URL || "").replace(/\/$/, "");
   add("bot", BOT_TOKEN ? "ok" : "fail", BOT_TOKEN ? "Telegram bot token configured" : "TG_BOT_TOKEN is missing");
   add("admin", Number(process.env.ADMIN_CHAT_ID || 0) > 0 ? "ok" : "fail", Number(process.env.ADMIN_CHAT_ID || 0) > 0 ? "Admin recipient configured" : "ADMIN_CHAT_ID is missing");
+  // Audit M3: a group admin chat needs an explicit staff user allowlist so
+  // not every group member can act as the manager in bot replies.
+  const staffIds = String(process.env.STAFF_TG_USER_IDS || "").split(",").map((s) => s.trim()).filter(Boolean);
+  const adminChatIsGroup = Number(process.env.ADMIN_CHAT_ID || 0) < 0;
+  if (adminChatIsGroup) {
+    add(
+      "admin_staff_allowlist",
+      staffIds.length ? "ok" : "fail",
+      staffIds.length
+        ? "Group admin chat with an explicit STAFF_TG_USER_IDS allowlist"
+        : "ADMIN_CHAT_ID is a GROUP chat without STAFF_TG_USER_IDS — every group member could act as the manager; use a personal chat id or set STAFF_TG_USER_IDS",
+    );
+  }
   add("app_url", /^https:\/\/[^/]+/.test(appUrl) ? "ok" : "fail", appUrl || "APP_URL is missing or is not HTTPS");
   add("browser_secret", process.env.BROWSER_SESSION_SECRET ? "ok" : "fail", process.env.BROWSER_SESSION_SECRET ? "Dedicated browser session secret configured" : "BROWSER_SESSION_SECRET must be set explicitly");
   // Dev admin impersonation must never survive to production — the ready
@@ -3654,7 +3701,9 @@ const qrPatchSchema = z.object({
 function genHumanCode(prefix: string, len: number): string {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no 0/O/1/I confusion
   let out = "";
-  for (let i = 0; i < len; i++) out += alphabet[Math.floor(Math.random() * alphabet.length)];
+  // CSPRNG: codes are secrets (gift certificates, B2B, loyalty) — Math.random
+  // is predictable, crypto.randomInt is not (audit L3).
+  for (let i = 0; i < len; i++) out += alphabet[crypto.randomInt(alphabet.length)];
   return `${prefix}-${out}`;
 }
 
@@ -3926,12 +3975,16 @@ async function start() {
   // Periodically push the DB file to Supabase Storage so it survives deploys
   let uploadTimer: NodeJS.Timeout | null = null;
   if (supabaseConfigured()) {
+    // PII egress cadence (audit L6): pushing the full DB every 30s was
+    // needlessly chatty — 5 minutes still bounds data loss to ~one order
+    // while cutting backup traffic 10x. Tunable: BACKUP_UPLOAD_SECONDS (min 60).
+    const uploadEveryMs = Math.max(60, Number(process.env.BACKUP_UPLOAD_SECONDS || 300)) * 1000;
     uploadTimer = setInterval(() => {
       try {
         checkpointDb();
         void uploadDb(getDbPath());
       } catch { /* ignore */ }
-    }, 30_000);
+    }, uploadEveryMs);
     process.on("exit", () => {
       if (uploadTimer) clearInterval(uploadTimer);
       try {
@@ -3939,7 +3992,7 @@ async function start() {
         void uploadDb(getDbPath());
       } catch { /* ignore */ }
     });
-    console.log("[supabase] DB auto-backup every 30s →", "delis-data/delis.db");
+    console.log("[supabase] DB auto-backup every", `${Math.round(uploadEveryMs / 1000)}s →`, "delis-data/delis.db");
   } else if (getDbPath() !== ":memory:") {
     /* Local fallback for persistent-volume hosts (docker-compose ./server/data,
        VPS). Hourly online snapshots + boot snapshot; pruned to the newest 48

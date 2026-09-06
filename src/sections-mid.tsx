@@ -4,7 +4,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useI18n } from "./i18n";
 import { PRODUCTS, type Cat, type Product } from "./data";
-import { formatPrice, haptic, MaskLine as MaskLineWrap, Reveal } from "./kit";
+import { formatPrice, haptic, MaskLine as MaskLineWrap, ProductImage, Reveal } from "./kit";
 import { IconCheck, IconFire, IconGift, IconHeart, IconPlus, IconStar } from "./icons";
 import { SectionHead } from "./chrome";
 import { useManagedContent } from "./content-config";
@@ -139,7 +139,7 @@ export function Featured({
               className="relative h-[296px] cursor-pointer overflow-hidden rounded-[28px] bg-graphite shadow-soft"
             >
               <div className="absolute inset-y-0 right-0 w-[54%]">
-                <img src={signature.img} alt={signature.name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
+                <ProductImage src={signature.img} alt={signature.name} className="h-full w-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-r from-graphite via-graphite/35 to-transparent" />
               </div>
               <div className="relative flex h-full flex-col justify-between p-6">
@@ -201,11 +201,9 @@ export function Featured({
             <div
               className={`relative h-[206px] overflow-hidden ${p.cat === "home" ? "bg-sagetint" : "bg-graphite2"}`}
             >
-              <img
+              <ProductImage
                 src={p.img}
                 alt={p.name}
-                loading="lazy"
-                decoding="async"
                 className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05] group-active:scale-[1.05]"
               />
               <div className="absolute inset-x-3.5 top-3.5 flex items-start justify-between">

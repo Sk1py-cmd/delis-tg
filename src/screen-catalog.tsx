@@ -4,7 +4,7 @@
 import { useMemo, useState, type ChangeEvent } from "react";
 import { useI18n } from "./i18n";
 import { PRODUCTS, type Cat, type Product } from "./data";
-import { formatPrice, haptic, Reveal } from "./kit";
+import { formatPrice, haptic, ProductImage, Reveal } from "./kit";
 import { IconBag, IconCheck, IconChevron, IconClose, IconFire, IconHeart, IconSearch, IconSparkle, IconStar, IconSymbol } from "./icons";
 
 export type Filter = "all" | Cat | "wishlist";
@@ -61,11 +61,9 @@ function ProductCard({
     >
       {/* Image */}
       <div className={`relative aspect-square overflow-hidden ${p.cat === "home" ? "bg-sagetint" : "bg-graphite2"}`}>
-        <img
+        <ProductImage
           src={p.img}
           alt={p.name}
-          loading="lazy"
-          decoding="async"
           className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
         />
 

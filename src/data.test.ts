@@ -96,16 +96,17 @@ describe("catalog data integrity", () => {
       expect(p.desc.ru).toBeTruthy();
       expect(p.desc.en).toBeTruthy();
       expect(p.cat).toMatch(/^(home|car)$/);
-      expect(p.img).toBeTruthy();
+      // Демо-фото удалены: img пуст по умолчанию (плейсхолдер в UI),
+      // реальные фото загружаются из админки.
+      expect(p.img).toBe("");
+      expect((p.gallery || []).every((g) => !g.startsWith("images/"))).toBe(true);
     }
   });
 
-  it("gives every product distinct brand media and a matching gallery cover", () => {
-    const images = PRODUCTS.map((product) => product.img);
-    expect(new Set(images).size).toBe(images.length);
+  it("ships no demo catalog media (photos come from the admin panel)", () => {
     for (const product of PRODUCTS) {
-      expect(product.gallery?.[0]).toBe(product.img);
-      expect(product.gallery?.length).toBeGreaterThanOrEqual(2);
+      expect(product.img.startsWith("images/")).toBe(false);
+      expect(product.gallery?.length ?? 0).toBe(0);
     }
   });
 

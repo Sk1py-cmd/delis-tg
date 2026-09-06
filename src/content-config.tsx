@@ -19,6 +19,15 @@ export type WhySlideConfig = {
   active: boolean;
 };
 
+export type TipConfig = {
+  id: string;
+  kind: "video" | "article";
+  image: string;          // data-URL / https — загружается из админки
+  mins: number;           // длительность/время чтения
+  title: L10n;
+  steps: L10n[];          // шаги/советы (раскрываются на главной)
+};
+
 export type ManagedContent = {
   splash: {
     brand: string;
@@ -42,6 +51,9 @@ export type ManagedContent = {
     audiences: L10n[];
     cta: L10n;
   };
+  /* «Советы / Журнал о чистоте и уходе» — демо удалены, контент добавляется
+     из админки (фото + заголовки uz/ru/en + шаги). */
+  tips: TipConfig[];
   updatedAt: number;
 };
 
@@ -120,11 +132,37 @@ export const DEFAULT_MANAGED_CONTENT: ManagedContent = {
     audiences: [local("Do‘konlar", "Магазины", "Stores"), local("Avtoyuvish", "Автомойки", "Car washes"), local("Klining", "Клининг", "Cleaning teams")],
     cta: local("Hamkor bo‘lish", "Стать партнёром", "Become a partner"),
   },
+  tips: [],
   updatedAt: Date.now(),
 };
 
 const STORAGE_KEY = "delis_managed_content_v1";
 const EVENT_NAME = "delis-content-updated";
+
+const asL10n = (v: unknown): L10n => {
+  const o = (typeof v === "object" && v !== null ? v : {}) as Record<string, unknown>;
+  return {
+    uz: typeof o.uz === "string" ? o.uz : "",
+    ru: typeof o.ru === "string" ? o.ru : "",
+    en: typeof o.en === "string" ? o.en : "",
+  };
+};
+
+/** Советы добавляет админ — по умолчанию их нет (демо удалены). */
+function coerceTips(raw: unknown): TipConfig[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.slice(0, 12).map((item, i) => {
+    const o = (typeof item === "object" && item !== null ? item : {}) as Record<string, unknown>;
+    return {
+      id: typeof o.id === "string" && o.id ? o.id : `tip-${Date.now().toString(36)}-${i}`,
+      kind: o.kind === "video" ? "video" : "article",
+      image: typeof o.image === "string" ? o.image : "",
+      mins: Number.isFinite(Number(o.mins)) && Number(o.mins) > 0 ? Math.min(99, Math.round(Number(o.mins))) : 3,
+      title: asL10n(o.title),
+      steps: Array.isArray(o.steps) ? o.steps.slice(0, 10).map(asL10n) : [],
+    };
+  });
+}
 
 function normalize(input?: Partial<ManagedContent> | null): ManagedContent {
   if (!input) return DEFAULT_MANAGED_CONTENT;
@@ -144,6 +182,7 @@ function normalize(input?: Partial<ManagedContent> | null): ManagedContent {
       ...(input.wholesale || {}),
       audiences: input.wholesale?.audiences?.length ? input.wholesale.audiences : DEFAULT_MANAGED_CONTENT.wholesale.audiences,
     },
+    tips: coerceTips(input?.tips),
     updatedAt: input.updatedAt || Date.now(),
   };
 }
@@ -213,7 +252,7 @@ function LocalInputs({ value, onChange }: { value: L10n; onChange: (next: L10n) 
 export function ContentManagementTab({ onToast }: { onToast: (message: string) => void }) {
   const { lang } = useI18n();
   const [draft, setDraft] = useState<ManagedContent>(loadManagedContent);
-  const [section, setSection] = useState<"splash" | "why" | "wholesale" | "channel">("splash");
+  const [section, setSection] = useState<"splash" | "why" | "tips" | "wholesale" | "channel">("splash");
   const [saving, setSaving] = useState(false);
   const [channelTitle, setChannelTitle] = useState("");
   const [channelText, setChannelText] = useState("");
@@ -262,6 +301,37 @@ export function ContentManagementTab({ onToast }: { onToast: (message: string) =
     reader.readAsDataURL(file);
   };
 
+  /* ── Советы / Журнал: добавление и правка из админки ── */
+  const setTip = (index: number, patch: Partial<TipConfig>) => {
+    setDraft((prev) => ({ ...prev, tips: prev.tips.map((tip, i) => (i === index ? { ...tip, ...patch } : tip)) }));
+  };
+  const moveTip = (index: number, dir: -1 | 1) => {
+    const target = index + dir;
+    if (target < 0 || target >= draft.tips.length) return;
+    const tips = [...draft.tips];
+    [tips[index], tips[target]] = [tips[target], tips[index]];
+    setDraft({ ...draft, tips });
+  };
+  const addTip = () => {
+    setDraft((prev) => ({
+      ...prev,
+      tips: [
+        ...prev.tips,
+        { id: `tip-${Date.now().toString(36)}`, kind: "article", image: "", mins: 3, title: { uz: "", ru: "", en: "" }, steps: [] },
+      ],
+    }));
+  };
+  const uploadTipImage = (index: number, file?: File) => {
+    if (!file) return;
+    if (file.size > 2_000_000) {
+      onToast(lang === "ru" ? "Фото должно быть меньше 2 MB" : "Foto 2 MB dan kichik bo'lishi kerak");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => setTip(index, { image: String(reader.result || "") });
+    reader.readAsDataURL(file);
+  };
+
   const save = async () => {
     setSaving(true);
     haptic("medium");
@@ -279,6 +349,9 @@ export function ContentManagementTab({ onToast }: { onToast: (message: string) =
         </button>
         <button onClick={() => setSection("why")} className={`flex-1 rounded-[12px] py-2 text-[12px] font-bold ${section === "why" ? "bg-card text-ink shadow-sm" : "text-ink2"}`}>
           <span className="inline-flex items-center gap-1"><IconGrid size={13} /> Why ({activeSlides})</span>
+        </button>
+        <button onClick={() => setSection("tips")} className={`flex-1 rounded-[12px] py-2 text-[12px] font-bold ${section === "tips" ? "bg-card text-ink shadow-sm" : "text-ink2"}`}>
+          <span className="inline-flex items-center gap-1"><IconCamera size={13} /> {lang === "ru" ? "Советы" : lang === "en" ? "Tips" : "Maslahat"} ({draft.tips.length})</span>
         </button>
         <button onClick={() => setSection("wholesale")} className={`flex-1 rounded-[12px] py-2 text-[12px] font-bold ${section === "wholesale" ? "bg-card text-ink shadow-sm" : "text-ink2"}`}>
           <span className="inline-flex items-center gap-1"><IconFactory size={13} /> B2B</span>
@@ -341,6 +414,113 @@ export function ContentManagementTab({ onToast }: { onToast: (message: string) =
           <p className="text-[11px] font-semibold text-ink2">
             {lang === "ru" ? "Требуется TELEGRAM_NEWS_CHANNEL и бот с правами администратора канала." : lang === "en" ? "Requires TELEGRAM_NEWS_CHANNEL and the bot as a channel admin." : "TELEGRAM_NEWS_CHANNEL va kanal admin huquqiga ega bot kerak."}
           </p>
+        </div>
+      ) : section === "tips" ? (
+        <div className="space-y-3">
+          <p className="text-[11px] leading-snug text-ink2">
+            {lang === "ru"
+              ? "Блок «Советы — Журнал о чистоте и уходе» на главной и экран «Журнал ухода». Демо-картинки удалены — добавьте свои: фото, заголовок (uz/ru/en) и шаги. Пусто — блок скрыт."
+              : lang === "en"
+                ? "The home “Tips” block and the Care journal screen. Demo images were removed — add your own: photo, title (uz/ru/en) and steps. Empty — the block is hidden."
+                : "Bosh sahifadagi «Maslahatlar» bloki va «Parvarish jurnali». Demo rasmlar o‘chirilgan — o‘zingiznikini qo‘shing: foto, sarlavha (uz/ru/en) va qadamlar. Bo‘sh — blok yashirinadi."}
+          </p>
+
+          {draft.tips.map((tip, i) => (
+            <div key={tip.id} className="space-y-3 rounded-[20px] border border-ink/18 bg-card p-4">
+              <div className="flex items-center gap-2">
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-amber font-display text-[11px] font-extrabold text-white">{i + 1}</span>
+                <div className="flex gap-1.5">
+                  <button onClick={() => moveTip(i, -1)} className="press rounded-[10px] bg-paper2 px-2 py-1 text-[11px] font-bold text-ink2">↑</button>
+                  <button onClick={() => moveTip(i, 1)} className="press rounded-[10px] bg-paper2 px-2 py-1 text-[11px] font-bold text-ink2">↓</button>
+                </div>
+                <div className="flex-1" />
+                <button
+                  onClick={() => setDraft((prev) => ({ ...prev, tips: prev.tips.filter((_, j) => j !== i) }))}
+                  className="press flex items-center gap-1 rounded-[10px] bg-[#B3402E]/10 px-2.5 py-1.5 text-[11px] font-bold text-[#B3402E]"
+                >
+                  <IconTrash size={12} /> {lang === "ru" ? "Удалить" : lang === "en" ? "Delete" : "O‘chirish"}
+                </button>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <button
+                  onClick={() => {}}
+                  className="relative h-[74px] w-[74px] shrink-0 overflow-hidden rounded-[16px] border border-dashed border-ink/25 bg-paper2"
+                >
+                  {tip.image ? (
+                    <img src={tip.image} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    <span className="flex h-full w-full items-center justify-center text-[9px] font-bold text-ink2">
+                      {lang === "ru" ? "Фото" : "Foto"}
+                    </span>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    className="absolute inset-0 cursor-pointer opacity-0"
+                    onChange={(e) => uploadTipImage(i, e.target.files?.[0])}
+                  />
+                </button>
+                <div className="min-w-0 flex-1 space-y-2">
+                  <div className="flex gap-2">
+                    <label className="flex flex-1 items-center justify-between rounded-[13px] bg-paper2/60 p-2.5 text-[11px] font-bold text-ink">
+                      {lang === "ru" ? "Видео" : "Video"}
+                      <input type="radio" checked={tip.kind === "video"} onChange={() => setTip(i, { kind: "video" })} />
+                    </label>
+                    <label className="flex flex-1 items-center justify-between rounded-[13px] bg-paper2/60 p-2.5 text-[11px] font-bold text-ink">
+                      {lang === "ru" ? "Статья" : "Maqola"}
+                      <input type="radio" checked={tip.kind === "article"} onChange={() => setTip(i, { kind: "article" })} />
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      max={99}
+                      value={tip.mins}
+                      onChange={(e) => setTip(i, { mins: Math.max(1, Math.min(99, Number(e.target.value) || 1)) })}
+                      className="w-14 rounded-[13px] border border-ink/15 bg-paper px-2 text-center text-[12px] font-bold text-ink outline-none focus:border-moss"
+                      title={lang === "ru" ? "Минут" : "Min"}
+                    />
+                  </div>
+                  <p className="mb-1 text-[10px] font-extrabold uppercase tracking-wider text-ink2">
+                    {lang === "ru" ? "Заголовок" : lang === "en" ? "Title" : "Sarlavha"}
+                  </p>
+                  <LocalInputs value={tip.title} onChange={(title) => setTip(i, { title })} />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-[10px] font-extrabold uppercase tracking-wider text-ink2">
+                  {lang === "ru" ? "Шаги (раскрываются на главной)" : lang === "en" ? "Steps (expand on the home screen)" : "Qadamlar (bosh sahifada ochiladi)"}
+                </p>
+                {tip.steps.map((step, j) => (
+                  <div key={j} className="flex items-start gap-2">
+                    <span className="mt-2 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber font-display text-[10px] font-bold text-white">{j + 1}</span>
+                    <div className="min-w-0 flex-1"><LocalInputs value={step} onChange={(next) => setTip(i, { steps: tip.steps.map((s, k) => (k === j ? next : s)) })} /></div>
+                    <button
+                      onClick={() => setTip(i, { steps: tip.steps.filter((_, k) => k !== j) })}
+                      className="press mt-1 rounded-[10px] bg-paper2 p-1.5 text-ink2"
+                    >
+                      <IconTrash size={12} />
+                    </button>
+                  </div>
+                ))}
+                <button
+                  onClick={() => setTip(i, { steps: [...tip.steps, { uz: "", ru: "", en: "" }] })}
+                  className="press flex h-9 w-full items-center justify-center gap-1.5 rounded-[13px] border border-dashed border-moss/40 bg-sagetint/30 text-[11px] font-bold text-pine"
+                >
+                  <IconPlus size={12} /> {lang === "ru" ? "Добавить шаг" : lang === "en" ? "Add step" : "Qadam qo‘shish"}
+                </button>
+              </div>
+            </div>
+          ))}
+
+          <button
+            onClick={addTip}
+            disabled={draft.tips.length >= 12}
+            className="press flex h-12 w-full items-center justify-center gap-2 rounded-[16px] border border-dashed border-moss/40 bg-sagetint/30 text-[13px] font-bold text-pine disabled:opacity-40"
+          >
+            <IconPlus size={14} /> {lang === "ru" ? "Добавить совет" : lang === "en" ? "Add tip" : "Maslahat qo‘shish"}
+          </button>
         </div>
       ) : section === "wholesale" ? (
         <div className="space-y-4 rounded-[20px] border border-ink/18 bg-card p-4">

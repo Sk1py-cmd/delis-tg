@@ -44,6 +44,14 @@ openssl rand -hex 32
 - [ ] `SUPABASE_URL`
 - [ ] `SUPABASE_SERVICE_KEY` (`service_role`, только backend)
 - [ ] `COURIER_CHAT_IDS`, если есть отдельные курьеры
+- [ ] `STAFF_TG_USER_IDS` — обязательный, если `ADMIN_CHAT_ID` групповой:
+      список Telegram user-id сотрудников, которые могут отвечать клиентам,
+      менять статусы заказов и делать рассылку (без него любой участник
+      группы получит эти права)
+- [ ] `TG_MONEY_INIT_DATA_MAX_AGE_SECONDS=900` — окно устаревания сессии
+      для оформления заказа/возвратов (по умолчанию 900 с, можно ослабить)
+- [ ] `CORS_EXTRA_ORIGINS` — только если нужен нестандартный preview-хост
+      (точные origin'ы через запятую; wildcard'ы платформ запрещены)
 - [ ] Убедиться, что `DELIS_DEV_ADMIN_TOKEN` отсутствует в production
 - [ ] Оставить `ENABLE_SEEDED_PROMOS=false`
 

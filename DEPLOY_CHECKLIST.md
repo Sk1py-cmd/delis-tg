@@ -22,6 +22,11 @@
 - [ ] `BOT_USERNAME`
 - [ ] `TZ=Asia/Tashkent`
 - [ ] `COURIER_CHAT_IDS` при наличии отдельных курьеров
+- [ ] `STAFF_TG_USER_IDS` — обязателен при групповом `ADMIN_CHAT_ID`
+      (кто из сотрудников может отвечать в support / менять статусы / рассылать)
+- [ ] `TG_MONEY_INIT_DATA_MAX_AGE_SECONDS` — окно сессии для checkout
+      (по умолчанию 900 с); `BACKUP_UPLOAD_SECONDS` — периодичность бэкапа
+      в Supabase (по умолчанию 300 с)
 - [ ] `SUPPORT_PHONE`, `SUPPORT_PHONE_2`, `SUPPORT_MANAGER_TG`
 - [ ] `SUPABASE_URL`, `SUPABASE_SERVICE_KEY` на ephemeral hosting
 - [ ] `SEED_ON_START=true` безопасно: новые записи создаются только в пустом каталоге, а media-upgrade меняет лишь известные старые default-пути

@@ -69,7 +69,7 @@ npm run typecheck && npm test && npm run build
 npm audit --omit=dev
 ```
 
-Current automated suite: 20 frontend tests and 172 backend tests.
+Current automated suite: 20 frontend tests and 239 backend tests.
 
 ## Production
 

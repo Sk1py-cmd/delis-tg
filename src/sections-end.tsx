@@ -5,7 +5,6 @@ import { useState } from "react";
 import { useI18n } from "./i18n";
 import { CONFIG } from "./config";
 import { useSiteSettings, phoneHref, mailHref, tgHref, hoursFor } from "./site-settings";
-import { NEWS } from "./data";
 import { haptic, Reveal } from "./kit";
 import {
   IconBank,
@@ -25,6 +24,7 @@ import {
 import { SectionHead } from "./chrome";
 import { LangPill } from "./sections-home";
 import { useManagedContent } from "./content-config";
+import { ProductImage } from "./kit";
 import { BrandLockup } from "./brand";
 
 /* ---------------- 7 · Wholesale ---------------- */
@@ -95,14 +95,18 @@ export function Wholesale({ onPartner, onBankDetails }: { onPartner: () => void;
 
 export function News() {
   const { t, lang } = useI18n();
+  /* Советы полностью управляются из админки («Контент» → «Советы»);
+     пока админ ничего не добавил — секция не показывается (демо удалены). */
+  const tips = useManagedContent().tips;
   const [openId, setOpenId] = useState<string | null>(null);
+  if (!tips.length) return null;
   return (
     <section className="pt-12">
       <div className="px-4 min-[390px]:px-5">
         <SectionHead title={t("newsTitle")} sub={t("newsSub")} />
       </div>
       <div className="mt-6 space-y-3 px-4 min-[390px]:px-5">
-        {NEWS.map((n, i) => {
+        {tips.map((n, i) => {
           const open = openId === n.id;
           return (
             <Reveal key={n.id} delay={i * 70}>
@@ -111,15 +115,17 @@ export function News() {
                   onClick={() => { haptic("light"); setOpenId(open ? null : n.id); }}
                   className="flex w-full items-center gap-3.5 p-3.5 text-left"
                 >
-                  <img src={n.cover} alt="" className="h-[74px] w-[74px] shrink-0 rounded-[18px] object-cover" />
+                  <div className="h-[74px] w-[74px] shrink-0 overflow-hidden rounded-[18px] bg-sagetint">
+                    <ProductImage src={n.image} className="h-full w-full object-cover" />
+                  </div>
                   <div className="min-w-0 flex-1">
                     <span className="rounded-full bg-sagetint px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.14em] text-pine">
-                      {n.tag?.[lang] ?? ""}
+                      {n.kind === "video" ? t("tagVideo") : t("tagArticle")}
                     </span>
                     <h3 className="mt-1.5 text-[14px] font-bold leading-snug text-ink">{n.title[lang]}</h3>
                     <p className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-ink/60">
                       <IconPlay size={10} />
-                      {t("tipSteps")} · {n.steps?.length ?? 0}
+                      {n.kind === "video" ? `${n.mins} ${lang === "ru" ? "мин" : lang === "en" ? "min" : "daq"}` : t("tipSteps")} · {n.steps?.length ?? 0}
                     </p>
                   </div>
                   <span

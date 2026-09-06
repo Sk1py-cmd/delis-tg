@@ -262,8 +262,8 @@ export const PRODUCTS: Product[] = [
     price: 50000,
     badge: "new",
     signature: true,
-    img: "images/prod-softener.jpg",
-    gallery: ["images/prod-softener.jpg", "images/prod-softener-linen.jpg"],
+    img: "",
+    gallery: [],
     name: "DELIS Luxe — Mato yumshatgichi",
     desc: {
       uz: "Kiyimlarni ipakdek yumshoq qiladi va uzoq saqlanuvchi nafis hid baxsh etadi",
@@ -307,8 +307,8 @@ export const PRODUCTS: Product[] = [
     cat: "home",
     price: 70000,
     badge: "new",
-    img: "images/prod-gel.jpg",
-    gallery: ["images/prod-gel.jpg", "images/prod-gel-laundry.jpg"],
+    img: "",
+    gallery: [],
     name: "DELIS Luxe — Kir yuvish geli",
     desc: {
       uz: "Kiyimlaringizga mukammal tozalik va yoqimli hid baxsh etadi",
@@ -356,208 +356,7 @@ export const CAT_COUNTS: Record<Cat, number> = {
   car: PRODUCTS.filter((p) => p.cat === "car").length,
 };
 
-export type NewsItem = {
-  id: string;
-  kind: "video" | "article";
-  cover?: string;
-  typo?: { num: string; tint: "sage" | "graphite" };
-  duration: string;
-  title: L10n;
-  tag?: L10n;
-  steps?: L10n[];
-};
 
-export const NEWS: NewsItem[] = [
-  {
-    id: "n1",
-    kind: "video",
-    cover: "images/news-car.jpg",
-    duration: "0:25",
-    tag: { uz: "Avto", ru: "Авто", en: "Car" },
-    title: {
-      uz: "Avtoni chiziqlarsiz yuvish",
-      ru: "Мойка авто без царапин",
-      en: "Washing a car without scratches",
-    },
-    steps: [
-      {
-        uz: "Avval chang va qumni suv bilan yuvib tashlang — aynan qum chiziqlar qoldiradi",
-        ru: "Сначала смойте пыль и песок водой — именно песок оставляет царапины",
-        en: "First rinse off dust and sand with water — sand is what leaves scratches",
-      },
-      {
-        uz: "Shampunni yumshoq gubkaga surtib, yuqoridan pastga yuving",
-        ru: "Нанесите шампунь на мягкую губку, мойте сверху вниз",
-        en: "Apply shampoo to a soft mitt and wash top to bottom",
-      },
-      {
-        uz: "Ko'pikni yuvib, darhol mikrofiber bilan quriting",
-        ru: "Смойте пену и сразу высушите микрофиброй — не давайте каплям высохнуть",
-        en: "Rinse off the foam and dry with microfiber right away",
-      },
-      {
-        uz: "Himoya mumi surting — yaltirash uzoq saqlanadi, kamroq ifloslanadi",
-        ru: "Нанесите защитный воск — блеск дольше, грязи прилипает меньше",
-        en: "Apply protective wax — longer shine, less dirt sticks",
-      },
-    ],
-  },
-  {
-    id: "n2",
-    kind: "video",
-    cover: "images/prod-glass.jpg",
-    duration: "0:20",
-    tag: { uz: "Uy", ru: "Дом", en: "Home" },
-    title: {
-      uz: "Oynalar: uch qoida",
-      ru: "Стёкла без разводов",
-      en: "Glass: three rules",
-    },
-    steps: [
-      {
-        uz: "Tozalagichni nam mikrofiberga surtib, oynani arting",
-        ru: "Нанесите очиститель на влажную микрофибру и протрите стекло",
-        en: "Apply cleaner to a damp microfiber cloth and wipe the glass",
-      },
-      {
-        uz: "Quruq latta bilan qolgan moddani arting",
-        ru: "Сухой тканью снимите остатки средства",
-        en: "Remove remaining product with a dry cloth",
-      },
-      {
-        uz: "Tashqaridan vertikal, ichkaridan gorizontal — izlar shunda ko'rinadi",
-        ru: "Снаружи — вертикально, внутри — горизонтально: так видно разводы",
-        en: "Vertical outside, horizontal inside — streaks become visible",
-      },
-    ],
-  },
-  {
-    id: "n3",
-    kind: "video",
-    cover: "images/prod-floor.jpg",
-    duration: "0:20",
-    tag: { uz: "Uy", ru: "Дом", en: "Home" },
-    title: {
-      uz: "Laminat parvarishi",
-      ru: "Уход за ламинатом",
-      en: "Caring for laminate",
-    },
-    steps: [
-      {
-        uz: "Supurib yoki changyutkich bilan o'ting — qum qoplamani tirnaydi",
-        ru: "Подметите или пропылесосьте — песок царапает покрытие",
-        en: "Sweep or vacuum first — sand scratches the floor",
-      },
-      {
-        uz: "Vositani suvda suyultiring: 5 litrga 2 qopqoq",
-        ru: "Разведите средство: 2 колпачка на 5 литров воды",
-        en: "Dilute the product: 2 caps per 5 liters of water",
-      },
-      {
-        uz: "Yaxshi siqilgan shvabra bilan arting — ko'lmak qoldirmang",
-        ru: "Протрите хорошо отжатой шваброй — без луж",
-        en: "Wipe with a well-wrung mop — no puddles",
-      },
-      {
-        uz: "Oyiga bir marta politol — yaltiroqlikni qaytaradi",
-        ru: "Раз в месяц — полироль, чтобы вернуть блеск",
-        en: "Once a month use polish to restore the shine",
-      },
-    ],
-  },
-  {
-    id: "n4",
-    kind: "video",
-    cover: "images/cat-car.jpg",
-    duration: "0:14",
-    tag: { uz: "Avto", ru: "Авто", en: "Car" },
-    title: {
-      uz: "Disklar va shinalar",
-      ru: "Диски и шины",
-      en: "Wheels and tires",
-    },
-    steps: [
-      {
-        uz: "Diskni suv bilan ho'llab, tozalagich surting",
-        ru: "Смочите диск водой и нанесите очиститель",
-        en: "Wet the wheel and apply the cleaner",
-      },
-      {
-        uz: "Cho'tka bilan tozalab, suv bilan yuvib tashlang",
-        ru: "Почистите щёткой и смойте водой",
-        en: "Scrub with a brush and rinse off",
-      },
-      {
-        uz: "Shinalarga konditsioner surting — yangi ko'rinish va rezina himoyasi",
-        ru: "Нанесите кондиционер для шин — свежий вид и защита резины",
-        en: "Apply tire conditioner — fresh look and rubber protection",
-      },
-    ],
-  },
-  {
-    id: "n5",
-    kind: "video",
-    cover: "images/cat-home.jpg",
-    duration: "0:14",
-    tag: { uz: "Uy", ru: "Дом", en: "Home" },
-    title: {
-      uz: "Oshxona 10 daqiqada",
-      ru: "Кухня за 10 минут",
-      en: "Kitchen in 10 minutes",
-    },
-    steps: [
-      {
-        uz: "Vositani sirtga purkang",
-        ru: "Распылите средство на поверхность",
-        en: "Spray the product onto the surface",
-      },
-      {
-        uz: "1–2 daqiqa kuting — yog' o'zi eriydi",
-        ru: "Оставьте на 1–2 минуты — жир растворится",
-        en: "Wait 1–2 minutes — grease dissolves",
-      },
-      {
-        uz: "Gubka bilan artib, suv bilan yuving",
-        ru: "Протрите губкой и смойте водой",
-        en: "Wipe with a sponge and rinse",
-      },
-    ],
-  },
-  {
-    id: "n6",
-    kind: "video",
-    cover: "images/prod-shampoo.jpg",
-    duration: "0:15",
-    tag: { uz: "Uy", ru: "Дом", en: "Home" },
-    title: {
-      uz: "Obiyka va to'qimachilik",
-      ru: "Обивка и текстиль",
-      en: "Upholstery and textiles",
-    },
-    steps: [
-      {
-        uz: "Obiykani changyutkich bilan tozalang",
-        ru: "Пропылесосьте обивку",
-        en: "Vacuum the upholstery",
-      },
-      {
-        uz: "Dog'ga ko'pik surtib, yumshoq cho'tka bilan ishqalang",
-        ru: "Вспеньте средство на пятне, потрите мягкой щёткой",
-        en: "Foam the product on the stain and scrub gently",
-      },
-      {
-        uz: "Ko'pikni quruq latta bilan yig'ing",
-        ru: "Соберите пену сухой тканью",
-        en: "Collect the foam with a dry cloth",
-      },
-      {
-        uz: "Xonani shamollating — obiyka yangiday",
-        ru: "Проветрите — и обивка как новая",
-        en: "Air the room — upholstery looks new",
-      },
-    ],
-  },
-];
 
 export type DeliveryMethod = "courier_uzb" | "bts_express" | "pickup";
 export type PaymentMethod =

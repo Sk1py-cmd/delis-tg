@@ -1813,7 +1813,7 @@ export function AdminPanelSheet({
                   <textarea
                     value={importText}
                     onChange={(e) => setImportText(e.target.value)}
-                    placeholder={"Window Cleaner;55000;home;500 ml;24;40000;images/prod-glass.jpg\nCar Wax;128000;car;500 ml;12;90000;prod-wax.jpg|prod-wheel.jpg"}
+                    placeholder={"Window Cleaner;55000;home;500 ml;24;40000;\nCar Wax;128000;car;500 ml;12;90000;https://example.com/wax.jpg|https://example.com/wax-2.jpg"}
                     rows={4}
                     className="w-full resize-none rounded-[12px] border border-ink/15 bg-paper px-3 py-2.5 font-mono text-[12px] font-semibold text-ink outline-none focus:border-moss"
                   />

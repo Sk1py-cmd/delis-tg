@@ -11,14 +11,14 @@ const db = getDb();
 const products = [
   {
     id: "luxe-softener", cat: "home", price: 50000, cost: 32500, name_uz: "DELIS Luxe — Mato yumshatgichi", name_ru: "DELIS Luxe — Кондиционер для белья", name_en: "DELIS Luxe — Fabric Conditioner",
-    volume: "1.4 L", badge: "new", stock: 100, rating: 5, reviews: 0, img: "images/prod-softener.jpg",
+    volume: "1.4 L", badge: "new", stock: 100, rating: 5, reviews: 0, img: "",
     features_uz: "Matoni yumshatadi va dazmollashni osonlashtiradi,Uzoq saqlanuvchi yoqimli hid,Oq va rangli kiyimlar uchun mos",
     features_ru: "Смягчает ткань и облегчает глажение,Стойкий приятный аромат,Подходит для белого и цветного белья",
     features_en: "Softens fabric and eases ironing,Long-lasting pleasant scent,Suitable for white and coloured fabrics",
   },
   {
     id: "luxe-gel", cat: "home", price: 70000, cost: 45500, name_uz: "DELIS Luxe — Kir yuvish geli", name_ru: "DELIS Luxe — Гель для стирки", name_en: "DELIS Luxe — Laundry Gel",
-    volume: "2 L", badge: "new", stock: 100, rating: 5, reviews: 0, img: "images/prod-gel.jpg",
+    volume: "2 L", badge: "new", stock: 100, rating: 5, reviews: 0, img: "",
     features_uz: "Kuchli dog'larni samarali ketkazadi,Ranglarni asraydigan oqartirish,Ekzotik orxideya ifori",
     features_ru: "Эффективно удаляет стойкие пятна,Отбеливает не вредя цвету,Стойкий аромат экзотической орхидеи",
     features_en: "Effectively removes tough stains,Whitening that protects colours,Long-lasting exotic orchid scent",

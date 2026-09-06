@@ -636,3 +636,32 @@ export function compressImageFile(file: File, maxEdge = 900, quality = 0.82): Pr
     reader.readAsDataURL(file);
   });
 }
+
+/**
+ * Изображение товара с фирменным плейсхолдером: пока админ не загрузил фото
+ * (демо-картинки из каталога удалены), карточка показывает аккуратную
+ * заглушку вместо битой картинки.
+ */
+export function ProductImage({ src, alt, className = "" }: { src?: string; alt?: string; className?: string }) {
+  if (src) {
+    return <img src={src} alt={alt || ""} loading="lazy" decoding="async" className={className} />;
+  }
+  return (
+    <div
+      className={`flex h-full w-full flex-col items-center justify-center gap-1.5 bg-gradient-to-br from-sagetint via-card to-amber/10 ${className}`}
+      aria-label={alt || "DELIS"}
+    >
+      <svg width="34" height="46" viewBox="0 0 34 46" fill="none" className="drop-shadow-sm">
+        <path
+          d="M17 2C17 2 6 15 6 24a11 11 0 0 0 22 0C28 15 17 2 17 2Z"
+          stroke="currentColor"
+          strokeWidth="2.4"
+          strokeLinejoin="round"
+          className="text-pine/60"
+        />
+        <path d="M12 25a5 5 0 0 0 4.2 5.4" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" className="text-pine/60" />
+      </svg>
+      <span className="font-display text-[10px] font-extrabold uppercase tracking-[0.28em] text-pine/50">DELIS</span>
+    </div>
+  );
+}
